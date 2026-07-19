@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Foldicon (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Foldicon (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
