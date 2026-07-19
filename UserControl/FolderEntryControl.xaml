@@ -22,7 +22,7 @@
             <TextBlock
                 VerticalAlignment="Center"
                 Text="{x:Bind FolderEntry.FolderName, Mode=OneWay}"
-                Style="{StaticResource BodyTextBlockStyle}"  />
+                Style="{StaticResource BodyTextBlockStyle}" />
         </StackPanel>
 
         <StackPanel Grid.Column="1"
@@ -31,20 +31,20 @@
                     HorizontalAlignment="Right">
             <!-- 文件夹可选自定义图标 -->
             <ComboBox
-                x:Name="ComboSelectedIcon"
+                x:Name="IconSelector"
                 ItemsSource="{x:Bind FolderEntry.OptionalIcons, Mode=OneWay}"
-                      SelectedValue="{x:Bind FolderEntry.SelectedIcon, Mode=TwoWay}">
+                SelectedValue="{x:Bind FolderEntry.SelectedIcon, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="struct:FileIcon">
-                        <StackPanel Orientation="Horizontal" Spacing="8" >
-                            <Image Width="24" Height="24" Source="{x:Bind Icon}" VerticalAlignment="Center"/>
-                            <TextBlock Text="{x:Bind FullPath}" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <Image Width="24" Height="24" Source="{x:Bind Icon}" VerticalAlignment="Center" />
+                            <TextBlock Text="{x:Bind FullPath}" VerticalAlignment="Center" />
                         </StackPanel>
-                    </DataTemplate>   
+                    </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
             <!-- 选择其他自定义图标 -->
-            <Button Content="浏览" Click="PickOtherIconButton_Click"/>
+            <Button Content="浏览" Click="PickOtherIconButton_Click" />
             <!-- 应用自定义图标 -->
             <Button
                 Click="ApplyButton_Click"

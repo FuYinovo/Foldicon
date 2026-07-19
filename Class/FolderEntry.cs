@@ -1,22 +1,21 @@
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Struct;
 using Foldicon.Tool;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Class;
 
 public partial class FolderEntry(string fullPath) : ObservableObject
 {
     public readonly string FullPath = fullPath;
-    public readonly string FolderName = Path.GetFileName(fullPath);
+    public string FolderName => Path.GetFileName(FullPath);
 
     [ObservableProperty] private ImageSource _currentIcon =
         IconHelper.GetFolderIcon(fullPath) ?? throw new Exception($"读取'{fullPath}'文件夹图标失败");
+
     [ObservableProperty] private ObservableCollection<FileIcon> _optionalIcons = new(IconHelper.GetExeIcons(fullPath));
     [ObservableProperty] private FileIcon? _selectedIcon;
 
