@@ -6,8 +6,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:class="using:Foldicon.Class"
-    xmlns:userControl="using:Foldicon.UserControl"
     mc:Ignorable="d"
     Title="Foldicon">
 
@@ -15,64 +13,14 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid Padding="16" RowSpacing="12">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <Grid VerticalAlignment="Top" Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-
-            <TextBox
-                IsReadOnly="True"
-                Text="{x:Bind ParentFolder, Mode=OneWay}"
-                Grid.Column="0"
-                PlaceholderText="请选择文件夹路径..." />
-            <Button
-                Click="PickFolderButton_Click"
-                Grid.Column="1"
-                Content="选择文件夹"
-                Margin="12,0,0,0" />
-            <Button
-                Click="RefreshButton_Click"
-                Grid.Column="2"
-                Content="刷新"
-                Margin="6,0,0,0" />
-            <Button
-                Style="{ThemeResource AccentButtonStyle}"
-                Click="ApplyAllButton_Click"
-                Grid.Column="3"
-                Content="应用所有图标"
-                Margin="6,0,0,0" />
-
-        </Grid>
-
-        <Line Grid.Row="1"
-              Stroke="{ThemeResource AccentAAFillColorDisabled}"
-              X1="0" Y1="0"
-              X2="999999" Y2="0"
-              StrokeThickness="1" />
-
-        <Grid Grid.Row="2">
-            <ScrollViewer>
-                <ItemsRepeater ItemsSource="{x:Bind SubFolders, Mode=OneWay}" >
-                    <ItemsRepeater.ItemTemplate>
-                        <DataTemplate x:DataType="class:FolderEntry">
-                            <userControl:FolderEntryControl FolderEntry="{x:Bind}" />
-                        </DataTemplate>
-                    </ItemsRepeater.ItemTemplate>
-                    <ItemsRepeater.Layout>
-                        <StackLayout Spacing="8"/>
-                    </ItemsRepeater.Layout>
-                </ItemsRepeater>
-            </ScrollViewer>
-        </Grid>
+    <Grid>
+        <NavigationView
+            SelectionChanged="NavigationView_OnSelectionChanged"
+            IsBackButtonVisible="Collapsed">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Icon="Edit" Content="图标编辑器" Tag="IconEditor" />
+            </NavigationView.MenuItems>
+            <Frame x:Name="ContentFrame" Padding="24" CacheSize="16" />
+        </NavigationView>
     </Grid>
 </Window>

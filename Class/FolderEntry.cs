@@ -41,7 +41,7 @@ public partial class FolderEntry : ObservableObject
     /// </summary>
     public void Apply()
     {
-        if (IsSelectedIconChanged) return;
+        if (!IsSelectedIconChanged) return;
         IconHelper.SetFolderIcon(FullPath, OptionalIcons[SelectedIndex].FullPath);
         AppliedIndex = SelectedIndex;
         Refresh();
