@@ -32,7 +32,7 @@
 
             <TextBox
                 IsReadOnly="True"
-                Text="{x:Bind ParentFolder, Mode=TwoWay}"
+                Text="{x:Bind ParentFolder, Mode=OneWay}"
                 Grid.Column="0"
                 PlaceholderText="请选择文件夹路径..." />
             <Button

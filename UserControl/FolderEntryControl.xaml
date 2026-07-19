@@ -33,7 +33,7 @@
             <ComboBox
                 x:Name="IconSelector"
                 ItemsSource="{x:Bind FolderEntry.OptionalIcons, Mode=OneWay}"
-                SelectedValue="{x:Bind FolderEntry.SelectedIcon, Mode=TwoWay}">
+                SelectedIndex="{x:Bind FolderEntry.SelectedIndex, Mode=TwoWay}">
                 <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="struct:FileIcon">
                         <StackPanel Orientation="Horizontal" Spacing="8">

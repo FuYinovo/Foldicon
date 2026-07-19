@@ -14,7 +14,7 @@ namespace Foldicon;
 
 public sealed partial class MainWindow : INotifyPropertyChanged
 {
-    private string _parentFolder = "";
+    private string _parentFolder = string.Empty;
 
     public string ParentFolder
     {
