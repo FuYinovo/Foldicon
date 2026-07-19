@@ -62,7 +62,7 @@
 
         <Grid Grid.Row="2">
             <ScrollViewer>
-                <ItemsRepeater ItemsSource="{x:Bind SubFolders, Mode=OneWay}">
+                <ItemsRepeater ItemsSource="{x:Bind SubFolders, Mode=OneWay}" >
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="class:FolderEntry">
                             <userControl:FolderEntryControl FolderEntry="{x:Bind}" />

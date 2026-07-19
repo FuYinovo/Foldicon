@@ -17,8 +17,14 @@ public partial class FolderEntry : ObservableObject
 
     [ObservableProperty] private ImageSource _currentIcon;
     [ObservableProperty] private ObservableCollection<FileIcon> _optionalIcons;
-    [ObservableProperty] private int _selectedIndex = -1;
 
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
+    private int _selectedIndex = -1;
+
+    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
+    private int _appliedIndex = -1;
+
+    public bool IsSelectedIconChanged => SelectedIndex != AppliedIndex;
 
     public FolderEntry(string fullPath)
     {
@@ -27,6 +33,7 @@ public partial class FolderEntry : ObservableObject
         OptionalIcons = new ObservableCollection<FileIcon>(IconHelper.GetExeIcons(fullPath));
 
         InitIconSelectorIndex();
+        AppliedIndex = SelectedIndex;
     }
 
     /// <summary>
@@ -34,7 +41,9 @@ public partial class FolderEntry : ObservableObject
     /// </summary>
     public void Apply()
     {
+        if (IsSelectedIconChanged) return;
         IconHelper.SetFolderIcon(FullPath, OptionalIcons[SelectedIndex].FullPath);
+        AppliedIndex = SelectedIndex;
         Refresh();
     }
 
@@ -47,7 +56,7 @@ public partial class FolderEntry : ObservableObject
     }
 
     /// <summary>
-    /// 添加自定义图标
+    /// 添加自定义图标并选中
     /// </summary>
     /// <param name="fullPath">图标完整路径</param>
     public void AddCustomIcon(string fullPath)
@@ -55,12 +64,13 @@ public partial class FolderEntry : ObservableObject
         var icon = IconHelper.GetFileIcon(fullPath);
         if (icon is null) return;
         OptionalIcons.Add(new FileIcon(fullPath, icon));
+        SelectedIndex = OptionalIcons.Count - 1;
     }
 
     /// <summary>
     /// 读 desktop.ini，把当前已应用图标定位到可选列表的索引
     /// </summary>
-    private void InitIconSelectorIndex()
+    public void InitIconSelectorIndex()
     {
         // 读取 desktop.ini 中指定的文件夹图标
         var iniPath = Path.Combine(FullPath, "desktop.ini");

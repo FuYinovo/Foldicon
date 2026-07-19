@@ -31,9 +31,11 @@
                     HorizontalAlignment="Right">
             <!-- 文件夹可选自定义图标 -->
             <ComboBox
-                x:Name="IconSelector"
                 ItemsSource="{x:Bind FolderEntry.OptionalIcons, Mode=OneWay}"
-                SelectedIndex="{x:Bind FolderEntry.SelectedIndex, Mode=TwoWay}">
+                SelectedIndex="{x:Bind FolderEntry.SelectedIndex, Mode=OneWay}"
+                SelectionChanged="IconSelector_Changed">
+                <!-- SelectedIndex 设为 OneWay，防止 TwoWay 在虚拟化控件回收时覆写 -1 污染数据 -->
+                <!-- SelectionChanged 手动处理 UI 操作 -->
                 <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="struct:FileIcon">
                         <StackPanel Orientation="Horizontal" Spacing="8">
@@ -47,6 +49,7 @@
             <Button Content="浏览" Click="PickOtherIconButton_Click" />
             <!-- 应用自定义图标 -->
             <Button
+                IsEnabled="{x:Bind FolderEntry.IsSelectedIconChanged, Mode=OneWay}"
                 Click="ApplyButton_Click"
                 Style="{ThemeResource AccentButtonStyle}"
                 Padding="18,6"
