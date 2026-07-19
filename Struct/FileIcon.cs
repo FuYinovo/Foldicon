@@ -1,10 +1,9 @@
-﻿using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
+﻿using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Struct;
 
-public readonly struct FileIcon(string fullPath, BitmapImage icon)
+public readonly record struct FileIcon(string FullPath, BitmapImage Icon)
 {
-    public readonly string FullPath { get; } = fullPath;
-    public readonly BitmapImage Icon { get; } = icon;
+    public string FullPath { get; } = FullPath;
+    public BitmapImage Icon { get; } = Icon;
 }

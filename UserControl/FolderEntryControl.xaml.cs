@@ -1,17 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Foldicon.Class;
-using Foldicon.Struct;
 using Foldicon.Tool;
 using IniFileSharp;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
-using Vanara.Extensions;
 using FileIcon = Foldicon.Struct.FileIcon;
 
 namespace Foldicon.UserControl;

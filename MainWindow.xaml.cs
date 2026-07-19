@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Class;
 using Foldicon.Tool;
 using Microsoft.UI.Xaml;

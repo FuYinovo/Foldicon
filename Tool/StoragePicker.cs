@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.UI;
-using Microsoft.UI.Xaml;
 using Microsoft.Windows.Storage.Pickers;
 
 namespace Foldicon.Tool;
@@ -19,7 +18,7 @@ public static class StoragePicker
         {
             CommitButtonText = "选择此文件夹",
             SuggestedStartLocation = PickerLocationId.ComputerFolder,
-            ViewMode = PickerViewMode.List,
+            ViewMode = PickerViewMode.List
         };
 
         var folder = await picker.PickSingleFolderAsync();
@@ -36,7 +35,7 @@ public static class StoragePicker
         {
             CommitButtonText = "选择此文件",
             SuggestedStartLocation = PickerLocationId.ComputerFolder,
-            ViewMode = PickerViewMode.List,
+            ViewMode = PickerViewMode.List
         };
         foreach (var fileType in fileTypeFilter) picker.FileTypeFilter.Add(fileType);
 
