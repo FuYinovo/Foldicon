@@ -16,7 +16,7 @@ public partial class FolderEntry(string fullPath) : ObservableObject
     public readonly string FolderName = Path.GetFileName(fullPath);
 
     [ObservableProperty] private ImageSource _currentIcon =
-        IconHelper.GetIcon(fullPath, true) ?? throw new Exception($"读取{fullPath}的图标为null");
+        IconHelper.GetFolderIcon(fullPath) ?? throw new Exception($"读取'{fullPath}'文件夹图标失败");
     [ObservableProperty] private ObservableCollection<FileIcon> _optionalIcons = new(IconHelper.GetExeIcons(fullPath));
     [ObservableProperty] private FileIcon? _selectedIcon;
 
@@ -36,6 +36,6 @@ public partial class FolderEntry(string fullPath) : ObservableObject
     /// </summary>
     private void Refresh()
     {
-        CurrentIcon = IconHelper.GetIcon(FullPath,true) ?? new BitmapImage();
+        CurrentIcon = IconHelper.GetFolderIcon(FullPath) ?? throw new Exception($"读取'{FullPath}'文件夹图标失败");
     }
 }

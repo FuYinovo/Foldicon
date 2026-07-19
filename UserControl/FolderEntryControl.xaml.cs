@@ -54,7 +54,7 @@ public sealed partial class FolderEntryControl
         btn.IsEnabled = true;
 
         if (fullPath is null) return;
-        var icon = IconHelper.GetIcon(fullPath, false);
+        var icon = IconHelper.GetFileIcon(fullPath);
         if (icon is null) return;
         FolderEntry.OptionalIcons.Add(new FileIcon(fullPath, icon));
     }

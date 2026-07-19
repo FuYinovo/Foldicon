@@ -13,10 +13,13 @@ using Vanara.PInvoke;
 
 namespace Foldicon.Tool;
 
+/// <summary>
+/// System.Drawing.Common 版本必须低于ver9.0
+/// </summary>
 public static class IconHelper
 {
     /// <summary>
-    /// 给文件夹设置图标
+    /// 设置文件夹图标
     /// </summary>
     /// <param name="folderPath">文件夹的完整路径</param>
     /// <param name="iconPath">图标的完整路径</param>
@@ -31,6 +34,25 @@ public static class IconHelper
         Shell32.SHGetSetFolderCustomSettings(ref settings, folderPath, Shell32.FCS.FCS_FORCEWRITE);
     }
 
+    /// <summary>
+    /// 获取文件夹的图标
+    /// </summary>
+    /// <param name="path">文件夹完整路径</param>
+    /// <returns>BitmapImage；失败返回 null</returns>
+    public static BitmapImage? GetFolderIcon(string path)
+    {
+        return GetIcon(path, true);
+    }
+
+    /// <summary>
+    /// 获取文件的图标
+    /// </summary>
+    /// <param name="path">文件完整路径</param>
+    /// <returns>BitmapImage；失败返回 null</returns>
+    public static BitmapImage? GetFileIcon(string path)
+    {
+        return GetIcon(path, false);
+    }
 
     /// <summary>
     /// 获取文件夹下所有exe程序的图标
@@ -49,24 +71,23 @@ public static class IconHelper
             if (!extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)) continue; // 必须为exe
 
             // 图标
-            var (iconState, _) = Shell32GetIcon(file, false);
-            if (!iconState) continue; // 必须不为null
+            var icon = GetFileIcon(file);
+            if (icon is null) continue; // 必须不为null
 
             // 创建实例
-            icons.Add(new FileIcon(file, GetIcon(file, false) ?? throw new Exception($"读取{file}的图标为null")));
+            icons.Add(new FileIcon(file, icon));
         }
 
         return icons;
     }
 
     /// <summary>
-    /// 获取文件(夹)的图标
-    /// <para>警告：System.Drawing.Common 库版本必须低于ver9.0</para>
+    /// 获取文件(夹)的图标位图
     /// </summary>
     /// <param name="path">文件夹完整路径</param>
     /// <param name="isFolder">是否是文件夹</param>
     /// <returns>BitmapImage；失败返回 null</returns>
-    public static BitmapImage? GetIcon(string path, bool isFolder)
+    private static BitmapImage? GetIcon(string path, bool isFolder)
     {
         var (isSucceed, info) = Shell32GetIcon(path, isFolder);
         if (!isSucceed || info.hIcon.IsInvalid) return null;
@@ -83,9 +104,8 @@ public static class IconHelper
         return image;
     }
 
-
     /// <summary>
-    /// 使用 Shell32 获取文件或文件夹的图标
+    /// 使用 Shell32 获取文件或文件夹的图标信息
     /// </summary>
     /// <para>警告：路径斜杠必须为"\"</para>
     /// <param name="path">完整路径</param>
