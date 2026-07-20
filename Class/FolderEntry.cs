@@ -2,11 +2,13 @@ using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Struct;
 using Foldicon.Tool;
 using IniFileSharp;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Class;
 
@@ -75,11 +77,16 @@ public partial class FolderEntry : ObservableObject
         // 读取 desktop.ini 中指定的文件夹图标
         var iniPath = Path.Combine(FullPath, "desktop.ini");
         if (!File.Exists(iniPath)) return;
-        var iconResource = GetIconResource(iniPath);
-        if (iconResource is null) return;
-        var iconPath = ResolveIconPath(iconResource);
-        if (iconPath is null) return;
 
+        // 尝试 UTF-8 读取路径
+        var iconPath = GetIconPath(iniPath, Encoding.UTF8);
+        // 若路径或图标为 null，尝试 GBK 读取路径
+        if (iconPath is null || !TryGetIcon(iconPath, out var icon))
+        {
+            iconPath = GetIconPath(iniPath, Encoding.GetEncoding("GBK"));
+            // GBK 也失败，直接返回
+            if (iconPath is null || !TryGetIcon(iconPath, out icon)) return;
+        }
 
         // 尝试在自定义图标可选项里查找
         for (var i = 0; i < OptionalIcons.Count; i++)
@@ -92,41 +99,45 @@ public partial class FolderEntry : ObservableObject
         }
 
         // 未找到：创建新的自定义图标可选项
-        var icon = IconHelper.GetFileIcon(iconPath);
-        if (icon is null) return; // TODO)) 因为 desktop.ini 将中文存储为 GB2312 编码导致读取失败
+        if (icon is null) return;
         OptionalIcons.Add(new FileIcon(iconPath, icon));
         SelectedIndex = OptionalIcons.Count - 1;
 
         return;
 
-        string? GetIconResource(string iniFile)
+        string? GetIconPath(string iniFile, Encoding encoding)
         {
-            var iniSharp = new IniSharp(iniFile);
-
+            var iniSharp = new IniSharp(iniFile, encoding);
             try
             {
-                return iniSharp.GetValue(".ShellClassInfo", "IconResource"); // 节名带上"."
+                var resource = iniSharp.GetValue(".ShellClassInfo", "IconResource");
+                return resource is null ? null : ConsumeResource(resource);
             }
             catch (ArgumentNullException)
             {
-                // IniSharp.GetValue 在键/节不存在且 defaultValue 为 null 时会抛出 ArgumentNullException，
+                // IniSharp.GetValue 在键/节不存在且 defaultValue 为 null 时会抛出 ArgumentNullException
                 return null;
             }
         }
 
-        string? ResolveIconPath(string resource)
+        string? ConsumeResource(string resource)
         {
             var path = resource.Split(",").FirstOrDefault(string.Empty);
             if (string.IsNullOrEmpty(path)) return null;
 
             // 忽略 .dll 图标
-            // 例如：IconResource=%SystemRoot%\system32\imageres.dll,-189
             if (path.EndsWith(".dll")) return null;
 
             // 相对路径 -> 绝对路径
             if (!Path.IsPathRooted(path)) path = Path.Combine(FullPath, path);
 
             return path;
+        }
+
+        bool TryGetIcon(string path, out BitmapImage? bitmap)
+        {
+            bitmap = IconHelper.GetFileIcon(path);
+            return bitmap is not null;
         }
     }
 }

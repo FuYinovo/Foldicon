@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Foldicon.Page;
 using Microsoft.UI.Xaml.Controls;
 
@@ -12,6 +13,7 @@ public sealed partial class MainWindow
     {
         InitializeComponent();
         ContentFrame.Navigate(DefaultPage);
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
     private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
