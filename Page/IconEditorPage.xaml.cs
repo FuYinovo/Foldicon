@@ -26,7 +26,20 @@ public sealed partial class IconEditor : INotifyPropertyChanged
         set => SetField(ref _parentFolder, value);
     }
 
-    public ObservableCollection<FolderEntry> SubFolders { get; } = [];
+    public ObservableCollection<FolderEntry> SubFolders { get; } = []; // 数据源
+    public ObservableCollection<FolderEntry> FilteredSubFolders { get; } = []; // UI 显示
+    public string FolderNameFilter { get; set; } = string.Empty;
+    public bool IsSubFoldersLoaded { get; set; }
+
+    /// <summary>
+    /// 搜索框改变时应用筛选
+    /// </summary>
+    private void FolderNameFilter_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (string.IsNullOrWhiteSpace(sender.Text)) return; // 忽略空格
+        ApplyFilter();
+    }
+
 
     /// <summary>
     /// 「选择文件夹」按钮
@@ -40,6 +53,7 @@ public sealed partial class IconEditor : INotifyPropertyChanged
 
         if (fullPath is null) return;
         ParentFolder = fullPath;
+        IsSubFoldersLoaded = true;
         RefreshSubfolders();
     }
 
@@ -49,14 +63,6 @@ public sealed partial class IconEditor : INotifyPropertyChanged
     private void ApplyAllButton_Click(object sender, RoutedEventArgs e)
     {
         foreach (var entry in SubFolders) entry.Apply();
-    }
-
-    /// <summary>
-    /// 「刷新」按钮
-    /// </summary>
-    private void RefreshButton_Click(object sender, RoutedEventArgs e)
-    {
-        RefreshSubfolders();
     }
 
 
@@ -79,6 +85,26 @@ public sealed partial class IconEditor : INotifyPropertyChanged
             {
                 Console.WriteLine(accessException.Message);
             }
+        }
+
+        ApplyFilter();
+    }
+
+    /// <summary>
+    /// 应用文件夹筛选
+    /// </summary>
+    private void ApplyFilter()
+    {
+        FilteredSubFolders.Clear();
+        foreach (var folder in SubFolders)
+        {
+            // 名称筛选
+            if (!folder.FolderName.Contains(FolderNameFilter)) continue;
+
+            // TODO)) 类型筛选
+
+            // 通过筛选
+            FilteredSubFolders.Add(folder);
         }
     }
 
