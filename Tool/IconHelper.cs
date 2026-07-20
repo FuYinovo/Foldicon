@@ -87,8 +87,7 @@ public static class IconHelper
     /// <returns>BitmapImage；失败返回 null</returns>
     private static BitmapImage? GetIcon(string path, bool isFolder)
     {
-        var (isSucceed, info) = Shell32GetIcon(path, isFolder);
-        if (!isSucceed || info.hIcon.IsInvalid) return null;
+        if (!TryShell32GetIcon(path, isFolder, out var info) || info.hIcon.IsInvalid) return null;
 
         // 使用 Icon.FromHandle，防止 Bitmap.FromHIcon 丢失透明度
         var bitmap = Icon.FromHandle(info.hIcon.DangerousGetHandle()).ToBitmap();
@@ -103,14 +102,15 @@ public static class IconHelper
     }
 
     /// <summary>
-    /// 使用 Shell32 获取文件或文件夹的图标信息
+    /// 尝试使用 Shell32 获取文件或文件夹的图标信息
     /// </summary>
     /// <para>警告：路径斜杠必须为"\"</para>
     /// <param name="path">完整路径</param>
     /// <param name="isFolder">是否为文件夹</param>
+    /// <param name="iconInfo">接收图标信息的 <see cref="Shell32.SHFILEINFO"/></param>
     /// <example>路径斜杠错误</example>
-    /// <returns>(是否成功, 图标信息)</returns>
-    private static (bool isSuccesed, Shell32.SHFILEINFO info) Shell32GetIcon(string path, bool isFolder)
+    /// <returns>是否成功</returns>
+    private static bool TryShell32GetIcon(string path, bool isFolder, out Shell32.SHFILEINFO iconInfo)
     {
         if (path.Contains('/')) throw new Exception("路径斜杠必须为Windows的'\'分隔符");
 
@@ -123,6 +123,7 @@ public static class IconHelper
             // ICON：获取图标 | LARGE_ICON：获取大图标       【必须要有ICON】
             Shell32.SHGFI.SHGFI_LARGEICON | Shell32.SHGFI.SHGFI_ICON
         );
-        return (state != IntPtr.Zero, info);
+        iconInfo = info;
+        return state != IntPtr.Zero;
     }
 }
