@@ -54,7 +54,14 @@ public partial class FolderEntry : ObservableObject
     /// </summary>
     private void Refresh()
     {
-        CurrentIcon = IconHelper.GetFolderIcon(FullPath) ?? throw new Exception($"读取'{FullPath}'文件夹图标失败");
+        if (OptionalIcons.Count > AppliedIndex)
+        {
+            CurrentIcon = OptionalIcons[AppliedIndex].Icon;
+        }
+        else
+        {
+            CurrentIcon = IconHelper.GetFolderIcon(FullPath) ?? throw new Exception($"读取\"{FullPath}\"文件夹图标失败");
+        }
     }
 
     /// <summary>

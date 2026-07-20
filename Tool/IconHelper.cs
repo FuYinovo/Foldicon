@@ -91,6 +91,8 @@ public static class IconHelper
 
         // 使用 Icon.FromHandle，防止 Bitmap.FromHIcon 丢失透明度
         var bitmap = Icon.FromHandle(info.hIcon.DangerousGetHandle()).ToBitmap();
+        User32.DestroyIcon(info.hIcon);
+
         // Bitmap -> MemoryStream -> RandomAccessStream -> BitmapImage
         var stream = new MemoryStream();
         bitmap.Save(stream, ImageFormat.Png);
