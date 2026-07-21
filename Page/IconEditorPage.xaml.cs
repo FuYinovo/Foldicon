@@ -108,14 +108,16 @@ public sealed partial class IconEditorPage // 普通方法
             // 标签筛选
             if (IsEnumFilterEnabled)
             {
-                // TODO)) 类型筛选
+                // 类型筛选
                 switch (FolderTypeFilter)
                 {
                     case TypeFilterEnum.All:
                         break;
                     case TypeFilterEnum.System:
+                        if(!folder.IsSystemIcon) continue;
                         break;
                     case TypeFilterEnum.Custom:
+                        if(folder.IsSystemIcon) continue;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

@@ -14,9 +14,6 @@ namespace Foldicon.Class;
 
 public partial class FolderEntry : ObservableObject
 {
-    public readonly string FullPath;
-    public string FolderName => Path.GetFileName(FullPath);
-
     [ObservableProperty] private ImageSource _currentIcon;
     [ObservableProperty] private ObservableCollection<FileIcon> _optionalIcons;
 
@@ -26,16 +23,20 @@ public partial class FolderEntry : ObservableObject
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
     private int _appliedIndex = -1;
 
+    private readonly string _fullPath;
+    public bool IsSystemIcon { get; private set; }
+    public string FolderName => Path.GetFileName(_fullPath);
     public bool IsSelectedIconChanged => SelectedIndex != AppliedIndex;
+
 
     public FolderEntry(string fullPath)
     {
-        FullPath = fullPath;
+        _fullPath = fullPath;
         CurrentIcon = IconHelper.GetFolderIcon(fullPath) ?? throw new Exception($"读取'{fullPath}'文件夹图标失败");
         OptionalIcons = new ObservableCollection<FileIcon>(IconHelper.GetExeIcons(fullPath));
 
         InitIconSelectorIndex();
-        AppliedIndex = SelectedIndex;
+        Refresh();
     }
 
     /// <summary>
@@ -44,23 +45,25 @@ public partial class FolderEntry : ObservableObject
     public void Apply()
     {
         if (!IsSelectedIconChanged) return;
-        IconHelper.SetFolderIcon(FullPath, OptionalIcons[SelectedIndex].FullPath);
-        AppliedIndex = SelectedIndex;
+        IconHelper.SetFolderIcon(_fullPath, OptionalIcons[SelectedIndex].FullPath);
         Refresh();
     }
 
     /// <summary>
-    /// 刷新数据
+    /// 刷新数据： AppliedIndex、IsSystemIcon、CurrentIcon
     /// </summary>
     private void Refresh()
     {
-        if (OptionalIcons.Count > AppliedIndex)
+        AppliedIndex = SelectedIndex;
+        IsSystemIcon = SelectedIndex == -1; // 若 SelectedIndex 为 -1，说明文件夹使用系统默认图标
+
+        if (SelectedIndex >= 0 && SelectedIndex < OptionalIcons.Count)
         {
-            CurrentIcon = OptionalIcons[AppliedIndex].Icon;
+            CurrentIcon = OptionalIcons[SelectedIndex].Icon;
         }
         else
         {
-            CurrentIcon = IconHelper.GetFolderIcon(FullPath) ?? throw new Exception($"读取\"{FullPath}\"文件夹图标失败");
+            CurrentIcon = IconHelper.GetFolderIcon(_fullPath) ?? throw new Exception($"读取\"{_fullPath}\"文件夹图标失败");
         }
     }
 
@@ -82,7 +85,7 @@ public partial class FolderEntry : ObservableObject
     public void InitIconSelectorIndex()
     {
         // 读取 desktop.ini 中指定的文件夹图标
-        var iniPath = Path.Combine(FullPath, "desktop.ini");
+        var iniPath = Path.Combine(_fullPath, "desktop.ini");
         if (!File.Exists(iniPath)) return;
 
         // 尝试 UTF-8 读取路径
@@ -136,7 +139,7 @@ public partial class FolderEntry : ObservableObject
             if (path.EndsWith(".dll")) return null;
 
             // 相对路径 -> 绝对路径
-            if (!Path.IsPathRooted(path)) path = Path.Combine(FullPath, path);
+            if (!Path.IsPathRooted(path)) path = Path.Combine(_fullPath, path);
 
             return path;
         }
