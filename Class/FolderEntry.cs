@@ -1,12 +1,10 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Text;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Struct;
 using Foldicon.Tool;
-using IniFileSharp;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 
@@ -84,16 +82,12 @@ public partial class FolderEntry : ObservableObject
     /// </summary>
     public void InitIconSelectorIndex()
     {
-        // 读取 desktop.ini 中指定的文件夹图标
-        var iniPath = Path.Combine(_fullPath, "desktop.ini");
-        if (!File.Exists(iniPath)) return;
-
         // 尝试 UTF-8 读取路径
-        var iconPath = GetIconPath(iniPath, Encoding.UTF8);
+        var iconPath = IconHelper.GetFolderCustomIconPath(_fullPath, Encoding.UTF8);
         // 若路径或图标为 null，尝试 GBK 读取路径
         if (iconPath is null || !TryGetIcon(iconPath, out var icon))
         {
-            iconPath = GetIconPath(iniPath, Encoding.GetEncoding("GBK"));
+            iconPath = IconHelper.GetFolderCustomIconPath(_fullPath, Encoding.GetEncoding("GBK"));
             // GBK 也失败，直接返回
             if (iconPath is null || !TryGetIcon(iconPath, out icon)) return;
         }
@@ -114,35 +108,6 @@ public partial class FolderEntry : ObservableObject
         SelectedIndex = OptionalIcons.Count - 1;
 
         return;
-
-        string? GetIconPath(string iniFile, Encoding encoding)
-        {
-            var iniSharp = new IniSharp(iniFile, encoding);
-            try
-            {
-                var resource = iniSharp.GetValue(".ShellClassInfo", "IconResource");
-                return resource is null ? null : ConsumeResource(resource);
-            }
-            catch (ArgumentNullException)
-            {
-                // IniSharp.GetValue 在键/节不存在且 defaultValue 为 null 时会抛出 ArgumentNullException
-                return null;
-            }
-        }
-
-        string? ConsumeResource(string resource)
-        {
-            var path = resource.Split(",").FirstOrDefault(string.Empty);
-            if (string.IsNullOrEmpty(path)) return null;
-
-            // 忽略 .dll 图标
-            if (path.EndsWith(".dll")) return null;
-
-            // 相对路径 -> 绝对路径
-            if (!Path.IsPathRooted(path)) path = Path.Combine(_fullPath, path);
-
-            return path;
-        }
 
         bool TryGetIcon(string path, out BitmapImage? bitmap)
         {

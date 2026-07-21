@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Unicode;
 using Foldicon.Struct;
+using IniFileSharp;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Vanara.InteropServices;
 using Vanara.PInvoke;
@@ -14,7 +19,7 @@ namespace Foldicon.Tool;
 /// <summary>
 /// System.Drawing.Common 版本必须低于ver9.0
 /// </summary>
-public static class IconHelper
+public static partial class IconHelper // 公开方法
 {
     /// <summary>
     /// 设置文件夹图标
@@ -79,6 +84,45 @@ public static class IconHelper
         return icons;
     }
 
+    /// <summary>
+    /// 获取文件夹自定义图标的路径
+    /// </summary>
+    /// <param name="folderPath">文件夹完整路径</param>
+    /// <param name="encoding">读取Ini文件的编码</param>
+    /// <returns>图标路径(失败返回null)</returns>
+    public static string? GetFolderCustomIconPath(string folderPath, Encoding encoding)
+    {
+        var iniPath = Path.Combine(folderPath, "desktop.ini");
+        var iniSharp = new IniSharp(iniPath, encoding);
+        try
+        {
+            var resource = iniSharp.GetValue(".ShellClassInfo", "IconResource");
+            return resource is null ? null : ConsumeResource(resource);
+        }
+        catch (ArgumentNullException)
+        {
+            // IniSharp.GetValue 在键/节不存在且 defaultValue 为 null 时会抛出 ArgumentNullException
+            return null;
+        }
+
+        string? ConsumeResource(string resource)
+        {
+            var path = resource.Split(",").FirstOrDefault(string.Empty);
+            if (string.IsNullOrEmpty(path)) return null;
+
+            // 忽略 .dll 图标
+            if (path.EndsWith(".dll")) return null;
+
+            // 相对路径 -> 绝对路径
+            if (!Path.IsPathRooted(path)) path = Path.Combine(folderPath, path);
+
+            return path;
+        }
+    }
+}
+
+public static partial class IconHelper // 私有方法
+{
     /// <summary>
     /// 获取文件(夹)的图标位图
     /// </summary>
