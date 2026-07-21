@@ -154,7 +154,7 @@ public sealed partial class IconEditorPage // 属性、属性 OnChanged 方法�
 
     [ObservableProperty] private string _parentFolder = string.Empty;
     [ObservableProperty] private bool _isSubFoldersLoaded;
-    [ObservableProperty] private bool _isEnumFilterEnabled;
+    [ObservableProperty] private bool _isEnumFilterEnabled = true;
     [ObservableProperty] private string _folderNameFilter = string.Empty;
     [ObservableProperty] private TypeFilterEnum _folderTypeFilter = TypeFilterEnum.All;
     [ObservableProperty] private StateFilterEnum _folderStateFilter = StateFilterEnum.All;
