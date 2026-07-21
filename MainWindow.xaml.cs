@@ -7,7 +7,7 @@ namespace Foldicon;
 
 public sealed partial class MainWindow
 {
-    private static readonly Type DefaultPage = typeof(IconEditor);
+    private static readonly Type DefaultPage = typeof(IconEditorPage);
 
     public MainWindow()
     {

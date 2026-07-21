@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <Page NavigationCacheMode="Enabled"
-      x:Class="Foldicon.Page.IconEditor"
+      x:Class="Foldicon.Page.IconEditorPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:userControl="using:Foldicon.UserControl"
       xmlns:class="using:Foldicon.Class"
+      xmlns:converter="using:Foldicon.Converter"
+      xmlns:page="using:Foldicon.Page"
       mc:Ignorable="d">
+
+    <Page.Resources>
+        <converter:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+    </Page.Resources>
 
     <Grid RowSpacing="12">
         <Grid.RowDefinitions>
@@ -36,14 +42,14 @@
                 Grid.Column="1"
                 Content="选择文件夹"
                 Margin="12,0,0,0" />
-     
+
             <Button
                 Style="{ThemeResource AccentButtonStyle}"
                 Click="ApplyAllButton_Click"
                 Grid.Column="2"
                 Content="应用所有图标"
                 Margin="6,0,0,0"
-                IsEnabled="{x:Bind IsSubFoldersLoaded, Mode=OneWay}"/>
+                IsEnabled="{x:Bind IsSubFoldersLoaded, Mode=OneWay}" />
 
         </Grid>
 
@@ -56,24 +62,62 @@
             <AutoSuggestBox PlaceholderText="搜索文件夹名称..."
                             Grid.Column="0"
                             Text="{x:Bind FolderNameFilter, Mode=TwoWay}"
-                            TextChanged="FolderNameFilter_TextChanged"
                             QueryIcon="Find"
-                            IsEnabled="{x:Bind IsSubFoldersLoaded, Mode=OneWay}"/>
+                            IsEnabled="{x:Bind IsSubFoldersLoaded, Mode=OneWay}" />
 
             <SplitButton Grid.Column="1"
                          Padding="0"
                          Margin="12,0,0,0">
-                <ToggleButton Content="启用筛选" 
-                              IsEnabled="{x:Bind IsSubFoldersLoaded, Mode=OneWay}"/>
+                <ToggleButton Content="启用筛选"
+                              Click="EnableEnumFilterButton_OnClick"
+                              IsChecked="{x:Bind IsEnumFilterEnabled, Mode=TwoWay}"
+                              IsEnabled="{x:Bind IsSubFoldersLoaded, Mode=OneWay}" />
                 <SplitButton.Flyout>
                     <MenuFlyout>
-                        <RadioMenuFlyoutItem Text="全部" GroupName="TypeGroup" />
-                        <RadioMenuFlyoutItem Text="系统默认" GroupName="TypeGroup" />
-                        <RadioMenuFlyoutItem Text="自定义图标" GroupName="TypeGroup" />
+                        <RadioMenuFlyoutItem Text="全部"
+                                             Click="TypeFilterItem_Click"
+                                             Tag="All"
+                                             GroupName="TypeGroup"
+                                             IsChecked="{x:Bind FolderTypeFilter, Mode=OneWay,
+                                             Converter={StaticResource EnumToBoolConverter},
+                                             ConverterParameter=All}" />
+                        <RadioMenuFlyoutItem Text="系统默认"
+                                             Click="TypeFilterItem_Click"
+                                             Tag="System"
+                                             GroupName="TypeGroup"
+                                             IsChecked="{x:Bind FolderTypeFilter, Mode=OneWay,
+                                             Converter={StaticResource EnumToBoolConverter},
+                                             ConverterParameter=System}" />
+                        <RadioMenuFlyoutItem Text="自定义图标"
+                                             Click="TypeFilterItem_Click"
+                                             Tag="Custom"
+                                             GroupName="TypeGroup"
+                                             IsChecked="{x:Bind FolderTypeFilter, Mode=OneWay,
+                                             Converter={StaticResource EnumToBoolConverter},
+                                             ConverterParameter=Custom}" />
                         <MenuFlyoutSeparator />
-                        <RadioMenuFlyoutItem Text="全部" GroupName="StateGroup" />
-                        <RadioMenuFlyoutItem Text="未修改项" GroupName="StateGroup" />
-                        <RadioMenuFlyoutItem Text="待应用项" GroupName="StateGroup" />
+                        <RadioMenuFlyoutItem Text="全部"
+                                             Tag="All"
+                                             Click="StateFilterItem_Click"
+                                             GroupName="StateGroup"
+                                             IsChecked="{x:Bind FolderStateFilter, Mode=OneWay,
+                                             Converter={StaticResource EnumToBoolConverter},
+                                             ConverterParameter=All}" />
+                        <RadioMenuFlyoutItem Text="未修改项"
+                                             Click="StateFilterItem_Click"
+                                             Tag="Unmodified"
+                                             GroupName="StateGroup"
+                                             IsChecked="{x:Bind FolderStateFilter, Mode=OneWay,
+                                             Converter={StaticResource EnumToBoolConverter},
+                                             ConverterParameter=Unmodified}" />
+                        <RadioMenuFlyoutItem Text="待应用项"
+                                             Click="StateFilterItem_Click"
+                                             Tag="Unapplied"
+                                             GroupName="StateGroup"
+                                             IsChecked="{x:Bind FolderStateFilter, Mode=OneWay,
+                                             Converter={StaticResource EnumToBoolConverter},
+                                             ConverterParameter=Unapplied}" />
+                        <MenuFlyoutSeparator />
                     </MenuFlyout>
                 </SplitButton.Flyout>
             </SplitButton>
