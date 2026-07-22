@@ -29,12 +29,16 @@ public sealed partial class IconEditorPage // 回调方法
         if (sender is not Button btn) return;
         btn.IsEnabled = false;
         var fullPath = await StoragePicker.PickFolder(btn.XamlRoot.ContentIslandEnvironment.AppWindowId);
-        btn.IsEnabled = true;
 
-        if (fullPath is null) return;
-        ParentFolder = fullPath;
-        IsSubFoldersLoaded = true;
-        await RefreshSubfoldersAsync();
+        if (fullPath is not null)
+        {
+            ParentFolder = fullPath;
+            IsSubFoldersLoaded = false;
+            await RefreshSubfoldersAsync();
+            IsSubFoldersLoaded = true;
+        }
+
+        btn.IsEnabled = true;
     }
 
     /// <summary>
@@ -92,10 +96,13 @@ public sealed partial class IconEditorPage // 普通方法
                 var exeIcons = await IconHelper.GetExeIconsAsync(path);
                 SubFolders.Add(new FolderEntry(path, icon, exeIcons));
             }
-            // 跳过「无访问权限」的文件夹
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException access) // 无访问权限
             {
-                Debug.WriteLine(e);
+                Debug.WriteLine(access.Message);
+            }
+            catch (IOException io) // 读取失败
+            {
+                Debug.WriteLine(io.Message);
             }
         }
 
