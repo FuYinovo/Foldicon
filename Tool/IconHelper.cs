@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.Unicode;
-using Foldicon.Struct;
+using System.Threading.Tasks;
 using IniFileSharp;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Vanara.InteropServices;
@@ -41,8 +40,8 @@ public static partial class IconHelper // 公开方法
     /// 获取文件夹的图标
     /// </summary>
     /// <param name="path">文件夹完整路径</param>
-    /// <returns>BitmapImage；失败返回 null</returns>
-    public static BitmapImage? GetFolderIcon(string path)
+    /// <returns>PNG数组；失败返回 null</returns>
+    public static byte[]? GetFolderIcon(string path)
     {
         return GetIcon(path, true);
     }
@@ -51,34 +50,64 @@ public static partial class IconHelper // 公开方法
     /// 获取文件的图标
     /// </summary>
     /// <param name="path">文件完整路径</param>
-    /// <returns>BitmapImage；失败返回 null</returns>
-    public static BitmapImage? GetFileIcon(string path)
+    /// <returns>PNG数组；失败返回 null</returns>
+    public static byte[]? GetFileIcon(string path)
     {
         return GetIcon(path, false);
     }
 
     /// <summary>
-    /// 获取文件夹下所有exe程序的图标
+    /// 获取文件夹下所有exe程序的路径及图标
     /// </summary>
-    /// <param name="path">文件夹完整路径</param>
-    /// <returns>「路径+图标」结构体的列表</returns>
-    public static List<FileIcon> GetExeIcons(string path)
+    /// <param name="fullPath">文件夹完整路径</param>
+    /// <param name="configureAwait">是否以调用进程返回</param>
+    /// <returns>(完整路径, PNG数组)的列表</returns>
+    public static async Task<List<(string, byte[])>> GetExeIconsAsync(string fullPath, bool configureAwait = true)
     {
-        List<FileIcon> icons = [];
-
-        var files = Directory.GetFiles(path);
+        // 创建任务
+        List<Task<(string, byte[]?)>> tasks = [];
+        var files = Directory.GetFiles(fullPath);
         foreach (var file in files)
         {
-            // 扩展名
+            // 扩展名必须为exe
             var extension = Path.GetExtension(file);
-            if (!extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)) continue; // 必须为exe
+            if (!extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)) continue;
 
-            // 图标
-            var icon = GetFileIcon(file);
-            if (icon is null) continue; // 必须不为null
+            tasks.Add(Task.Run(() => (file, GetFileIcon(file))));
+        }
 
-            // 创建实例
-            icons.Add(new FileIcon(file, icon));
+        // 获取结果
+        await Task.WhenAll(tasks).ConfigureAwait(configureAwait);
+        List<(string, byte[])> icons = [];
+        foreach (var task in tasks)
+        {
+            var (path, icon) = task.Result;
+            if (icon is not null) icons.Add((path, icon));
+        }
+
+        return icons;
+    }
+
+    /// <summary>
+    /// 获取文件夹下所有子文件夹的路径及图标
+    /// </summary>
+    /// <param name="fullPath">文件夹完整路径</param>
+    /// <param name="configureAwait">是否以调用进程返回</param>
+    /// <returns>(完整路径, PNG数组)的列表</returns>
+    public static async Task<List<(string, byte[])>> GetSubfolderIconsAsync(string fullPath, bool configureAwait = true)
+    {
+        // 创建任务
+        List<Task<(string, byte[]?)>> tasks = [];
+        var paths = Directory.GetDirectories(fullPath);
+        foreach (var path in paths) tasks.Add(Task.Run(() => (path, GetFolderIcon(path))));
+
+        // 获取结果
+        List<(string, byte[])> icons = [];
+        await Task.WhenAll(tasks).ConfigureAwait(configureAwait);
+        foreach (var task in tasks)
+        {
+            var (path, icon) = task.Result;
+            if (icon is not null) icons.Add((path, icon));
         }
 
         return icons;
@@ -93,15 +122,16 @@ public static partial class IconHelper // 公开方法
     public static string? GetFolderCustomIconPath(string folderPath, Encoding encoding)
     {
         var iniPath = Path.Combine(folderPath, "desktop.ini");
-        var iniSharp = new IniSharp(iniPath, encoding);
         try
         {
+            var iniSharp = new IniSharp(iniPath, encoding);
             var resource = iniSharp.GetValue(".ShellClassInfo", "IconResource");
             return resource is null ? null : ConsumeResource(resource);
         }
-        catch (ArgumentNullException)
+        catch (ArgumentNullException e)
         {
             // IniSharp.GetValue 在键/节不存在且 defaultValue 为 null 时会抛出 ArgumentNullException
+            Debug.WriteLine(e.Message);
             return null;
         }
 
@@ -119,6 +149,19 @@ public static partial class IconHelper // 公开方法
             return path;
         }
     }
+
+    /// <summary>
+    /// 从数组创建 <see cref="BitmapImage"/> 实例
+    /// </summary>
+    /// <param name="bytes">图片数组</param>
+    /// <exception cref="COMException">没有在 UI 线程调用方法</exception>
+    /// <returns><see cref="BitmapImage"/> 实例</returns>
+    public static BitmapImage CreateBitmapImage(byte[] bytes)
+    {
+        var bitmap = new BitmapImage();
+        bitmap.SetSource(new MemoryStream(bytes).AsRandomAccessStream());
+        return bitmap;
+    }
 }
 
 public static partial class IconHelper // 私有方法
@@ -128,8 +171,8 @@ public static partial class IconHelper // 私有方法
     /// </summary>
     /// <param name="path">文件夹完整路径</param>
     /// <param name="isFolder">是否是文件夹</param>
-    /// <returns>BitmapImage；失败返回 null</returns>
-    private static BitmapImage? GetIcon(string path, bool isFolder)
+    /// <returns>PNG数组；失败返回 null</returns>
+    private static byte[]? GetIcon(string path, bool isFolder)
     {
         if (!TryShell32GetIcon(path, isFolder, out var info) || info.hIcon.IsInvalid) return null;
 
@@ -140,11 +183,7 @@ public static partial class IconHelper // 私有方法
         // Bitmap -> MemoryStream -> RandomAccessStream -> BitmapImage
         var stream = new MemoryStream();
         bitmap.Save(stream, ImageFormat.Png);
-        stream.Seek(0, SeekOrigin.Begin);
-
-        var image = new BitmapImage();
-        image.SetSource(stream.AsRandomAccessStream());
-        return image;
+        return stream.ToArray();
     }
 
     /// <summary>

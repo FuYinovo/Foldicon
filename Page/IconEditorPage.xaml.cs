@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Class;
 using Foldicon.Enum;
@@ -32,7 +34,7 @@ public sealed partial class IconEditorPage // 回调方法
         if (fullPath is null) return;
         ParentFolder = fullPath;
         IsSubFoldersLoaded = true;
-        RefreshSubfolders();
+        await RefreshSubfoldersAsync();
     }
 
     /// <summary>
@@ -73,23 +75,30 @@ public sealed partial class IconEditorPage // 普通方法
     /// <summary>
     /// 刷新子文件夹
     /// </summary>
-    private void RefreshSubfolders()
+    private async Task RefreshSubfoldersAsync()
     {
         if (!Directory.Exists(ParentFolder)) return;
         SubFolders.Clear();
-        foreach (var path in Directory.GetDirectories(ParentFolder))
+
+        // 获取子文件夹图标
+        var subFolders = await IconHelper.GetSubfolderIconsAsync(ParentFolder);
+
+        // 创建 FolderEntry 实例
+        foreach (var (path, icon) in subFolders)
         {
             try
             {
-                var entry = new FolderEntry(path);
-                SubFolders.Add(entry);
+                // 获取可选 exe 程序图标
+                var exeIcons = await IconHelper.GetExeIconsAsync(path);
+                SubFolders.Add(new FolderEntry(path, icon, exeIcons));
             }
             // 跳过「无访问权限」的文件夹
-            catch (UnauthorizedAccessException accessException)
+            catch (UnauthorizedAccessException e)
             {
-                Console.WriteLine(accessException.Message);
+                Debug.WriteLine(e);
             }
         }
+
 
         ApplyFilter();
     }
@@ -114,10 +123,10 @@ public sealed partial class IconEditorPage // 普通方法
                     case TypeFilterEnum.All:
                         break;
                     case TypeFilterEnum.System:
-                        if(!folder.IsSystemIcon) continue;
+                        if (!folder.IsSystemIcon) continue;
                         break;
                     case TypeFilterEnum.Custom:
-                        if(folder.IsSystemIcon) continue;
+                        if (folder.IsSystemIcon) continue;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

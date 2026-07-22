@@ -1,19 +1,20 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Struct;
 using Foldicon.Tool;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Class;
 
 public partial class FolderEntry : ObservableObject
 {
     [ObservableProperty] private ImageSource _currentIcon;
-    [ObservableProperty] private ObservableCollection<FileIcon> _optionalIcons;
+    [ObservableProperty] private ObservableCollection<FileIcon> _optionalIcons = [];
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
     private int _selectedIndex = -1;
@@ -27,11 +28,25 @@ public partial class FolderEntry : ObservableObject
     public bool IsSelectedIconChanged => SelectedIndex != AppliedIndex;
 
 
-    public FolderEntry(string fullPath)
+    /// <param name="fullPath">文件夹完整路径</param>
+    /// <param name="currentIcon">文件夹图标（null则自动获取）</param>
+    /// <param name="exeIcons">可选exe路径及图标(null则自动获取)</param>
+    public FolderEntry(string fullPath, byte[]? currentIcon = null, List<(string, byte[])>? exeIcons = null)
     {
         _fullPath = fullPath;
-        CurrentIcon = IconHelper.GetFolderIcon(fullPath) ?? throw new Exception($"读取'{fullPath}'文件夹图标失败");
-        OptionalIcons = new ObservableCollection<FileIcon>(IconHelper.GetExeIcons(fullPath));
+
+        // OptionalIcons
+        var icons =
+            exeIcons ??
+            IconHelper.GetExeIconsAsync(fullPath, false).Result;
+        foreach (var (path, icon) in icons)
+            OptionalIcons.Add(new FileIcon(path, IconHelper.CreateBitmapImage(icon)));
+
+        // CurrentIcon
+        CurrentIcon = currentIcon is null
+            ? IconHelper.CreateBitmapImage(IconHelper.GetFolderIcon(fullPath) ??
+                                           throw new Exception($"读取'{fullPath}'文件夹图标失败"))
+            : IconHelper.CreateBitmapImage(currentIcon);
 
         InitIconSelectorIndex();
         Refresh();
@@ -61,7 +76,8 @@ public partial class FolderEntry : ObservableObject
         }
         else
         {
-            CurrentIcon = IconHelper.GetFolderIcon(_fullPath) ?? throw new Exception($"读取\"{_fullPath}\"文件夹图标失败");
+            var icon = IconHelper.GetFolderIcon(_fullPath) ?? throw new Exception($"读取'{_fullPath}'文件夹图标失败");
+            CurrentIcon = IconHelper.CreateBitmapImage(icon);
         }
     }
 
@@ -73,7 +89,7 @@ public partial class FolderEntry : ObservableObject
     {
         var icon = IconHelper.GetFileIcon(fullPath);
         if (icon is null) return;
-        OptionalIcons.Add(new FileIcon(fullPath, icon));
+        OptionalIcons.Add(new FileIcon(fullPath, IconHelper.CreateBitmapImage(icon)));
         SelectedIndex = OptionalIcons.Count - 1;
     }
 
@@ -104,12 +120,12 @@ public partial class FolderEntry : ObservableObject
 
         // 未找到：创建新的自定义图标可选项
         if (icon is null) return;
-        OptionalIcons.Add(new FileIcon(iconPath, icon));
+        OptionalIcons.Add(new FileIcon(iconPath, IconHelper.CreateBitmapImage(icon)));
         SelectedIndex = OptionalIcons.Count - 1;
 
         return;
 
-        bool TryGetIcon(string path, out BitmapImage? bitmap)
+        bool TryGetIcon(string path, out byte[]? bitmap)
         {
             bitmap = IconHelper.GetFileIcon(path);
             return bitmap is not null;
