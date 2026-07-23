@@ -1,11 +1,14 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Foldicon.Service;
+using Microsoft.UI.Xaml;
 
 
 namespace Foldicon;
 
 public partial class App
 {
-    private Window? _window;
+    public static MainWindow MainWindow { get; } = MainWindow = new MainWindow();
+    public static OptionService OptionService { get; private set; } = OptionService.Instance; // 在 App 启动前使设置选项就绪
+
 
     public App()
     {
@@ -14,7 +17,6 @@ public partial class App
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
-        _window = new MainWindow();
-        _window.Activate();
+        MainWindow.Activate();
     }
 }

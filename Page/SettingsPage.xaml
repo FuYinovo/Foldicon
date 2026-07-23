@@ -10,26 +10,24 @@
     xmlns:winUi="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
+
     <Grid>
         <StackPanel Spacing="36">
             <TextBlock Text="设置" Style="{StaticResource TitleTextBlockStyle}" />
             <!-- 外观 -->
             <StackPanel Spacing="6">
                 <TextBlock Text="外观" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <community:SettingsCard Header="应用主题" Description="指定应用的主题样式"
+                <community:SettingsCard Header="应用主题"
+                                        Description="指定应用的主题样式"
                                         HeaderIcon="{winUi:FontIcon Glyph=&#xE790;}">
-                    <ComboBox>
-                        <ComboBoxItem>系统</ComboBoxItem>
-                        <ComboBoxItem>深色</ComboBoxItem>
-                        <ComboBoxItem>浅色</ComboBoxItem>
-                    </ComboBox>
+                    <ComboBox SelectedIndex="{x:Bind _viewModel.ThemeOptionIndex, Mode=TwoWay}"
+                              ItemsSource="{x:Bind _viewModel.ThemeOptions.Values}" />
                 </community:SettingsCard>
-                <community:SettingsCard Header="应用背景" Description="指定应用的背景样式"
+                <community:SettingsCard Header="应用背景"
+                                        Description="指定应用的背景样式"
                                         HeaderIcon="{winUi:FontIcon Glyph=&#xEF1F;}">
-                    <ComboBox>
-                        <ComboBoxItem>Mica</ComboBoxItem>
-                        <ComboBoxItem>Acyclic</ComboBoxItem>
-                    </ComboBox>
+                    <ComboBox SelectedIndex="{x:Bind _viewModel. BackdropOptionIndex, Mode=TwoWay}"
+                              ItemsSource="{x:Bind _viewModel.BackdropOptions.Values}" />
                 </community:SettingsCard>
             </StackPanel>
 
