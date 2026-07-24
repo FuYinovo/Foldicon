@@ -90,6 +90,10 @@ public sealed partial class MainWindow
         if (item.Tag is not string tag) return;
         ContentFrame.Navigate(tag switch
         {
+            "IconEditor" => typeof(IconEditorPage),
+            "IconGroup" => typeof(IconGroupPage),
+            "IconGroupCategorize" => typeof(IconGroupsCategorizePage),
+            "IconGroup_0" => typeof(IconGroupsDetailPage),
             _ => DefaultPage
         });
     }

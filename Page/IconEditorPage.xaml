@@ -9,7 +9,6 @@
       xmlns:userControl="using:Foldicon.UserControl"
       xmlns:class="using:Foldicon.Class"
       xmlns:converter="using:Foldicon.Converter"
-      xmlns:page="using:Foldicon.Page"
       mc:Ignorable="d">
 
     <Page.Resources>
@@ -124,10 +123,10 @@
         </Grid>
 
         <Line Grid.Row="2"
-              Stroke="{ThemeResource AccentAAFillColorDisabled}"
-              X1="0" Y1="0"
-              X2="999999" Y2="0"
-              StrokeThickness="1" />
+                  Stroke="{ThemeResource AccentAAFillColorDisabled}"
+                  X1="0" Y1="0"
+                  X2="999999" Y2="0"
+                  StrokeThickness="1" />
 
         <Grid Grid.Row="3">
             <ScrollViewer>

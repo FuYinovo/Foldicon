@@ -11,6 +11,12 @@
     <None Update="Package.appxmanifest">
       <SubType>Designer</SubType>
     </None>
+    <Page Update="Page\IconGroupPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Page\IconGroupsCategorizePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="UserControl\FolderEntryControl.xaml">
       <SubType>Designer</SubType>
     </Page>
