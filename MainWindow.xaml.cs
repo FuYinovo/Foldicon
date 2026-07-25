@@ -20,7 +20,7 @@ public sealed partial class MainWindow
     public MainWindow()
     {
         InitializeComponent();
-        ContentFrame.Navigate(DefaultPage);
+        NavigateTo(DefaultPage);
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
@@ -79,31 +79,44 @@ public sealed partial class MainWindow
         }
     }
 
+    /// <summary>
+    ///让 NavigationView 跳转到某个页面
+    /// </summary>
+    /// <param name="targetPage">页面类型</param>
+    /// <param name="parm">传参（null即留空）</param>
+    public void NavigateTo(Type targetPage, object? parm = null)
+    {
+        if (parm is null) ContentFrame.Navigate(targetPage);
+        else ContentFrame.Navigate(targetPage, parm);
+    }
+
+    /// <summary>
+    /// 响应 NavigationView 的跳转点击
+    /// </summary>
     private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         // 设置页面
         if (args.IsSettingsSelected)
         {
-            ContentFrame.Navigate(typeof(SettingsPage));
+            NavigateTo(typeof(SettingsPage));
             return;
         }
 
         // 动态页面
         if (args.SelectedItem is IconGroup group)
         {
-            ContentFrame.Navigate(typeof(IconGroupsDetailPage), group);
+            NavigateTo(typeof(IconGroupsDetailPage), group);
             return;
         }
 
         // 静态页面
         if (sender.SelectedItem is not NavigationViewItem item) return;
         if (item.Tag is not string tag) return;
-        ContentFrame.Navigate(tag switch
+        NavigateTo(tag switch
         {
             "IconEditor" => typeof(IconEditorPage),
             "IconGroup" => typeof(IconGroupPage),
             "IconGroupCategorize" => typeof(IconGroupsCategorizePage),
-            "IconGroup_0" => typeof(IconGroupsDetailPage),
             _ => DefaultPage
         });
     }

@@ -9,6 +9,8 @@ namespace Foldicon.Service;
 
 public class IconGroupService
 {
+    public static readonly string[] SupportedLogoExtensions = [".jpg", ".png", ".ico", ".bmp"];
+    public static readonly string[] SupportedIconExtensions = [".ico"];
     public static IconGroupService Instance { get; } = new();
     public readonly ObservableCollection<IconGroup> Groups = [];
     private IconGroupService() => Load();
@@ -23,7 +25,7 @@ public class IconGroupService
         {
             // 读取 Json 信息
             var jsonPath = Path.Combine(groupPath, "info.json");
-            if(!Path.Exists(jsonPath)) continue;
+            if (!Path.Exists(jsonPath)) continue;
 
             var jsonText = File.ReadAllText(jsonPath);
             var group = JsonSerializer.Deserialize<IconGroup>(jsonText);
@@ -58,9 +60,13 @@ public class IconGroupService
     /// <summary>
     /// 删除一个导入的图标组
     /// </summary>
-    /// <param name="index"><see cref="Groups"/>>索引</param>
-    public void Remove(int index)
+    /// <param name="group"><see cref="Groups"/>>图标组实例</param>
+    public void Remove(IconGroup group)
     {
-        if (index >= 0 && index < Groups.Count) Groups.RemoveAt(index);
+        // 删除文件夹
+        Directory.Delete(group.RootPath, true);
+
+        // 移除已加载的实例
+        Groups.Remove(group);
     }
 }

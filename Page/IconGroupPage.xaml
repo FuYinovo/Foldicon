@@ -42,6 +42,7 @@
             <ItemsRepeater.ItemTemplate>
                 <DataTemplate x:DataType="class:IconGroup">
                     <Button
+                        Click="IconGroup_Click"
                         Padding="0"
                         Width="310"
                         Height="145"

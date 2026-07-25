@@ -4,6 +4,7 @@ using System.IO;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Converter;
+using Foldicon.Service;
 using Foldicon.Struct;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -32,19 +33,13 @@ public partial class IconGroup : ObservableObject
         RootPath = rootPath;
 
         // 加载 Logo
-        string[] supported = [".png", ".ico"]; // 尝试不同格式
-        var loaded = false;
-        foreach (var extension in supported)
+        foreach (var extension in IconGroupService.SupportedLogoExtensions) // 尝试不同格式
         {
             var iconPath = Path.Combine(RootPath, $"logo{extension}");
             if (!File.Exists(iconPath)) continue;
             Logo = new BitmapImage(new Uri(iconPath));
-            loaded = true;
             break;
         }
-
-        if (!loaded) Logo = new BitmapImage();
-
 
         // 加载所有图标
         var iconsPath = Path.Combine(rootPath, "Icons");
@@ -59,10 +54,16 @@ public partial class IconGroup : ObservableObject
     /// <summary>
     /// 导入一个图标
     /// </summary>
-    /// <param name="icon">BitmapIcon 实例</param>
-    public void Add(BitmapIcon icon)
+    /// <param name="icon">图标完整路径</param>
+    public void Add(string icon)
     {
-        Icons.Add(icon);
+        // 复制到目录
+        var targetPath = Path.Combine(RootPath, "Icons", Path.GetFileName(icon));
+        File.Copy(icon, targetPath);
+
+        // 读取 -> BitmapIcon 实例
+        var bitmap = new BitmapImage(new Uri(targetPath));
+        Icons.Add(new BitmapIcon { FullPath = targetPath, Icon = bitmap });
     }
 
     /// <summary>

@@ -17,7 +17,6 @@ namespace Foldicon.Service;
 public partial class OptionService : ObservableObject
 {
     public static OptionService Instance { get; } = new();
-    private static MainWindow MainWindow => App.MainWindow;
     private readonly string _jsonFilePath = UriHelper.GetFilePathFromAssets("options.json");
     private JsonNode _jsonNode;
     private readonly bool _isLoaded;
@@ -101,7 +100,7 @@ public partial class OptionService // 设置选项属性
     async partial void OnThemeOptionIndexChanged(int value)
     {
         var option = ThemeOptions.Keys.ElementAt(value);
-        MainWindow.TrySetTheme(option switch
+        App.MainWindow.TrySetTheme(option switch
         {
             ThemeOptionEnum.System => ElementTheme.Default,
             ThemeOptionEnum.Dark => ElementTheme.Dark,
@@ -118,13 +117,13 @@ public partial class OptionService // 设置选项属性
         switch (option)
         {
             case BackdropOptionEnum.Mica:
-                MainWindow.TrySetMicaBackdrop(MicaKind.Base);
+                App.MainWindow.TrySetMicaBackdrop(MicaKind.Base);
                 break;
             case BackdropOptionEnum.MicaAlt:
-                MainWindow.TrySetMicaBackdrop(MicaKind.BaseAlt);
+                App.MainWindow.TrySetMicaBackdrop(MicaKind.BaseAlt);
                 break;
             case BackdropOptionEnum.Acrylic:
-                MainWindow.TrySetAcrylicBackdrop();
+                App.MainWindow.TrySetAcrylicBackdrop();
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

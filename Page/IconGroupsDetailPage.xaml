@@ -34,7 +34,7 @@
                     <control:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FD;}" Content="小图标" />
                 </control:Segmented>
             </StackPanel>
-            <Button Content="导入图标" HorizontalAlignment="Right" />
+            <Button Content="导入图标" HorizontalAlignment="Right" Click="ImportIcon_Click" />
         </Grid>
 
         <StackPanel Spacing="8" Grid.Row="1">
