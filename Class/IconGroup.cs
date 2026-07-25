@@ -69,10 +69,14 @@ public partial class IconGroup : ObservableObject
     /// <summary>
     /// 移除一个图标
     /// </summary>
-    /// <param name="index">索引</param>
-    public void Remove(int index)
+    /// <param name="icon">图标实例</param>
+    public void Remove(BitmapIcon icon)
     {
-        if (index >= 0 && index < Icons.Count) Icons.RemoveAt(index);
+        // 删除文件
+        File.Delete(icon.FullPath);
+
+        // 删除已加载实例
+        Icons.Remove(icon);
     }
 
     public override string ToString()

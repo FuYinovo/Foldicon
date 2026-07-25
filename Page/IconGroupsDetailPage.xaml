@@ -40,6 +40,7 @@
         <StackPanel Spacing="8" Grid.Row="1">
             <TextBlock Text="类别筛选" Style="{ThemeResource BodyStrongTextBlockStyle}" />
             <labs:TokenView
+                SelectionChanged="CategoryFilter_Changed"
                 IsWrapped="True"
                 SelectionMode="Multiple"
                 ItemsSource="{x:Bind Group.Categories, Mode=OneWay}" />
@@ -69,7 +70,7 @@
                                         Background="{ThemeResource CardBackgroundFillColorDefault}">
                                     <Button.ContextFlyout>
                                         <MenuFlyout>
-                                            <MenuFlyoutItem Text="删除图标" Icon="Delete" />
+                                            <MenuFlyoutItem Text="删除图标" Icon="Delete"  Click="DeleteIcon_Click"/>
                                         </MenuFlyout>
                                     </Button.ContextFlyout>
                                     <StackPanel>
