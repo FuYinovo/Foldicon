@@ -116,7 +116,6 @@
                                              IsChecked="{x:Bind FolderStateFilter, Mode=OneWay,
                                              Converter={StaticResource EnumToBoolConverter},
                                              ConverterParameter=Unapplied}" />
-                        <MenuFlyoutSeparator />
                     </MenuFlyout>
                 </SplitButton.Flyout>
             </SplitButton>

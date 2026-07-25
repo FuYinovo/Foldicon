@@ -1,4 +1,5 @@
-﻿using Foldicon.Service;
+﻿using System.Diagnostics;
+using Foldicon.Service;
 using Microsoft.UI.Xaml;
 
 
@@ -15,6 +16,11 @@ public partial class App
     public App()
     {
         InitializeComponent();
+        UnhandledException += (sender, args) =>
+        {
+            Debug.WriteLine($"[ERROR] {args.Message}");
+            args.Handled = true;
+        };
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)

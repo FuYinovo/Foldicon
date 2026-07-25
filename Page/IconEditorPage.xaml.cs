@@ -85,10 +85,10 @@ public sealed partial class IconEditorPage // 普通方法
         SubFolders.Clear();
 
         // 获取子文件夹图标
-        var subFolders = await IconHelper.GetSubfolderIconsAsync(ParentFolder);
+        var icons = await IconHelper.GetSubfolderIconsAsync(ParentFolder);
 
         // 创建 FolderEntry 实例
-        foreach( var icon in subFolders)
+        foreach (var icon in icons)
         {
             try
             {
@@ -96,13 +96,9 @@ public sealed partial class IconEditorPage // 普通方法
                 var exeIcons = await IconHelper.GetExeIconsAsync(icon.FullPath);
                 SubFolders.Add(new FolderEntry(icon.FullPath, icon.Icon, exeIcons));
             }
-            catch (UnauthorizedAccessException access) // 无访问权限
+            catch (Exception e)
             {
-                Debug.WriteLine(access.Message);
-            }
-            catch (IOException io) // 读取失败
-            {
-                Debug.WriteLine(io.Message);
+                Debug.WriteLine(e.Message);
             }
         }
 

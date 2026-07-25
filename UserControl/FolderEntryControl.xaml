@@ -11,18 +11,22 @@
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto" />
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+        <StackPanel Grid.Column="0"
+                    Orientation="Horizontal"
+                    Spacing="8">
             <!-- 文件夹当前图标 -->
-            <Image Width="32" Height="32" Source="{x:Bind FolderEntry.CurrentIcon, Mode=OneWay}" />
+            <Image Width="32"
+                   Height="32"
+                   Source="{x:Bind FolderEntry.CurrentIcon, Mode=OneWay}"/>
             <!-- 文件夹名称 -->
             <TextBlock
                 VerticalAlignment="Center"
                 Text="{x:Bind FolderEntry.FolderName, Mode=OneWay}"
-                Style="{StaticResource BodyTextBlockStyle}" />
+                Style="{StaticResource BodyTextBlockStyle}"/>
         </StackPanel>
 
         <StackPanel Grid.Column="1"
@@ -38,22 +42,28 @@
                 <!-- SelectionChanged 手动处理 UI 操作 -->
                 <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="struct:BitmapIcon">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Image Width="24" Height="24" Source="{x:Bind Icon}" VerticalAlignment="Center" />
-                            <TextBlock Text="{x:Bind FullPath}" VerticalAlignment="Center" />
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="8">
+                            <Image Width="24"
+                                   Height="24"
+                                   Source="{x:Bind Icon}"
+                                   VerticalAlignment="Center"/>
+                            <TextBlock Text="{x:Bind FullPath}"
+                                       VerticalAlignment="Center"/>
                         </StackPanel>
                     </DataTemplate>
                 </ComboBox.ItemTemplate>
             </ComboBox>
             <!-- 选择其他自定义图标 -->
-            <Button Content="浏览" Click="PickOtherIconButton_Click" />
+            <Button Content="浏览"
+                    Click="PickOtherIconButton_Click"/>
             <!-- 应用自定义图标 -->
             <Button
                 IsEnabled="{x:Bind FolderEntry.IsSelectedIconChanged, Mode=OneWay}"
                 Click="ApplyButton_Click"
                 Style="{ThemeResource AccentButtonStyle}"
                 Padding="18,6"
-                Content="应用" />
+                Content="应用"/>
         </StackPanel>
 
     </Grid>
