@@ -7,8 +7,10 @@ namespace Foldicon;
 public partial class App
 {
     public static MainWindow MainWindow { get; } = MainWindow = new MainWindow();
-    public static OptionService OptionService { get; private set; } = OptionService.Instance; // 在 App 启动前使设置选项就绪
 
+    // 所有 Service 随 App 启动
+    public static OptionService OptionService { get; private set; } = OptionService.Instance;
+    public static IconGroupService IconGroupService { get; private set; } = IconGroupService.Instance;
 
     public App()
     {

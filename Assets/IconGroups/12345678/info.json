@@ -1,0 +1,13 @@
+﻿{
+  "Name": "Folder 11",
+  "Description": "简介测试",
+  "Categories": {
+    "视频": [
+      "4k_video_downloader.ico"
+    ],
+    "工具": [
+      "7zip.ico",
+      "4k_video_to_mp3.ico"
+    ]
+  }
+}

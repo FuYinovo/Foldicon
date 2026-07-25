@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Struct;
 using Foldicon.Tool;
@@ -14,7 +13,7 @@ namespace Foldicon.Class;
 public partial class FolderEntry : ObservableObject
 {
     [ObservableProperty] private ImageSource _currentIcon;
-    [ObservableProperty] private ObservableCollection<FileIcon> _optionalIcons = [];
+    [ObservableProperty] private ObservableCollection<BitmapIcon> _optionalIcons = [];
 
     [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
     private int _selectedIndex = -1;
@@ -31,7 +30,7 @@ public partial class FolderEntry : ObservableObject
     /// <param name="fullPath">文件夹完整路径</param>
     /// <param name="currentIcon">文件夹图标（null则自动获取）</param>
     /// <param name="exeIcons">可选exe路径及图标(null则自动获取)</param>
-    public FolderEntry(string fullPath, byte[]? currentIcon = null, List<(string, byte[])>? exeIcons = null)
+    public FolderEntry(string fullPath, byte[]? currentIcon = null, List<BytesIcon>? exeIcons = null)
     {
         _fullPath = fullPath;
 
@@ -39,8 +38,9 @@ public partial class FolderEntry : ObservableObject
         var icons =
             exeIcons ??
             IconHelper.GetExeIconsAsync(fullPath, false).Result;
-        foreach (var (path, icon) in icons)
-            OptionalIcons.Add(new FileIcon(path, IconHelper.CreateBitmapImage(icon)));
+        foreach (var icon in icons)
+            OptionalIcons.Add(new BitmapIcon
+                { FullPath = icon.FullPath, Icon = IconHelper.CreateBitmapImage(icon.Icon!) }); // 此处不可能 null
 
         // CurrentIcon
         CurrentIcon = currentIcon is null
@@ -89,7 +89,7 @@ public partial class FolderEntry : ObservableObject
     {
         var icon = IconHelper.GetFileIcon(fullPath);
         if (icon is null) return;
-        OptionalIcons.Add(new FileIcon(fullPath, IconHelper.CreateBitmapImage(icon)));
+        OptionalIcons.Add(new BitmapIcon { FullPath = fullPath, Icon = IconHelper.CreateBitmapImage(icon) });
         SelectedIndex = OptionalIcons.Count - 1;
     }
 
@@ -120,7 +120,7 @@ public partial class FolderEntry : ObservableObject
 
         // 未找到：创建新的自定义图标可选项
         if (icon is null) return;
-        OptionalIcons.Add(new FileIcon(iconPath, IconHelper.CreateBitmapImage(icon)));
+        OptionalIcons.Add(new BitmapIcon { FullPath = iconPath, Icon = IconHelper.CreateBitmapImage(icon) });
         SelectedIndex = OptionalIcons.Count - 1;
 
         return;

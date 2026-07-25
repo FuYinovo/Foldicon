@@ -37,7 +37,7 @@
                 <!-- SelectedIndex 设为 OneWay，防止 TwoWay 在虚拟化控件回收时覆写 -1 污染数据 -->
                 <!-- SelectionChanged 手动处理 UI 操作 -->
                 <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="struct:FileIcon">
+                    <DataTemplate x:DataType="struct:BitmapIcon">
                         <StackPanel Orientation="Horizontal" Spacing="8">
                             <Image Width="24" Height="24" Source="{x:Bind Icon}" VerticalAlignment="Center" />
                             <TextBlock Text="{x:Bind FullPath}" VerticalAlignment="Center" />

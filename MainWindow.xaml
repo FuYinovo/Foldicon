@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:foldicon="using:Foldicon"
     mc:Ignorable="d"
     Title="Foldicon">
 
@@ -22,11 +23,10 @@
                 <NavigationViewItem Icon="Edit" Content="图标编辑器" Tag="IconEditor" />
                 <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7B8;}" Content="图标库" IsExpanded="True">
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}" Content="浏览器" Tag="IconGroup">
-                            <NavigationViewItem.MenuItems>
-                                <NavigationViewItem Content="Folder 11" Tag="IconGroup_0"/>
-                            </NavigationViewItem.MenuItems>
-                            
+                        <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
+                                            Content="浏览器"
+                                            Tag="IconGroup"
+                                            MenuItemsSource="{x:Bind foldicon:MainWindow.IconGroups}">
                         </NavigationViewItem>
                         <NavigationViewItem Icon="Tag" Content="分类器" Tag="IconGroupCategorize" />
                     </NavigationViewItem.MenuItems>

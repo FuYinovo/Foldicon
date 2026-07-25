@@ -7,7 +7,13 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+    xmlns:class="using:Foldicon.Class"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+    </Page.Resources>
 
     <Grid RowSpacing="12">
         <Grid.RowDefinitions>
@@ -17,65 +23,67 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0" HorizontalAlignment="Right">
-            <SplitButton Content="导入文件夹">
-                <SplitButton.Flyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="导入图标" />
-                    </MenuFlyout>
-                </SplitButton.Flyout>
-            </SplitButton>
+            <StackPanel Orientation="Horizontal" Spacing="4">
+                <Button Content="新建图标组" Click="CreateGroup_Click" />
+                <Button Content="导入图标组" Click="ImportGroup_Click" />
+            </StackPanel>
         </Grid>
 
         <Line Grid.Row="1"
-          Stroke="{ThemeResource AccentAAFillColorDisabled}"
-          X1="0" Y1="0"
-          X2="999999" Y2="0"
-          StrokeThickness="1" />
+              Stroke="{ThemeResource AccentAAFillColorDisabled}"
+              X1="0" Y1="0"
+              X2="999999" Y2="0"
+              StrokeThickness="1" />
 
-        <Grid Grid.Row="2">
-            <controls:WrapPanel HorizontalSpacing="18" VerticalSpacing="18">
-                <Button
-                    Padding="-5,0,0,0"
-                    Width="310"
-                    Height="145"
-                    Background="{ThemeResource CardBackgroundFillColorDefault}"
-                    CornerRadius="8">
+        <ItemsRepeater Grid.Row="2" ItemsSource="{x:Bind _viewModel.Groups}">
+            <ItemsRepeater.Layout>
+                <controls:WrapLayout HorizontalSpacing="18" VerticalSpacing="18" />
+            </ItemsRepeater.Layout>
+            <ItemsRepeater.ItemTemplate>
+                <DataTemplate x:DataType="class:IconGroup">
+                    <Button
+                        Padding="0"
+                        Width="310"
+                        Height="145"
+                        Background="{ThemeResource CardBackgroundFillColorDefault}"
+                        CornerRadius="8">
 
-                    <Button.ContextFlyout>
-                        <MenuFlyout>
-                            <MenuFlyoutItem Text="导入图标" Icon="Add" />
-                            <MenuFlyoutSeparator />
-                            <MenuFlyoutItem Text="编辑信息" Icon="Edit" />
-                            <MenuFlyoutItem Text="删除图标组" Icon="Delete" />
-                        </MenuFlyout>
+                        <Button.ContextFlyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="导入图标" Icon="Add" Click="ImportIcon_Click" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem Text="编辑信息" Icon="Edit" Click="EditGroupInfo_Click" />
+                                <MenuFlyoutItem Text="删除图标组" Icon="Delete" Click="RemoveGroup_Click" />
+                            </MenuFlyout>
 
-                    </Button.ContextFlyout>
+                        </Button.ContextFlyout>
 
-                    <StackPanel Orientation="Horizontal" Padding="8" Spacing="2">
-                        <Image Width="128"
-                               Height="128"
-                               HorizontalAlignment="Left"
-                               Source="F:\Folder11-Icon\folder11.ico" />
-                        <StackPanel Spacing="2" MaxWidth="160">
-                            <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}"
-                                       TextWrapping="NoWrap"
-                                       FontWeight="SemiBold"
-                                       Text="Folder 11" />
-                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}"
-                                       TextWrapping="NoWrap"
-                                       Text="路径：F:\Icons\" />
-                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}"
-                                       TextWrapping="NoWrap"
-                                       Text="数量：32" />
-                            <TextBlock
-                                MaxHeight="60"
-                                Style="{ThemeResource CaptionTextBlockStyle}"
-                                Text="Windows 11 风格的文件夹图标集合，与 Fluent UI 设计语言保持一致"
-                                TextWrapping="Wrap" />
+                        <StackPanel Orientation="Horizontal" Padding="8" Spacing="2">
+                            <Image Width="128"
+                                   Height="128"
+                                   HorizontalAlignment="Left"
+                                   Source="{Binding Logo, Mode=OneWay}" />
+                            <StackPanel Spacing="2" MaxWidth="160">
+                                <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}"
+                                           TextWrapping="NoWrap"
+                                           FontWeight="SemiBold"
+                                           Text="{Binding Name, Mode=OneWay}" />
+                                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}"
+                                           TextWrapping="NoWrap"
+                                           Text="{Binding Icons.Count, Mode=OneWay,
+                                           Converter={StaticResource StringFormatConverter},
+                                           ConverterParameter='数量：{0}'}" />
+                                <TextBlock
+                                    MaxHeight="90"
+                                    Width="160"
+                                    Style="{ThemeResource CaptionTextBlockStyle}"
+                                    Text="{Binding Description, Mode=OneWay}"
+                                    TextWrapping="Wrap" />
+                            </StackPanel>
                         </StackPanel>
-                    </StackPanel>
-                </Button>
-            </controls:WrapPanel>
-        </Grid>
+                    </Button>
+                </DataTemplate>
+            </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
     </Grid>
 </Page>

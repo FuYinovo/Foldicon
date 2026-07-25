@@ -10,6 +10,8 @@
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:labs="using:CommunityToolkit.Labs.WinUI"
     xmlns:converter="using:Foldicon.Converter"
+    xmlns:class="using:Foldicon.Class"
+    xmlns:struct="using:Foldicon.Struct"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -37,49 +39,10 @@
 
         <StackPanel Spacing="8" Grid.Row="1">
             <TextBlock Text="类别筛选" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-            <labs:TokenView IsWrapped="True" SelectionMode="Multiple">
-                <labs:TokenItem Content="All" IsSelected="True" />
-                <labs:TokenItem Content="Apps">
-                    <labs:TokenItem.Icon>
-                        <FontIcon Glyph="&#xECAA;" />
-                    </labs:TokenItem.Icon>
-                </labs:TokenItem>
-                <labs:TokenItem Content="Work">
-                    <labs:TokenItem.Icon>
-                        <FontIcon Glyph="&#xE821;" />
-                    </labs:TokenItem.Icon>
-                </labs:TokenItem>
-                <labs:TokenItem Content="Documents">
-                    <labs:TokenItem.Icon>
-                        <FontIcon Glyph="&#xE8A5;" />
-                    </labs:TokenItem.Icon>
-                </labs:TokenItem>
-                <labs:TokenItem Content="Web">
-                    <labs:TokenItem.Icon>
-                        <FontIcon Glyph="&#xE774;" />
-                    </labs:TokenItem.Icon>
-                </labs:TokenItem>
-                <labs:TokenItem Content="Settings">
-                    <labs:TokenItem.Icon>
-                        <FontIcon Glyph="&#xE713;" />
-                    </labs:TokenItem.Icon>
-                </labs:TokenItem>
-                <labs:TokenItem Content="People">
-                    <labs:TokenItem.Icon>
-                        <FontIcon Glyph="&#xE716;" />
-                    </labs:TokenItem.Icon>
-                </labs:TokenItem>
-                <labs:TokenItem Content="Folders">
-                    <labs:TokenItem.Icon>
-                        <FontIcon Glyph="&#xE8B7;" />
-                    </labs:TokenItem.Icon>
-                </labs:TokenItem>
-                <labs:TokenItem Content="Photos">
-                    <labs:TokenItem.Icon>
-                        <FontIcon Glyph="&#xE91B;" />
-                    </labs:TokenItem.Icon>
-                </labs:TokenItem>
-            </labs:TokenView>
+            <labs:TokenView
+                IsWrapped="True"
+                SelectionMode="Multiple"
+                ItemsSource="{x:Bind Group.Categories, Mode=OneWay}" />
         </StackPanel>
 
         <Line Grid.Row="2"
@@ -88,47 +51,65 @@
               X2="999999" Y2="0"
               StrokeThickness="1" />
 
-        <control:SwitchPresenter
-            Grid.Row="3"
-            Value="{Binding SelectedIndex, ElementName=ViewModeSegmented, Converter={StaticResource IntToStringConverter}}">
-            <control:Case Value="0">
-                <control:WrapPanel HorizontalSpacing="8" VerticalSpacing="8">
-                    <Button Width="74"
-                            Height="100"
-                            Padding="4"
-                            Background="{ThemeResource CardBackgroundFillColorDefault}">
-                        <Button.ContextFlyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Text="删除图标" Icon="Delete" />
-                            </MenuFlyout>
-                        </Button.ContextFlyout>
-                        <StackPanel>
-                            <Image Width="64" Height="64" Source="F:\Folder11-Icon\3d_coat.ico" />
-                            <TextBlock Text="3d_coat"
-                                       MaxWidth="60"
-                                       TextWrapping="NoWrap"
-                                       TextAlignment="Center" />
-                        </StackPanel>
-                    </Button>
-                </control:WrapPanel>
-            </control:Case>
+        <ScrollViewer Grid.Row="3">
+            <control:SwitchPresenter
+                Value="{Binding SelectedIndex, ElementName=ViewModeSegmented, Converter={StaticResource IntToStringConverter}}">
+                <control:Case Value="0">
+                    <ItemsRepeater ItemsSource="{x:Bind Group.Icons, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <control:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" />
+                        </ItemsRepeater.Layout>
 
-            <control:Case Value="1">
-                <control:WrapPanel HorizontalSpacing="4" VerticalSpacing="4">
-                    <Button Width="40"
-                            Height="40"
-                            Padding="4"
-                            ToolTipService.ToolTip="3d_coat"
-                            Background="{ThemeResource CardBackgroundFillColorDefault}">
-                        <Button.ContextFlyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Text="删除图标" Icon="Delete" />
-                            </MenuFlyout>
-                        </Button.ContextFlyout>
-                        <Image Width="32" Height="32" Source="F:\Folder11-Icon\3d_coat.ico" />
-                    </Button>
-                </control:WrapPanel>
-            </control:Case>
-        </control:SwitchPresenter>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="struct:BitmapIcon">
+                                <Button Width="74"
+                                        Height="100"
+                                        Padding="4"
+                                        ToolTipService.ToolTip="{Binding FileName}"
+                                        Background="{ThemeResource CardBackgroundFillColorDefault}">
+                                    <Button.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="删除图标" Icon="Delete" />
+                                        </MenuFlyout>
+                                    </Button.ContextFlyout>
+                                    <StackPanel>
+                                        <Image Width="64" Height="64" Source="{Binding Icon}" />
+                                        <TextBlock Text="{Binding FileName}"
+                                                   MaxWidth="60"
+                                                   TextWrapping="NoWrap"
+                                                   TextAlignment="Center" />
+                                    </StackPanel>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </control:Case>
+
+                <control:Case Value="1">
+                    <ItemsRepeater ItemsSource="{x:Bind Group.Icons, Mode=OneWay}">
+                        <ItemsRepeater.Layout>
+                            <control:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
+                        </ItemsRepeater.Layout>
+
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="struct:BitmapIcon">
+                                <Button Width="40"
+                                        Height="40"
+                                        Padding="4"
+                                        ToolTipService.ToolTip="{Binding FileName}"
+                                        Background="{ThemeResource CardBackgroundFillColorDefault}">
+                                    <Button.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="删除图标" Icon="Delete" />
+                                        </MenuFlyout>
+                                    </Button.ContextFlyout>
+                                    <Image Width="32" Height="32" Source="{Binding Icon}" />
+                                </Button>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </control:Case>
+            </control:SwitchPresenter>
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Foldicon.Struct;
 using IniFileSharp;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Vanara.InteropServices;
@@ -61,11 +62,11 @@ public static partial class IconHelper // 公开方法
     /// </summary>
     /// <param name="fullPath">文件夹完整路径</param>
     /// <param name="configureAwait">是否以调用进程返回</param>
-    /// <returns>(完整路径, PNG数组)的列表</returns>
-    public static async Task<List<(string, byte[])>> GetExeIconsAsync(string fullPath, bool configureAwait = true)
+    /// <returns>BytesIcon 实例的列表</returns>
+    public static async Task<List<BytesIcon>> GetExeIconsAsync(string fullPath, bool configureAwait = true)
     {
         // 创建任务
-        List<Task<(string, byte[]?)>> tasks = [];
+        List<Task<BytesIcon>> tasks = [];
         var files = Directory.GetFiles(fullPath);
         foreach (var file in files)
         {
@@ -73,16 +74,16 @@ public static partial class IconHelper // 公开方法
             var extension = Path.GetExtension(file);
             if (!extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)) continue;
 
-            tasks.Add(Task.Run(() => (file, GetFileIcon(file))));
+            tasks.Add(Task.Run(() => new BytesIcon { FullPath = fullPath, Icon = GetFileIcon(file) }));
         }
 
         // 获取结果
         await Task.WhenAll(tasks).ConfigureAwait(configureAwait);
-        List<(string, byte[])> icons = [];
+        List<BytesIcon> icons = [];
         foreach (var task in tasks)
         {
-            var (path, icon) = task.Result;
-            if (icon is not null) icons.Add((path, icon));
+            var icon = task.Result;
+            if (icon.Icon is not null) icons.Add(icon);
         }
 
         return icons;
@@ -93,21 +94,22 @@ public static partial class IconHelper // 公开方法
     /// </summary>
     /// <param name="fullPath">文件夹完整路径</param>
     /// <param name="configureAwait">是否以调用进程返回</param>
-    /// <returns>(完整路径, PNG数组)的列表</returns>
-    public static async Task<List<(string, byte[])>> GetSubfolderIconsAsync(string fullPath, bool configureAwait = true)
+    /// <returns>BytesIcon 实例的列表</returns>
+    public static async Task<List<BytesIcon>> GetSubfolderIconsAsync(string fullPath, bool configureAwait = true)
     {
         // 创建任务
-        List<Task<(string, byte[]?)>> tasks = [];
+        List<Task<BytesIcon>> tasks = [];
         var paths = Directory.GetDirectories(fullPath);
-        foreach (var path in paths) tasks.Add(Task.Run(() => (path, GetFolderIcon(path))));
+        foreach (var path in paths)
+            tasks.Add(Task.Run(() => new BytesIcon { FullPath = path, Icon = GetFolderIcon(path) }));
 
         // 获取结果
-        List<(string, byte[])> icons = [];
+        List<BytesIcon> icons = [];
         await Task.WhenAll(tasks).ConfigureAwait(configureAwait);
         foreach (var task in tasks)
         {
-            var (path, icon) = task.Result;
-            if (icon is not null) icons.Add((path, icon));
+            var icon = task.Result;
+            if (icon.Icon is not null) icons.Add(icon);
         }
 
         return icons;

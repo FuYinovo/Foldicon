@@ -36,7 +36,7 @@ public static class UriHelper
     /// </summary>
     /// <param name="folderPath">文件夹相对路径</param>
     /// <returns>绝对路径</returns>
-    public static string[] GetSubFolderPathFromAssets(string folderPath)
+    public static string[] GetSubFoldersPathFromAssets(string folderPath)
     {
         var path = GetFolderPathFromAssets(folderPath);
         return Directory.GetDirectories(path);

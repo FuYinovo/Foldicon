@@ -88,13 +88,13 @@ public sealed partial class IconEditorPage // 普通方法
         var subFolders = await IconHelper.GetSubfolderIconsAsync(ParentFolder);
 
         // 创建 FolderEntry 实例
-        foreach (var (path, icon) in subFolders)
+        foreach( var icon in subFolders)
         {
             try
             {
                 // 获取可选 exe 程序图标
-                var exeIcons = await IconHelper.GetExeIconsAsync(path);
-                SubFolders.Add(new FolderEntry(path, icon, exeIcons));
+                var exeIcons = await IconHelper.GetExeIconsAsync(icon.FullPath);
+                SubFolders.Add(new FolderEntry(icon.FullPath, icon.Icon, exeIcons));
             }
             catch (UnauthorizedAccessException access) // 无访问权限
             {

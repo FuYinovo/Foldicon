@@ -1,6 +1,8 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
+using Foldicon.Class;
 using Foldicon.Page;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
@@ -13,6 +15,7 @@ namespace Foldicon;
 public sealed partial class MainWindow
 {
     private static readonly Type DefaultPage = typeof(IconEditorPage);
+    private static ObservableCollection<IconGroup> IconGroups => Service.IconGroupService.Instance.Groups;
 
     public MainWindow()
     {
@@ -85,7 +88,14 @@ public sealed partial class MainWindow
             return;
         }
 
-        // 其他页面
+        // 动态页面
+        if (args.SelectedItem is IconGroup group)
+        {
+            ContentFrame.Navigate(typeof(IconGroupsDetailPage), group);
+            return;
+        }
+
+        // 静态页面
         if (sender.SelectedItem is not NavigationViewItem item) return;
         if (item.Tag is not string tag) return;
         ContentFrame.Navigate(tag switch
