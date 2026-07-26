@@ -76,7 +76,7 @@ public class IconGroupService
 
         // 创建 Logo
         var logoPath = Path.Combine(folderPath, LogoFileName);
-        File.Copy(logo.FullPath, logoPath);
+        if (logo.FullPath is not null) File.Copy(logo.FullPath, logoPath);
 
         // 添加到 Service
         Groups.Add(group);
@@ -114,7 +114,9 @@ public class IconGroupService
         // 覆盖 Logo 文件
         var logoPath = Path.Combine(group.RootPath, LogoFileName);
         if (File.Exists(logoPath)) File.Delete(logoPath);
-        File.Copy(logo.FullPath, logoPath);
+        if (logo.FullPath is not null) // 用户可能未修改 Logo
+            File.Copy(logo.FullPath, logoPath);
+
 
         // 覆盖 Json 文件
         var jsonPath = Path.Combine(group.RootPath, InfoFileName);

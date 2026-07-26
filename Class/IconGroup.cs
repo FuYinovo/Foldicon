@@ -81,9 +81,9 @@ public partial class IconGroup : ObservableObject
     /// <param name="icon">图标实例</param>
     public void Remove(BitmapIcon icon)
     {
+        if (icon.FullPath is null) return;
         // 删除文件
         File.Delete(icon.FullPath);
-
         // 删除已加载实例
         Icons.Remove(icon);
     }

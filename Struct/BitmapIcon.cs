@@ -5,7 +5,7 @@ namespace Foldicon.Struct;
 
 public record struct BitmapIcon()
 {
-    public string FullPath { get; set; } = string.Empty;
+    public string? FullPath { get; set; }
     public BitmapImage Icon { get; set; } = new();
-    public string FileName => Path.GetFileNameWithoutExtension(FullPath);
+    public string? FileName => Path.GetFileNameWithoutExtension(FullPath);
 }
