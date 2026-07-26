@@ -6,14 +6,15 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:userControl="using:Foldicon.UserControl"
       xmlns:class="using:Foldicon.Class"
       xmlns:converter="using:Foldicon.Converter"
+      xmlns:converters="using:CommunityToolkit.WinUI.Converters"
       xmlns:userControl1="using:Foldicon.Xaml.UserControl"
       mc:Ignorable="d">
 
     <Page.Resources>
         <converter:EnumToBoolConverter x:Key="EnumToBoolConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
     </Page.Resources>
 
     <Grid RowSpacing="12">
@@ -123,13 +124,14 @@
         </Grid>
 
         <Line Grid.Row="2"
-                  Stroke="{ThemeResource AccentAAFillColorDisabled}"
-                  X1="0" Y1="0"
-                  X2="999999" Y2="0"
-                  StrokeThickness="1" />
+              Stroke="{ThemeResource AccentAAFillColorDisabled}"
+              X1="0" Y1="0"
+              X2="999999" Y2="0"
+              StrokeThickness="1" />
 
         <Grid Grid.Row="3">
-            <ScrollViewer>
+            <ScrollViewer
+                Visibility="{x:Bind IsSubFoldersLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                 <ItemsRepeater ItemsSource="{x:Bind FilteredSubFolders, Mode=OneWay}">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="class:FolderEntry">
@@ -141,6 +143,16 @@
                     </ItemsRepeater.Layout>
                 </ItemsRepeater>
             </ScrollViewer>
+            <TextBlock Text="(´･ω･`) 空空如也……&#10;请先选择一个文件夹吧！"
+                       FontSize="40"
+                       FontWeight="Black"
+                       Opacity=".3"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{x:Bind IsSubFoldersLoaded, Mode=OneWay,
+                       Converter={StaticResource BoolToVisibilityConverter},
+                       ConverterParameter=True}"/>
         </Grid>
     </Grid>
 </Page>

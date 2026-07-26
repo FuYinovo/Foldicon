@@ -15,6 +15,7 @@
 
     <Page.Resources>
         <converter:IntToStringConverter x:Key="IntToStringConverter" />
+        <converter:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
     </Page.Resources>
 
     <Grid RowSpacing="12">
@@ -51,65 +52,80 @@
               X2="999999" Y2="0"
               StrokeThickness="1" />
 
-        <ScrollViewer Grid.Row="3">
-            <control:SwitchPresenter
-                Value="{Binding SelectedIndex, ElementName=ViewModeSegmented, Converter={StaticResource IntToStringConverter}}">
-                <control:Case Value="0">
-                    <ItemsRepeater ItemsSource="{x:Bind Group.Icons, Mode=OneWay}">
-                        <ItemsRepeater.Layout>
-                            <control:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" />
-                        </ItemsRepeater.Layout>
+        <Grid Row="3">
+            <ScrollViewer Visibility="{x:Bind Group.Icons.Count, Mode=OneWay,
+                       Converter={StaticResource CountToVisibilityConverter}}">
+                <control:SwitchPresenter
+                    Value="{Binding SelectedIndex, ElementName=ViewModeSegmented, Converter={StaticResource IntToStringConverter}}">
+                    <control:Case Value="0">
+                        <ItemsRepeater ItemsSource="{x:Bind Group.Icons, Mode=OneWay}">
+                            <ItemsRepeater.Layout>
+                                <control:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" />
+                            </ItemsRepeater.Layout>
 
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="struct:BitmapIcon">
-                                <Button Width="74"
-                                        Height="100"
-                                        Padding="4"
-                                        ToolTipService.ToolTip="{Binding FileName}"
-                                        Background="{ThemeResource CardBackgroundFillColorDefault}">
-                                    <Button.ContextFlyout>
-                                        <MenuFlyout>
-                                            <MenuFlyoutItem Text="删除图标" Icon="Delete"  Click="DeleteIcon_Click"/>
-                                        </MenuFlyout>
-                                    </Button.ContextFlyout>
-                                    <StackPanel>
-                                        <Image Width="64" Height="64" Source="{Binding Icon}" />
-                                        <TextBlock Text="{Binding FileName}"
-                                                   MaxWidth="60"
-                                                   TextWrapping="NoWrap"
-                                                   TextAlignment="Center" />
-                                    </StackPanel>
-                                </Button>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                </control:Case>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="struct:BitmapIcon">
+                                    <Button Width="74"
+                                            Height="100"
+                                            Padding="4"
+                                            ToolTipService.ToolTip="{Binding FileName}"
+                                            Background="{ThemeResource CardBackgroundFillColorDefault}">
+                                        <Button.ContextFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="删除图标" Icon="Delete" Click="DeleteIcon_Click" />
+                                            </MenuFlyout>
+                                        </Button.ContextFlyout>
+                                        <StackPanel>
+                                            <Image Width="64" Height="64" Source="{Binding Icon}" />
+                                            <TextBlock Text="{Binding FileName}"
+                                                       MaxWidth="60"
+                                                       TextWrapping="NoWrap"
+                                                       TextAlignment="Center" />
+                                        </StackPanel>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </control:Case>
 
-                <control:Case Value="1">
-                    <ItemsRepeater ItemsSource="{x:Bind Group.Icons, Mode=OneWay}">
-                        <ItemsRepeater.Layout>
-                            <control:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
-                        </ItemsRepeater.Layout>
+                    <control:Case Value="1">
+                        <ItemsRepeater ItemsSource="{x:Bind Group.Icons, Mode=OneWay}">
+                            <ItemsRepeater.Layout>
+                                <control:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
+                            </ItemsRepeater.Layout>
 
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="struct:BitmapIcon">
-                                <Button Width="40"
-                                        Height="40"
-                                        Padding="4"
-                                        ToolTipService.ToolTip="{Binding FileName}"
-                                        Background="{ThemeResource CardBackgroundFillColorDefault}">
-                                    <Button.ContextFlyout>
-                                        <MenuFlyout>
-                                            <MenuFlyoutItem Text="删除图标" Icon="Delete" />
-                                        </MenuFlyout>
-                                    </Button.ContextFlyout>
-                                    <Image Width="32" Height="32" Source="{Binding Icon}" />
-                                </Button>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                </control:Case>
-            </control:SwitchPresenter>
-        </ScrollViewer>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="struct:BitmapIcon">
+                                    <Button Width="40"
+                                            Height="40"
+                                            Padding="4"
+                                            ToolTipService.ToolTip="{Binding FileName}"
+                                            Background="{ThemeResource CardBackgroundFillColorDefault}">
+                                        <Button.ContextFlyout>
+                                            <MenuFlyout>
+                                                <MenuFlyoutItem Text="删除图标" Icon="Delete" />
+                                            </MenuFlyout>
+                                        </Button.ContextFlyout>
+                                        <Image Width="32" Height="32" Source="{Binding Icon}" />
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </control:Case>
+                </control:SwitchPresenter>
+            </ScrollViewer>
+
+            <TextBlock Text="(｡•́︿•̀｡) 一个图标都没有呢……&#10;要不添加个新成员吧？"
+                       FontSize="40"
+                       FontWeight="Black"
+                       Opacity=".3"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{x:Bind Group.Icons.Count, Mode=OneWay,
+                       Converter={StaticResource CountToVisibilityConverter},
+                       ConverterParameter=True}" />
+        </Grid>
+
     </Grid>
 </Page>

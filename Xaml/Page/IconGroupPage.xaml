@@ -9,10 +9,12 @@
     xmlns:controls="using:CommunityToolkit.WinUI.Controls"
     xmlns:class="using:Foldicon.Class"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+    xmlns:converter="using:Foldicon.Converter"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converters:StringFormatConverter x:Key="StringFormatConverter" />
+        <converter:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
     </Page.Resources>
 
     <Grid RowSpacing="12">
@@ -35,56 +37,72 @@
               X2="999999" Y2="0"
               StrokeThickness="1" />
 
-        <ItemsRepeater Grid.Row="2" ItemsSource="{x:Bind _viewModel.Groups}">
-            <ItemsRepeater.Layout>
-                <controls:WrapLayout HorizontalSpacing="18" VerticalSpacing="18" />
-            </ItemsRepeater.Layout>
-            <ItemsRepeater.ItemTemplate>
-                <DataTemplate x:DataType="class:IconGroup">
-                    <Button
-                        Click="IconGroup_Click"
-                        Padding="0"
-                        Width="310"
-                        Height="145"
-                        Background="{ThemeResource CardBackgroundFillColorDefault}"
-                        CornerRadius="8">
+        <Grid Grid.Row="2">
+            <ItemsRepeater
+                ItemsSource="{x:Bind _viewModel.Groups}"
+                Visibility="{x:Bind _viewModel.Groups.Count, Mode=OneWay,
+                Converter={StaticResource CountToVisibilityConverter}}">
+                <ItemsRepeater.Layout>
+                    <controls:WrapLayout HorizontalSpacing="18" VerticalSpacing="18" />
+                </ItemsRepeater.Layout>
+                <ItemsRepeater.ItemTemplate>
+                    <DataTemplate x:DataType="class:IconGroup">
+                        <Button
+                            Click="IconGroup_Click"
+                            Padding="0"
+                            Width="310"
+                            Height="145"
+                            Background="{ThemeResource CardBackgroundFillColorDefault}"
+                            CornerRadius="8">
 
-                        <Button.ContextFlyout>
-                            <MenuFlyout>
-                                <MenuFlyoutItem Text="导入图标" Icon="Add" Click="ImportIcon_Click" />
-                                <MenuFlyoutSeparator />
-                                <MenuFlyoutItem Text="编辑信息" Icon="Edit" Click="EditGroupInfo_Click" />
-                                <MenuFlyoutItem Text="删除图标组" Icon="Delete" Click="RemoveGroup_Click" />
-                            </MenuFlyout>
+                            <Button.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="导入图标" Icon="Add" Click="ImportIcon_Click" />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem Text="编辑信息" Icon="Edit" Click="EditGroupInfo_Click" />
+                                    <MenuFlyoutItem Text="删除图标组" Icon="Delete" Click="RemoveGroup_Click" />
+                                </MenuFlyout>
 
-                        </Button.ContextFlyout>
+                            </Button.ContextFlyout>
 
-                        <StackPanel Orientation="Horizontal" Padding="8" Spacing="2">
-                            <Image Width="128"
-                                   Height="128"
-                                   HorizontalAlignment="Left"
-                                   Source="{Binding Logo, Mode=OneWay}" />
-                            <StackPanel Spacing="2" MaxWidth="160">
-                                <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}"
-                                           TextWrapping="NoWrap"
-                                           FontWeight="SemiBold"
-                                           Text="{Binding Name, Mode=OneWay}" />
-                                <TextBlock Style="{ThemeResource CaptionTextBlockStyle}"
-                                           TextWrapping="NoWrap"
-                                           Text="{Binding Icons.Count, Mode=OneWay,
+                            <StackPanel Orientation="Horizontal" Padding="8" Spacing="2">
+                                <Image Width="128"
+                                       Height="128"
+                                       HorizontalAlignment="Left"
+                                       Source="{Binding Logo, Mode=OneWay}" />
+                                <StackPanel Spacing="2" MaxWidth="160">
+                                    <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}"
+                                               TextWrapping="NoWrap"
+                                               FontWeight="SemiBold"
+                                               Text="{Binding Name, Mode=OneWay}" />
+                                    <TextBlock Style="{ThemeResource CaptionTextBlockStyle}"
+                                               TextWrapping="NoWrap"
+                                               Text="{Binding Icons.Count, Mode=OneWay,
                                            Converter={StaticResource StringFormatConverter},
                                            ConverterParameter='数量：{0}'}" />
-                                <TextBlock
-                                    MaxHeight="90"
-                                    Width="160"
-                                    Style="{ThemeResource CaptionTextBlockStyle}"
-                                    Text="{Binding Description, Mode=OneWay}"
-                                    TextWrapping="Wrap" />
+                                    <TextBlock
+                                        MaxHeight="90"
+                                        Width="160"
+                                        Style="{ThemeResource CaptionTextBlockStyle}"
+                                        Text="{Binding Description, Mode=OneWay}"
+                                        TextWrapping="Wrap" />
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
-                    </Button>
-                </DataTemplate>
-            </ItemsRepeater.ItemTemplate>
-        </ItemsRepeater>
+                        </Button>
+                    </DataTemplate>
+                </ItemsRepeater.ItemTemplate>
+            </ItemsRepeater>
+            <TextBlock Text="(´-ω-`) 唔…这里是空的&#10;要不要添点什么？"
+                       FontSize="40"
+                       FontWeight="Black"
+                       Opacity=".3"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{x:Bind _viewModel.Groups.Count, Mode=OneWay,
+                       Converter={StaticResource CountToVisibilityConverter},
+                       ConverterParameter=True}" />
+        </Grid>
+
     </Grid>
 </Page>

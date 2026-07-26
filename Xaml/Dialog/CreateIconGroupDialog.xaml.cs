@@ -15,7 +15,9 @@ public sealed partial class CreateIconGroupDialog
 {
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
-    [ObservableProperty] private BitmapIcon _logo = new() { Icon = new BitmapImage() };
+
+    [ObservableProperty] private BitmapIcon _logo = new()
+        { Icon = new BitmapImage(new Uri(UriHelper.GetFilePathFromAssets("LogoFallback.png"))) };
 
     public CreateIconGroupDialog()
     {

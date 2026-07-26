@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Class;
 using Foldicon.Struct;
 using Foldicon.Tool;
