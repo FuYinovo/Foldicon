@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
@@ -56,7 +57,11 @@ public class IconGroupService
     /// <summary>
     /// 添加一个图标组并保存到 Assets
     /// </summary>
-    public async void Add(string name, string description, BitmapIcon logo)
+    /// <param name="name">名称</param>
+    /// <param name="description">简介</param>
+    /// <param name="logo">Logo</param>
+    /// <param name="icons">图标</param>
+    public async void Add(string name, string description, BitmapIcon logo, IEnumerable<string>? icons = null)
     {
         // 创建目录
         var folderPath = Path.Combine(RootPath, Guid.NewGuid().ToString());
@@ -70,13 +75,18 @@ public class IconGroupService
             Logo = logo.Icon,
         };
 
-        // 创建 Json
+        // 创建 Json 文件
         var jsonPath = Path.Combine(folderPath, InfoFileName);
         await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(group));
 
-        // 创建 Logo
+        // 复制 Logo 文件
         var logoPath = Path.Combine(folderPath, LogoFileName);
         if (logo.FullPath is not null) File.Copy(logo.FullPath, logoPath);
+
+        // 复制图标
+        if (icons is not null)
+            foreach (var icon in icons)
+                group.Add(icon);
 
         // 添加到 Service
         Groups.Add(group);

@@ -33,7 +33,7 @@ public partial class IconGroup : ObservableObject
     /// 创建一个图标组
     /// </summary>
     /// <param name="path">存储路径</param>
-    public IconGroup(string path) => RootPath = path;
+    public IconGroup(string path) => Init(path);
 
     /// <summary>
     /// Json 解析创建一个图标组, 需要手动调用 Init()

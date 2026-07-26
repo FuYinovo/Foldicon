@@ -1,5 +1,7 @@
 using System;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using Foldicon.Class;
 using Foldicon.Service;
 using Foldicon.Tool;
@@ -80,9 +82,42 @@ public sealed partial class IconGroupPage
     /// <summary>
     /// 点击「导入图标组」按钮
     /// </summary>
-    private void ImportGroup_Click(object sender, RoutedEventArgs e)
+    private async void ImportGroup_Click(object sender, RoutedEventArgs e)
     {
-        // TODO))
+        if (sender is not Button btn) return;
+
+        // 选取文件夹
+        var folder = await StoragePicker.PickFolder(btn.XamlRoot.ContentIslandEnvironment.AppWindowId);
+        if (folder is null) return; // 取消操作
+
+        // 筛选有效图标
+        var files = Directory.GetFiles(folder);
+        List<string> icons =
+            [.. files.Where(file => IconGroupService.IconExtensions.Contains(Path.GetExtension(file)))]; // 检查拓展名
+
+        // 设置图标组信息
+        var content = new CreateIconGroupDialog { Name = Path.GetFileName(folder) };
+        if (icons.Count > 0) // 选取第一个图标作为默认 Logo
+            content.Logo = new BitmapIcon
+            {
+                FullPath = icons.First(),
+                Icon = new BitmapImage(new Uri(icons.First()))
+            };
+
+        var dialog = new ContentDialog
+        {
+            Title = "创建图标组",
+            PrimaryButtonText = "创建",
+            CloseButtonText = "取消",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot,
+            Content = content
+        };
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.None) return; // 取消操作
+
+        // 创建操作
+        IconGroupService.Instance.Add(content.Name, content.Description, content.Logo, icons);
     }
 
     /// <summary>
