@@ -3,12 +3,16 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 using Foldicon.Class;
-using Foldicon.Page;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using IconEditorPage = Foldicon.Xaml.Page.IconEditorPage;
+using IconGroupPage = Foldicon.Xaml.Page.IconGroupPage;
+using IconGroupsCategorizePage = Foldicon.Xaml.Page.IconGroupsCategorizePage;
+using IconGroupsDetailPage = Foldicon.Xaml.Page.IconGroupsDetailPage;
+using SettingsPage = Foldicon.Xaml.Page.SettingsPage;
 
 namespace Foldicon;
 

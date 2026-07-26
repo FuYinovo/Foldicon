@@ -3,7 +3,7 @@ using Foldicon.Tool;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace Foldicon.UserControl;
+namespace Foldicon.Xaml.UserControl;
 
 public sealed partial class FolderEntryControl
 {

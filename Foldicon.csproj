@@ -75,14 +75,12 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="UserControl\FolderEntryControl.xaml">
+    <Page Update="Page\IconEditorPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Page\IconEditorPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
+    <Folder Include="Xaml\Dialog\" />
   </ItemGroup>
 
   <!--

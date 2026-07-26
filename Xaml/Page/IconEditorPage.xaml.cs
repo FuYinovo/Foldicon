@@ -11,7 +11,7 @@ using Foldicon.Tool;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace Foldicon.Page;
+namespace Foldicon.Xaml.Page;
 
 [ObservableObject]
 public sealed partial class IconEditorPage // 回调方法
@@ -115,7 +115,7 @@ public sealed partial class IconEditorPage // 普通方法
         foreach (var folder in SubFolders)
         {
             // 名称筛选
-            if (!folder.FolderName.Contains(FolderNameFilter)) continue;
+            if (!folder.FolderName.Contains((string)FolderNameFilter)) continue;
 
             // 标签筛选
             if (IsEnumFilterEnabled)

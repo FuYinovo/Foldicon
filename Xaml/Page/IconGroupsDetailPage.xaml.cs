@@ -8,7 +8,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
 
-namespace Foldicon.Page;
+namespace Foldicon.Xaml.Page;
 
 [ObservableObject]
 public sealed partial class IconGroupsDetailPage

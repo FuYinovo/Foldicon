@@ -1,6 +1,6 @@
 using Foldicon.Service;
 
-namespace Foldicon.Page;
+namespace Foldicon.Xaml.Page;
 
 public sealed partial class SettingsPage
 {

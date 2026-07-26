@@ -5,7 +5,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
-namespace Foldicon.Page;
+namespace Foldicon.Xaml.Page;
 
 public sealed partial class IconGroupPage
 {
