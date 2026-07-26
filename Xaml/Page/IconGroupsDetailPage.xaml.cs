@@ -35,7 +35,7 @@ public sealed partial class IconGroupsDetailPage
         if (sender is not Button btn) return;
 
         // 选取图标
-        var icons = await StoragePicker.PickFiles(IconGroupService.SupportedIconExtensions,
+        var icons = await StoragePicker.PickFiles(IconGroupService.IconExtensions,
             btn.XamlRoot.ContentIslandEnvironment.AppWindowId);
         if (icons.Length == 0) return;
 

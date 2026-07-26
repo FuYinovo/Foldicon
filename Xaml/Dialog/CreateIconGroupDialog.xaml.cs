@@ -28,7 +28,7 @@ public sealed partial class CreateIconGroupDialog
     private async void ChooseLogo_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Button btn) return;
-        var path = await StoragePicker.PickFile(IconGroupService.SupportedLogoExtensions,
+        var path = await StoragePicker.PickFile(IconGroupService.LogoExtensions,
             btn.XamlRoot.ContentIslandEnvironment.AppWindowId);
         if (path is null) return; // 取消操作
         Logo = new BitmapIcon { FullPath = path, Icon = new BitmapImage(new Uri(path)) };

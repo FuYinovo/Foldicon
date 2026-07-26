@@ -5,15 +5,18 @@ using System.Text.Json;
 using Foldicon.Class;
 using Foldicon.Struct;
 using Foldicon.Tool;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Service;
 
 public class IconGroupService
 {
-    public static readonly string[] SupportedLogoExtensions = [".jpg", ".png", ".ico", ".bmp"];
-    public static readonly string[] SupportedIconExtensions = [".ico"];
+    public const string LogoFileName = "logo.png";
+    public const string InfoFileName = "info.json";
+    public const string IconsFolderName = "Icons";
+    public const string RootFolderName = "IconGroups";
+    public static readonly string[] IconExtensions = [".ico"];
+    public static readonly string[] LogoExtensions = [".ico",".png",".jpg",".jpeg",".bmp"] ;
+    public static readonly string RootPath = UriHelper.GetFolderPathFromAssets(RootFolderName);
     public static IconGroupService Instance { get; } = new();
     public readonly ObservableCollection<IconGroup> Groups = [];
     private IconGroupService() => Load();
@@ -23,11 +26,11 @@ public class IconGroupService
     /// </summary>
     private void Load()
     {
-        var groups = UriHelper.GetSubFoldersPathFromAssets("IconGroups");
+        var groups = UriHelper.GetSubFoldersPathFromAssets(RootFolderName);
         foreach (var groupPath in groups)
         {
             // 读取 Json 信息
-            var jsonPath = Path.Combine(groupPath, "info.json");
+            var jsonPath = Path.Combine(groupPath, InfoFileName);
             if (!Path.Exists(jsonPath)) continue;
 
             var jsonText = File.ReadAllText(jsonPath);
@@ -47,7 +50,7 @@ public class IconGroupService
         foreach (var group in Groups)
         {
             // 保存 Json 信息
-            var jsonPath = Path.Combine(group.RootPath, "info.json");
+            var jsonPath = Path.Combine(group.RootPath,InfoFileName);
             File.WriteAllText(jsonPath, JsonSerializer.Serialize(group));
         }
     }
@@ -58,9 +61,8 @@ public class IconGroupService
     public async void Add(string name, string description, BitmapIcon logo)
     {
         // 创建目录
-        var rootPath = UriHelper.GetFolderPathFromAssets("IconGroups");
-        var folderPath = Path.Combine(rootPath, Guid.NewGuid().ToString());
-        Directory.CreateDirectory(Path.Combine(folderPath, "Icons"));
+        var folderPath = Path.Combine(RootPath, Guid.NewGuid().ToString());
+        Directory.CreateDirectory(Path.Combine(folderPath, IconsFolderName));
 
         // 创建 IconGroup 实例
         var group = new IconGroup(folderPath)
@@ -71,11 +73,11 @@ public class IconGroupService
         };
 
         // 创建 Json
-        var jsonPath = Path.Combine(folderPath, "info.json");
+        var jsonPath = Path.Combine(folderPath, InfoFileName);
         await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(group));
 
         // 创建 Logo
-        var logoPath = Path.Combine(folderPath, "logo.png");
+        var logoPath = Path.Combine(folderPath, LogoFileName);
         File.Copy(logo.FullPath, logoPath);
 
         // 添加到 Service
@@ -93,5 +95,31 @@ public class IconGroupService
 
         // 移除已加载的实例
         Groups.Remove(group);
+    }
+
+    /// <summary>
+    /// 编辑并保存一个已导入到 Assets 的图标组信息
+    /// </summary>
+    /// <param name="group">图标组实例</param>
+    /// <param name="name">新名称</param>
+    /// <param name="description">新简介</param>
+    /// <param name="logo">新Logo</param>
+    public async void Edit(IconGroup group, string name, string description, BitmapIcon logo)
+    {
+        if (!Groups.Contains(group)) return;
+
+        // 修改属性
+        group.Name = name;
+        group.Description = description;
+        group.Logo = logo.Icon;
+
+        // 覆盖 Logo 文件
+        var logoPath = Path.Combine(group.RootPath, LogoFileName);
+        if(File.Exists(logoPath)) File.Delete(logoPath);
+        File.Copy(logo.FullPath, logoPath);
+
+        // 覆盖 Json 文件
+        var jsonPath = Path.Combine(group.RootPath, InfoFileName);
+        await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(group));
     }
 }

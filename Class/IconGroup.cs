@@ -32,7 +32,6 @@ public partial class IconGroup : ObservableObject
     /// <param name="path">存储路径</param>
     public IconGroup(string path) => RootPath = path;
 
-
     /// <summary>
     /// Json 解析创建一个图标组, 需要手动调用 Init()
     /// </summary>
@@ -40,7 +39,6 @@ public partial class IconGroup : ObservableObject
     public IconGroup()
     {
     }
-
 
     /// <summary>
     /// 初始化 - 从根目录加载Logo和图标
@@ -51,16 +49,11 @@ public partial class IconGroup : ObservableObject
         RootPath = rootPath;
 
         // 加载 Logo
-        foreach (var extension in IconGroupService.SupportedLogoExtensions) // 尝试不同格式
-        {
-            var iconPath = Path.Combine(RootPath, $"logo{extension}");
-            if (!File.Exists(iconPath)) continue;
-            Logo = new BitmapImage(new Uri(iconPath));
-            break;
-        }
+        var logoPath = Path.Combine(RootPath, IconGroupService.LogoFileName);
+        if (File.Exists(logoPath)) Logo = new BitmapImage(new Uri(logoPath));
 
         // 加载所有图标
-        var iconsPath = Path.Combine(rootPath, "Icons");
+        var iconsPath = Path.Combine(rootPath, IconGroupService.IconsFolderName);
         if (!Directory.Exists(iconsPath)) Directory.CreateDirectory(iconsPath);
         foreach (var iconPath in Directory.GetFiles(iconsPath))
         {
@@ -76,7 +69,7 @@ public partial class IconGroup : ObservableObject
     public void Add(string icon)
     {
         // 复制到目录
-        var targetPath = Path.Combine(RootPath, "Icons", Path.GetFileName(icon));
+        var targetPath = Path.Combine(RootPath, IconGroupService.IconsFolderName, Path.GetFileName(icon));
         File.Copy(icon, targetPath);
 
         // 读取 -> BitmapIcon 实例

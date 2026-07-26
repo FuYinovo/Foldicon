@@ -7,6 +7,7 @@ using Foldicon.Xaml.Dialog;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media.Imaging;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
 
 namespace Foldicon.Xaml.Page;
@@ -35,9 +36,29 @@ public sealed partial class IconGroupPage
     /// <summary>
     /// 点击「编辑图标组信息」按键
     /// </summary>
-    private void EditGroupInfo_Click(object sender, RoutedEventArgs e)
+    private async void EditGroupInfo_Click(object sender, RoutedEventArgs e)
     {
-        // TODO))
+        if (sender is not MenuFlyoutItem { DataContext: IconGroup group }) return;
+        var content = new CreateIconGroupDialog
+        {
+            Logo = new BitmapIcon { Icon = (BitmapImage)group.Logo },
+            Name = group.Name,
+            Description = group.Description
+        };
+        var dialog = new ContentDialog
+        {
+            Title = "编辑图标组",
+            PrimaryButtonText = "确认",
+            CloseButtonText = "取消",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot,
+            Content = content
+        };
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.None) return; // 取消操作
+
+        // 编辑操作
+        IconGroupService.Instance.Edit(group, content.Name, content.Description, content.Logo);
     }
 
     /// <summary>
@@ -48,7 +69,7 @@ public sealed partial class IconGroupPage
         if (sender is not MenuFlyoutItem { DataContext: IconGroup group } item) return;
 
         // 选取图标
-        var icons = await StoragePicker.PickFiles(IconGroupService.SupportedIconExtensions,
+        var icons = await StoragePicker.PickFiles(IconGroupService.IconExtensions,
             item.XamlRoot.ContentIslandEnvironment.AppWindowId);
         if (icons.Length == 0) return;
 
