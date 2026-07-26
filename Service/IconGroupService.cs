@@ -1,9 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
 using Foldicon.Class;
+using Foldicon.Struct;
 using Foldicon.Tool;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Service;
 
@@ -50,15 +53,37 @@ public class IconGroupService
     }
 
     /// <summary>
-    /// 添加一个图标组
+    /// 添加一个图标组并保存到 Assets
     /// </summary>
-    public void Add(string name, string description, ImageSource logo)
+    public async void Add(string name, string description, BitmapIcon logo)
     {
-        Groups.Add(new IconGroup { Name = name, Description = description, Logo = logo });
+        // 创建目录
+        var rootPath = UriHelper.GetFolderPathFromAssets("IconGroups");
+        var folderPath = Path.Combine(rootPath, Guid.NewGuid().ToString());
+        Directory.CreateDirectory(Path.Combine(folderPath, "Icons"));
+
+        // 创建 IconGroup 实例
+        var group = new IconGroup(folderPath)
+        {
+            Name = name,
+            Description = description,
+            Logo = logo.Icon,
+        };
+
+        // 创建 Json
+        var jsonPath = Path.Combine(folderPath, "info.json");
+        await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(group));
+
+        // 创建 Logo
+        var logoPath = Path.Combine(folderPath, "logo.png");
+        File.Copy(logo.FullPath, logoPath);
+
+        // 添加到 Service
+        Groups.Add(group);
     }
 
     /// <summary>
-    /// 删除一个导入的图标组
+    /// 从 Assets 删除一个导入的图标组
     /// </summary>
     /// <param name="group"><see cref="Groups"/>>图标组实例</param>
     public void Remove(IconGroup group)

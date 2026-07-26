@@ -1,9 +1,13 @@
+using System;
+using System.Diagnostics;
 using Foldicon.Class;
 using Foldicon.Service;
 using Foldicon.Tool;
+using Foldicon.Xaml.Dialog;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using BitmapIcon = Foldicon.Struct.BitmapIcon;
 
 namespace Foldicon.Xaml.Page;
 
@@ -63,9 +67,23 @@ public sealed partial class IconGroupPage
     /// <summary>
     /// 点击「创建图标组」按钮
     /// </summary>
-    private void CreateGroup_Click(object sender, RoutedEventArgs e)
+    private async void CreateGroup_Click(object sender, RoutedEventArgs e)
     {
-        // TODO))
+        var content = new CreateIconGroupDialog();
+        var dialog = new ContentDialog
+        {
+            Title = "创建图标组",
+            PrimaryButtonText = "创建",
+            CloseButtonText = "取消",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot,
+            Content = content
+        };
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.None) return; // 取消操作
+
+        // 创建操作
+        IconGroupService.Instance.Add(content.Name, content.Description, content.Logo);
     }
 
     /// <summary>

@@ -15,7 +15,10 @@ public partial class IconGroup : ObservableObject
 {
     [JsonIgnore] public ObservableCollection<BitmapIcon> Icons { get; set; } = []; // 在 Init() 初始化
     [JsonIgnore] public string RootPath = string.Empty; // 在 Init() 初始化
-    [JsonIgnore] [ObservableProperty] private ImageSource _logo = new BitmapImage();
+
+    [property: JsonIgnore] [ObservableProperty]
+    private ImageSource _logo = new BitmapImage();
+
     [ObservableProperty] private string _name = string.Empty;
     [ObservableProperty] private string _description = string.Empty;
 
@@ -24,12 +27,27 @@ public partial class IconGroup : ObservableObject
 
 
     /// <summary>
+    /// 创建一个图标组
+    /// </summary>
+    /// <param name="path">存储路径</param>
+    public IconGroup(string path) => RootPath = path;
+
+
+    /// <summary>
+    /// Json 解析创建一个图标组, 需要手动调用 Init()
+    /// </summary>
+    [JsonConstructor]
+    public IconGroup()
+    {
+    }
+
+
+    /// <summary>
     /// 初始化 - 从根目录加载Logo和图标
     /// </summary>
     /// <param name="rootPath">图标组根目录的完整路径</param>
     public void Init(string rootPath)
     {
-        Categories.Insert(0, new Category<string> { Name = "全部" });
         RootPath = rootPath;
 
         // 加载 Logo
