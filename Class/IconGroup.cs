@@ -11,6 +11,9 @@ using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Class;
 
+/// <summary>
+/// <para>负责管理图标（读写操作）</para>
+/// </summary>
 public partial class IconGroup : ObservableObject
 {
     [JsonIgnore] public ObservableCollection<BitmapIcon> Icons { get; set; } = []; // 在 Init() 初始化
@@ -41,18 +44,13 @@ public partial class IconGroup : ObservableObject
     }
 
     /// <summary>
-    /// 初始化 - 从根目录加载Logo和图标
+    /// 加载所有图标
     /// </summary>
     /// <param name="rootPath">图标组根目录的完整路径</param>
     public void Init(string rootPath)
     {
         RootPath = rootPath;
 
-        // 加载 Logo
-        var logoPath = Path.Combine(RootPath, IconGroupService.LogoFileName);
-        if (File.Exists(logoPath)) Logo = new BitmapImage(new Uri(logoPath));
-
-        // 加载所有图标
         var iconsPath = Path.Combine(rootPath, IconGroupService.IconsFolderName);
         if (!Directory.Exists(iconsPath)) Directory.CreateDirectory(iconsPath);
         foreach (var iconPath in Directory.GetFiles(iconsPath))

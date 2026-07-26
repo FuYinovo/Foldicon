@@ -5,9 +5,13 @@ using System.Text.Json;
 using Foldicon.Class;
 using Foldicon.Struct;
 using Foldicon.Tool;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Service;
 
+/// <summary>
+/// 负责管理图标组的名称、简介、Logo（读写操作）
+/// </summary>
 public class IconGroupService
 {
     public const string LogoFileName = "logo.png";
@@ -15,7 +19,7 @@ public class IconGroupService
     public const string IconsFolderName = "Icons";
     public const string RootFolderName = "IconGroups";
     public static readonly string[] IconExtensions = [".ico"];
-    public static readonly string[] LogoExtensions = [".ico",".png",".jpg",".jpeg",".bmp"] ;
+    public static readonly string[] LogoExtensions = [".ico", ".png", ".jpg", ".jpeg", ".bmp"];
     public static readonly string RootPath = UriHelper.GetFolderPathFromAssets(RootFolderName);
     public static IconGroupService Instance { get; } = new();
     public readonly ObservableCollection<IconGroup> Groups = [];
@@ -36,22 +40,16 @@ public class IconGroupService
             var jsonText = File.ReadAllText(jsonPath);
             var group = JsonSerializer.Deserialize<IconGroup>(jsonText);
             if (group is null) continue;
-            group.Init(groupPath); // 初始化
 
+            // 读取 Logo
+            var logoPath = Path.Combine(groupPath, LogoFileName);
+            if (File.Exists(logoPath)) group.Logo = new BitmapImage(new Uri(logoPath));
+
+            // 初始化
+            group.Init(groupPath);
+
+            // 添加到 Service
             Groups.Add(group);
-        }
-    }
-
-    /// <summary>
-    /// 将所有图标组保存到 Assets
-    /// </summary>
-    private void Save()
-    {
-        foreach (var group in Groups)
-        {
-            // 保存 Json 信息
-            var jsonPath = Path.Combine(group.RootPath,InfoFileName);
-            File.WriteAllText(jsonPath, JsonSerializer.Serialize(group));
         }
     }
 
@@ -115,7 +113,7 @@ public class IconGroupService
 
         // 覆盖 Logo 文件
         var logoPath = Path.Combine(group.RootPath, LogoFileName);
-        if(File.Exists(logoPath)) File.Delete(logoPath);
+        if (File.Exists(logoPath)) File.Delete(logoPath);
         File.Copy(logo.FullPath, logoPath);
 
         // 覆盖 Json 文件
