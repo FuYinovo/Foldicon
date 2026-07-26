@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.Storage;
 

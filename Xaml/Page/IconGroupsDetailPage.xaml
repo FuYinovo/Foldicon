@@ -10,7 +10,6 @@
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:labs="using:CommunityToolkit.Labs.WinUI"
     xmlns:converter="using:Foldicon.Converter"
-    xmlns:class="using:Foldicon.Class"
     xmlns:struct="using:Foldicon.Struct"
     mc:Ignorable="d">
 
