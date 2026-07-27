@@ -84,6 +84,22 @@ public sealed partial class MainWindow
     }
 
     /// <summary>
+    /// 获取当前颜色主题
+    /// </summary>
+    public ElementTheme GetRequestedTheme()
+    {
+        try
+        {
+            return ((FrameworkElement)Content).RequestedTheme;
+        }
+        catch (Exception e)
+        {
+            Debug.WriteLine(e);
+            return ElementTheme.Default;
+        }
+    }
+
+    /// <summary>
     ///让 NavigationView 跳转到某个页面
     /// </summary>
     /// <param name="targetPage">页面类型</param>

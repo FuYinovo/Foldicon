@@ -66,6 +66,7 @@ public sealed partial class IconGroupsDetailPage
 
         var dialog = new ContentDialog
         {
+            RequestedTheme = App.MainWindow.GetRequestedTheme(),
             Title = $"确定删除\"{icon.FileName}\"吗？",
             PrimaryButtonText = "确定",
             CloseButtonText = "取消",

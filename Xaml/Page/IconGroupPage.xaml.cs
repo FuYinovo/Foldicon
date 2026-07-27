@@ -37,6 +37,7 @@ public sealed partial class IconGroupPage
         // 二次确认
         var dialog = new ContentDialog
         {
+            RequestedTheme = App.MainWindow.GetRequestedTheme(),
             Title = $"确定删除\"{group.Name}\"吗？",
             PrimaryButtonText = "确定",
             CloseButtonText = "取消",
@@ -65,6 +66,7 @@ public sealed partial class IconGroupPage
         };
         var dialog = new ContentDialog
         {
+            RequestedTheme = App.MainWindow.GetRequestedTheme(),
             Title = "编辑图标组",
             PrimaryButtonText = "确认",
             CloseButtonText = "取消",
@@ -122,6 +124,7 @@ public sealed partial class IconGroupPage
 
         var dialog = new ContentDialog
         {
+            RequestedTheme = App.MainWindow.GetRequestedTheme(),
             Title = "创建图标组",
             PrimaryButtonText = "创建",
             CloseButtonText = "取消",
@@ -144,6 +147,7 @@ public sealed partial class IconGroupPage
         var content = new CreateIconGroupDialog();
         var dialog = new ContentDialog
         {
+            RequestedTheme = App.MainWindow.GetRequestedTheme(),
             Title = "创建图标组",
             PrimaryButtonText = "创建",
             CloseButtonText = "取消",
