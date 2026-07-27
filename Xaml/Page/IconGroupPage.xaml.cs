@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -11,6 +12,7 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
+using Vanara.PInvoke;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
 
 namespace Foldicon.Xaml.Page;
@@ -27,10 +29,23 @@ public sealed partial class IconGroupPage
     /// <summary>
     /// 点击「移除图标组」按键
     /// </summary>
-    private void RemoveGroup_Click(object sender, RoutedEventArgs e)
+    private async void RemoveGroup_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not MenuFlyoutItem item) return;
         if (item.DataContext is not IconGroup group) return;
+
+        // 二次确认
+        var dialog = new ContentDialog
+        {
+            Title = $"确定删除\"{group.Name}\"吗？",
+            PrimaryButtonText = "确定",
+            CloseButtonText = "取消",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = XamlRoot,
+            Content = new DescriptionDialog {Description = $"导入的{group.Icons.Count}个图标将无法从回收站恢复"}
+        };
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.None) return;
 
         // 延迟到下一个UI帧移除（让ContextFlyout先关闭），防止 E_FAIL (0x80004005) 崩溃
         DispatcherQueue.GetForCurrentThread().TryEnqueue(() => _viewModel.Remove(group));
@@ -150,5 +165,14 @@ public sealed partial class IconGroupPage
     {
         if (sender is not Button { DataContext: IconGroup group }) return;
         App.MainWindow.NavigateTo(typeof(IconGroupsDetailPage), group);
+    }
+
+    /// <summary>
+    /// 打开图标组所在文件夹
+    /// </summary>
+    private void OpenGroupFolder_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuFlyoutItem { DataContext: IconGroup group }) return;
+        Process.Start("explorer.exe", group.RootPath);
     }
 }

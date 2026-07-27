@@ -61,6 +61,8 @@
                                     <MenuFlyoutSeparator />
                                     <MenuFlyoutItem Text="编辑信息" Icon="Edit" Click="EditGroupInfo_Click" />
                                     <MenuFlyoutItem Text="删除图标组" Icon="Delete" Click="RemoveGroup_Click" />
+                                    <MenuFlyoutSeparator />
+                                    <MenuFlyoutItem Text="打开文件夹" Icon="Folder" Click="OpenGroupFolder_Click" />
                                 </MenuFlyout>
 
                             </Button.ContextFlyout>

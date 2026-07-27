@@ -68,6 +68,7 @@
                                     <Button Width="74"
                                             Height="100"
                                             Padding="4"
+                                            Click="Icon_Click"
                                             ToolTipService.ToolTip="{Binding FileName}"
                                             Background="{ThemeResource CardBackgroundFillColorDefault}">
                                         <Button.ContextFlyout>

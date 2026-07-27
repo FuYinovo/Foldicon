@@ -18,6 +18,7 @@
     <Grid>
         <NavigationView
             SelectionChanged="NavigationView_OnSelectionChanged"
+            OpenPaneLength="250"
             IsBackButtonVisible="Collapsed">
             <NavigationView.MenuItems>
                 <NavigationViewItem Icon="Edit" Content="图标编辑器" Tag="IconEditor" />
