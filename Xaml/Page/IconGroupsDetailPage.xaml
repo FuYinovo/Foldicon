@@ -53,8 +53,7 @@
               StrokeThickness="1" />
 
         <Grid Row="3">
-            <ScrollViewer Visibility="{x:Bind Group.Icons.Count, Mode=OneWay,
-                       Converter={StaticResource CountToVisibilityConverter}}">
+            <ScrollViewer>
                 <control:SwitchPresenter
                     Value="{Binding SelectedIndex, ElementName=ViewModeSegmented, Converter={StaticResource IntToStringConverter}}">
                     <control:Case Value="0">

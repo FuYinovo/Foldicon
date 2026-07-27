@@ -19,7 +19,7 @@ public partial class App
         UnhandledException += (sender, args) =>
         {
             Debug.WriteLine($"[ERROR] {args.Message}");
-            throw args.Exception;
+            args.Handled = true;
         };
     }
 
