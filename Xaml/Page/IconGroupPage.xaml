@@ -24,8 +24,25 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" HorizontalAlignment="Right">
-            <StackPanel Orientation="Horizontal" Spacing="4">
+        <Grid Grid.Row="0">
+            <StackPanel HorizontalAlignment="Left"
+                        Orientation="Horizontal"
+                        Spacing="2">
+                <TextBlock Text="图标组"
+                           Style="{ThemeResource TitleLargeTextBlockStyle}" />
+                <TextBlock
+                    Text="{x:Bind _viewModel.Groups.Count, Mode=OneWay,
+                    Converter={StaticResource StringFormatConverter},
+                    ConverterParameter=' {0}个图标组'}"
+                    Opacity=".6"
+                    VerticalAlignment="Bottom"
+                    Padding="0,0,0,5"
+                    Style="{ThemeResource SubtitleTextBlockStyle}" />
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Orientation="Horizontal"
+                        Spacing="4">
                 <Button Content="新建图标组" Click="CreateGroup_Click" />
                 <Button Content="导入图标组" Click="ImportGroup_Click" />
             </StackPanel>

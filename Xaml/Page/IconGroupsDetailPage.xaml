@@ -11,11 +11,13 @@
     xmlns:labs="using:CommunityToolkit.Labs.WinUI"
     xmlns:converter="using:Foldicon.Converter"
     xmlns:struct="using:Foldicon.Struct"
+    xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     mc:Ignorable="d">
 
     <Page.Resources>
         <converter:IntToStringConverter x:Key="IntToStringConverter" />
         <converter:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+        <converters:StringFormatConverter x:Key="StringFormatConverter" />
         <DataTemplate
             x:Key="BigIconDataTemplate"
             x:DataType="struct:BitmapIcon">
@@ -66,51 +68,70 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" ColumnSpacing="14">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto" />
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="auto" />
-            </Grid.ColumnDefinitions>
-
-            <StackPanel Spacing="8" Grid.Column="0">
-                <TextBlock Text="视图模式" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-                <control:Segmented HorizontalAlignment="Left" x:Name="ViewModeSegmented" SelectedIndex="0">
-                    <control:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8A9;}" Content="大图标" />
-                    <control:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FD;}" Content="小图标" />
-                </control:Segmented>
+        <Grid Grid.Row="0">
+            <StackPanel HorizontalAlignment="Left"
+                        Orientation="Horizontal"
+                        Spacing="2">
+                <TextBlock Text="{x:Bind _group.Name}"
+                           Style="{ThemeResource TitleLargeTextBlockStyle}" />
+                <TextBlock
+                    Text="{x:Bind FilteredIcons.Count, Mode=OneWay,
+                    Converter={StaticResource StringFormatConverter},
+                    ConverterParameter=' {0}个图标'}"
+                    Opacity=".6"
+                    VerticalAlignment="Bottom"
+                    Padding="0,0,0,5"
+                    Style="{ThemeResource SubtitleTextBlockStyle}" />
             </StackPanel>
 
-            <AutoSuggestBox
-                Text="{x:Bind IconNameFilter, Mode=TwoWay}"
-                VerticalAlignment="Bottom"
-                Height="32"
-                PlaceholderText="搜索图标名称..."
-                BorderThickness="0"
-                Grid.Column="1"
-                QueryIcon="Find" />
+            <StackPanel Orientation="Horizontal"
+                        Spacing="8"
+                        HorizontalAlignment="Right">
+                <AutoSuggestBox
+                    Text="{x:Bind IconNameFilter, Mode=TwoWay}"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Height="32"
+                    Width="200"
+                    PlaceholderText="搜索图标名称..."
+                    BorderThickness="0"
+                    QueryIcon="Find" />
 
-            <Button
-                VerticalAlignment="Bottom"
-                Content="导入图标"
-                Click="ImportIcon_Click"
-                Grid.Column="2" />
+                <Button
+                    VerticalAlignment="Bottom"
+                    Content="导入图标"
+                    Click="ImportIcon_Click" />
+            </StackPanel>
         </Grid>
 
-        <StackPanel Spacing="8" Grid.Row="1">
-            <TextBlock Text="类别筛选" Style="{ThemeResource BodyStrongTextBlockStyle}" />
-            <labs:TokenView
-                SelectionChanged="CategoryFilter_Changed"
-                IsWrapped="True"
-                SelectionMode="Multiple"
-                ItemsSource="{x:Bind _group.Categories, Mode=OneWay}" />
-        </StackPanel>
-
-        <Line Grid.Row="2"
+        <Line Grid.Row="1"
               Stroke="{ThemeResource AccentAAFillColorDisabled}"
               X1="0" Y1="0"
               X2="999999" Y2="0"
               StrokeThickness="1" />
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+
+            <labs:TokenView
+                Grid.Column="0"
+                SelectionChanged="CategoryFilter_Changed"
+                IsWrapped="True"
+                SelectionMode="Multiple"
+                ItemsSource="{x:Bind _group.Categories, Mode=OneWay}" />
+
+            <control:Segmented HorizontalAlignment="Left"
+                               Grid.Column="1"
+                               x:Name="ViewModeSegmented"
+                               SelectedIndex="0">
+                <control:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8A9;}" Content="大图标" />
+                <control:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FD;}" Content="小图标" />
+            </control:Segmented>
+        </Grid>
+
 
         <Grid Row="3">
             <control:SwitchPresenter

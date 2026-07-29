@@ -7,8 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:foldicon="using:Foldicon"
-    xmlns:class="using:Foldicon.Class"
+    xmlns:converter="using:Foldicon.Converter"
     mc:Ignorable="d"
     Title="Foldicon">
 
@@ -26,14 +25,18 @@
                 <NavigationViewItemHeader Content="图标库" />
                 <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
                                     Content="首页"
-                                    Tag="IconGroup"/>
+                                    Tag="IconGroup" />
                 <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7B8;}"
                                     Content="详情"
-                                    MenuItemsSource="{x:Bind foldicon:MainWindow.IconGroups}">
+                                    IsEnabled="{x:Bind CountToBool(IconGroups.Count), Mode=OneWay}"
+                                    MenuItemsSource="{x:Bind IconGroups}">
                 </NavigationViewItem>
+                <!-- Window 类不满足使用 Converter 要求的 FrameworkElement 类 -->
+                <!-- 使用 CountToBool() 替代 CountToBoolConverter -->
                 <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE97C;}"
-                                    Content="分类" IsEnabled="False"
-                                    MenuItemsSource="{x:Bind foldicon:MainWindow.IconGroups}"/>
+                                    Content="分类"
+                                    IsEnabled="{x:Bind CountToBool(IconGroups.Count), Mode=OneWay}"
+                                    MenuItemsSource="{x:Bind IconGroups}" />
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" Padding="24" CacheSize="16" />
         </NavigationView>
