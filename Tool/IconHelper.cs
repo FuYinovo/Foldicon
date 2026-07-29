@@ -74,7 +74,7 @@ public static partial class IconHelper // 公开方法
             var extension = Path.GetExtension(file);
             if (!extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)) continue;
 
-            tasks.Add(Task.Run(() => new BytesIcon { FullPath = fullPath, Icon = GetFileIcon(file) }));
+            tasks.Add(Task.Run(() => new BytesIcon { FullPath = file, Icon = GetFileIcon(file) }));
         }
 
         // 获取结果
@@ -99,9 +99,9 @@ public static partial class IconHelper // 公开方法
     {
         // 创建任务
         List<Task<BytesIcon>> tasks = [];
-        var paths = Directory.GetDirectories(fullPath);
-        foreach (var path in paths)
-            tasks.Add(Task.Run(() => new BytesIcon { FullPath = path, Icon = GetFolderIcon(path) }));
+        var subFolders = Directory.GetDirectories(fullPath);
+        foreach (var subFolder in subFolders)
+            tasks.Add(Task.Run(() => new BytesIcon { FullPath = subFolder, Icon = GetFolderIcon(subFolder) }));
 
         // 获取结果
         List<BytesIcon> icons = [];
