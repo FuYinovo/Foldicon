@@ -12,48 +12,78 @@ namespace Foldicon.Class;
 
 public partial class FolderEntry : ObservableObject
 {
-    [ObservableProperty] private ImageSource _currentIcon;
-    [ObservableProperty] private ObservableCollection<BitmapIcon> _optionalIcons = [];
-
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
-    private int _selectedIndex = -1;
-
-    [ObservableProperty] [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
-    private int _appliedIndex = -1;
-
     private readonly string _fullPath;
-    public bool IsSystemIcon { get; private set; }
-    public string FolderName => Path.GetFileName(_fullPath);
-    public bool IsSelectedIconChanged => SelectedIndex != AppliedIndex;
 
 
     /// <param name="fullPath">文件夹完整路径</param>
-    /// <param name="currentIcon">文件夹图标（null则自动获取）</param>
-    /// <param name="exeIcons">可选exe路径及图标(null则自动获取)</param>
-    public FolderEntry(string fullPath, byte[]? currentIcon = null, List<BytesIcon>? exeIcons = null)
+    /// <param name="currentIcon">文件夹图标</param>
+    /// <param name="exeIcons">可选exe路径及图标</param>
+    public FolderEntry(string fullPath, byte[] currentIcon, List<BytesIcon> exeIcons)
     {
         _fullPath = fullPath;
 
         // OptionalIcons
-        var icons =
-            exeIcons ??
-            IconHelper.GetExeIconsAsync(fullPath, false).Result;
-        foreach (var icon in icons)
-            OptionalIcons.Add(new BitmapIcon
-                { FullPath = icon.FullPath, Icon = IconHelper.CreateBitmapImage(icon.Icon!) }); // 此处不可能 null
+        foreach (var icon in exeIcons)
+        {
+            var bitmap = new BitmapIcon
+            {
+                FullPath = icon.FullPath,
+                Icon = IconHelper.CreateBitmapImage(icon.Icon!) // 此处不可能 null
+            };
+            OptionalIcons.Add(bitmap);
+        }
 
         // CurrentIcon
-        CurrentIcon = currentIcon is null
-            ? IconHelper.CreateBitmapImage(IconHelper.GetFolderIcon(fullPath) ??
-                                           throw new Exception($"读取'{fullPath}'文件夹图标失败"))
-            : IconHelper.CreateBitmapImage(currentIcon);
+        CurrentIcon = IconHelper.CreateBitmapImage(currentIcon);
 
         InitIconSelectorIndex();
         Refresh();
     }
 
+    /// <param name="fullPath">文件夹完整路径</param>
+    public FolderEntry(string fullPath)
+    {
+        _fullPath = fullPath;
+
+        // OptionalIcons
+        var icons = IconHelper.GetExeIconsAsync(fullPath, false).Result;
+        foreach (var icon in icons)
+        {
+            var bitmap = new BitmapIcon
+            {
+                FullPath = icon.FullPath,
+                Icon = IconHelper.CreateBitmapImage(icon.Icon!) // 此处不可能 null
+            };
+            OptionalIcons.Add(bitmap);
+        }
+
+        // CurrentIcon
+        CurrentIcon =
+            IconHelper.CreateBitmapImage(IconHelper.GetFolderIcon(fullPath) ??
+                                         throw new Exception($"读取'{fullPath}'文件夹图标失败"));
+
+        InitIconSelectorIndex();
+        Refresh();
+    }
+
+    [ObservableProperty] public partial ImageSource CurrentIcon { get; set; }
+
+    [ObservableProperty] public partial ObservableCollection<BitmapIcon> OptionalIcons { get; set; } = [];
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
+    public partial int SelectedIndex { get; set; } = -1;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
+    public partial int AppliedIndex { get; set; } = -1;
+
+    public bool IsSystemIcon { get; private set; }
+    public string FolderName => Path.GetFileName(_fullPath);
+    public bool IsSelectedIconChanged => SelectedIndex != AppliedIndex;
+
     /// <summary>
-    /// 应用当前选中的图标到文件夹
+    ///     应用当前选中的图标到文件夹
     /// </summary>
     public void Apply()
     {
@@ -66,7 +96,7 @@ public partial class FolderEntry : ObservableObject
     }
 
     /// <summary>
-    /// 刷新数据： AppliedIndex、IsSystemIcon、CurrentIcon
+    ///     刷新数据： AppliedIndex、IsSystemIcon、CurrentIcon
     /// </summary>
     private void Refresh()
     {
@@ -85,7 +115,7 @@ public partial class FolderEntry : ObservableObject
     }
 
     /// <summary>
-    /// 添加自定义图标并选中
+    ///     添加自定义图标并选中
     /// </summary>
     /// <param name="fullPath">图标完整路径</param>
     public void AddCustomIcon(string fullPath)
@@ -97,7 +127,7 @@ public partial class FolderEntry : ObservableObject
     }
 
     /// <summary>
-    /// 读 desktop.ini，把当前已应用图标定位到可选列表的索引
+    ///     读 desktop.ini，把当前已应用图标定位到可选列表的索引
     /// </summary>
     public void InitIconSelectorIndex()
     {

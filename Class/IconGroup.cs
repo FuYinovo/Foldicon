@@ -12,39 +12,41 @@ using Microsoft.UI.Xaml.Media.Imaging;
 namespace Foldicon.Class;
 
 /// <summary>
-/// <para>负责管理图标（读写操作）</para>
+///     <para>负责管理图标（读写操作）</para>
 /// </summary>
 public partial class IconGroup : ObservableObject
 {
-    [JsonIgnore] public ObservableCollection<BitmapIcon> Icons { get; set; } = []; // 在 Init() 初始化
     [JsonIgnore] public string RootPath = string.Empty; // 在 Init() 初始化
 
-    [property: JsonIgnore] [ObservableProperty]
-    private ImageSource _logo = new BitmapImage();
-
-    [ObservableProperty] private string _name = string.Empty;
-    [ObservableProperty] private string _description = string.Empty;
-
-    [JsonConverter(typeof(StringCategoryJsonConverter))]
-    public ObservableCollection<Category<string>> Categories { get; set; } = [];
-
 
     /// <summary>
-    /// 创建一个图标组
+    ///     创建一个图标组
     /// </summary>
     /// <param name="path">存储路径</param>
-    public IconGroup(string path) => Init(path);
+    public IconGroup(string path)
+    {
+        Init(path);
+    }
 
     /// <summary>
-    /// Json 解析创建一个图标组, 需要手动调用 Init()
+    ///     Json 解析创建一个图标组, 需要手动调用 Init()
     /// </summary>
     [JsonConstructor]
     public IconGroup()
     {
     }
 
+    [JsonIgnore] public ObservableCollection<BitmapIcon> Icons { get; set; } = []; // 在 Init() 初始化
+    [ObservableProperty] public partial string Name { get; set; } = string.Empty;
+    [ObservableProperty] public partial string Description { get; set; } = string.Empty;
+
+    [JsonIgnore] [ObservableProperty] public partial ImageSource Logo { get; set; } = new BitmapImage();
+
+    [JsonConverter(typeof(StringCategoryJsonConverter))]
+    public ObservableCollection<Category<string>> Categories { get; set; } = [];
+
     /// <summary>
-    /// 加载所有图标
+    ///     加载所有图标
     /// </summary>
     /// <param name="rootPath">图标组根目录的完整路径</param>
     public void Init(string rootPath)
@@ -61,7 +63,7 @@ public partial class IconGroup : ObservableObject
     }
 
     /// <summary>
-    /// 导入一个图标
+    ///     导入一个图标
     /// </summary>
     /// <param name="icon">图标完整路径</param>
     public void Add(string icon)
@@ -80,7 +82,7 @@ public partial class IconGroup : ObservableObject
     }
 
     /// <summary>
-    /// 移除一个图标
+    ///     移除一个图标
     /// </summary>
     /// <param name="icon">图标实例</param>
     public void Remove(BitmapIcon icon)

@@ -16,10 +16,9 @@ namespace Foldicon.Service;
 
 public partial class OptionService : ObservableObject
 {
-    public static OptionService Instance { get; } = new();
+    private readonly bool _isLoaded;
     private readonly string _jsonFilePath = UriHelper.GetFilePathFromAssets("options.json");
     private JsonNode _jsonNode;
-    private readonly bool _isLoaded;
 
 
     private OptionService()
@@ -34,9 +33,11 @@ public partial class OptionService : ObservableObject
         _isLoaded = true;
     }
 
+    public static OptionService Instance { get; } = new();
+
 
     /// <summary>
-    /// 从 Json 文件加载设置选项
+    ///     从 Json 文件加载设置选项
     /// </summary>
     private void LoadOptions()
     {
@@ -48,7 +49,7 @@ public partial class OptionService : ObservableObject
     }
 
     /// <summary>
-    /// 将设置选项保存到 Json 文件
+    ///     将设置选项保存到 Json 文件
     /// </summary>
     /// <param name="value">值</param>
     /// <param name="keys">键</param>
@@ -63,7 +64,7 @@ public partial class OptionService : ObservableObject
     }
 
     /// <summary>
-    /// 获取一个枚举成员的 Description 值
+    ///     获取一个枚举成员的 Description 值
     /// </summary>
     /// <param name="enumValue">枚举成员</param>
     /// <returns>成功：Description 字符串；失败：直接 ToString()</returns>
@@ -90,12 +91,12 @@ public partial class OptionService // 设置选项属性
     {
         { BackdropOptionEnum.Mica, GetEnumDescription(BackdropOptionEnum.Mica) },
         { BackdropOptionEnum.MicaAlt, GetEnumDescription(BackdropOptionEnum.MicaAlt) },
-        { BackdropOptionEnum.Acrylic, GetEnumDescription(BackdropOptionEnum.Acrylic) },
+        { BackdropOptionEnum.Acrylic, GetEnumDescription(BackdropOptionEnum.Acrylic) }
     };
 
-    [ObservableProperty] private int _themeOptionIndex;
-    [ObservableProperty] private int _backdropOptionIndex;
+    [ObservableProperty] public partial int ThemeOptionIndex { get; set; }
 
+    [ObservableProperty] public partial int BackdropOptionIndex { get; set; }
 
     async partial void OnThemeOptionIndexChanged(int value)
     {

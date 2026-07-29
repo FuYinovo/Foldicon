@@ -27,8 +27,7 @@
                         <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
                                             Content="浏览器"
                                             Tag="IconGroup"
-                                            MenuItemsSource="{x:Bind foldicon:MainWindow.IconGroups}">
-                        </NavigationViewItem>
+                                            MenuItemsSource="{x:Bind foldicon:MainWindow.IconGroups}" />
                         <NavigationViewItem Icon="Tag" Content="分类器" Tag="IconGroupCategorize" />
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>

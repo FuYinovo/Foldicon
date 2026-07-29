@@ -10,9 +10,7 @@ public partial class CountToVisibilityConverter : IValueConverter
     {
         if (value is not int count) return Visibility.Visible;
         if (bool.TryParse((string?)parameter, out var reverse) && reverse)
-        {
             return count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        }
 
         return count == 0 ? Visibility.Collapsed : Visibility.Visible;
     }

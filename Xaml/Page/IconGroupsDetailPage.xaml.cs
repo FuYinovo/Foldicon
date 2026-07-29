@@ -18,13 +18,15 @@ namespace Foldicon.Xaml.Page;
 public sealed partial class IconGroupsDetailPage
 {
     private IconGroup _group = new();
-    [ObservableProperty] private ObservableCollection<BitmapIcon> _filteredIcons = []; // UI
-    [ObservableProperty] private string _iconNameFilter = string.Empty;
 
     public IconGroupsDetailPage()
     {
         InitializeComponent();
     }
+
+    [ObservableProperty] public partial ObservableCollection<BitmapIcon> FilteredIcons { get; set; } = [];
+
+    [ObservableProperty] public partial string IconNameFilter { get; set; } = string.Empty;
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
@@ -35,11 +37,14 @@ public sealed partial class IconGroupsDetailPage
         _group.Icons.CollectionChanged += (_, _) => ApplyFilter(); // 更新UI（FilteredIcons 同步 _group.Icons)
     }
 
-    partial void OnIconNameFilterChanged(string value) => ApplyFilter();
+    partial void OnIconNameFilterChanged(string value)
+    {
+        ApplyFilter();
+    }
 
 
     /// <summary>
-    /// 点击「导入图标」按键
+    ///     点击「导入图标」按键
     /// </summary>
     private async void ImportIcon_Click(object sender, RoutedEventArgs e)
     {
@@ -55,7 +60,7 @@ public sealed partial class IconGroupsDetailPage
     }
 
     /// <summary>
-    /// 响应 TokenView 按所选的「筛选类别」的改动
+    ///     响应 TokenView 按所选的「筛选类别」的改动
     /// </summary>
     private void CategoryFilter_Changed(object sender, SelectionChangedEventArgs e)
     {
@@ -63,7 +68,7 @@ public sealed partial class IconGroupsDetailPage
     }
 
     /// <summary>
-    /// 点击右键菜单「删除图标」按钮
+    ///     点击右键菜单「删除图标」按钮
     /// </summary>
     private async void DeleteIcon_Click(object sender, RoutedEventArgs e)
     {
@@ -77,8 +82,8 @@ public sealed partial class IconGroupsDetailPage
             PrimaryButtonText = "确定",
             CloseButtonText = "取消",
             DefaultButton = ContentDialogButton.Primary,
-            Content = new DescriptionDialog { Description = "此操作将无法从回收站恢复" },
-            XamlRoot = XamlRoot,
+            Content = new DescriptionDialog("此操作将无法从回收站恢复"),
+            XamlRoot = XamlRoot
         };
         var result = await dialog.ShowAsync();
         if (result == ContentDialogResult.None) return;
@@ -88,7 +93,7 @@ public sealed partial class IconGroupsDetailPage
     }
 
     /// <summary>
-    /// 点击图标后打开
+    ///     点击图标后打开
     /// </summary>
     private void Icon_Click(object sender, RoutedEventArgs e)
     {
@@ -97,7 +102,7 @@ public sealed partial class IconGroupsDetailPage
     }
 
     /// <summary>
-    /// 应用筛选
+    ///     应用筛选
     /// </summary>
     private void ApplyFilter()
     {

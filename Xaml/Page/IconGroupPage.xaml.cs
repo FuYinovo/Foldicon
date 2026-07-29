@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Class;
 using Foldicon.Service;
 using Foldicon.Tool;
@@ -12,7 +11,6 @@ using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
-using Vanara.PInvoke;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
 
 namespace Foldicon.Xaml.Page;
@@ -27,7 +25,7 @@ public sealed partial class IconGroupPage
     }
 
     /// <summary>
-    /// 点击「移除图标组」按键
+    ///     点击「移除图标组」按键
     /// </summary>
     private async void RemoveGroup_Click(object sender, RoutedEventArgs e)
     {
@@ -43,7 +41,7 @@ public sealed partial class IconGroupPage
             CloseButtonText = "取消",
             DefaultButton = ContentDialogButton.Primary,
             XamlRoot = XamlRoot,
-            Content = new DescriptionDialog {Description = $"导入的{group.Icons.Count}个图标将无法从回收站恢复"}
+            Content = new DescriptionDialog($"导入的{group.Icons.Count}个图标将无法从回收站恢复")
         };
         var result = await dialog.ShowAsync();
         if (result == ContentDialogResult.None) return;
@@ -53,7 +51,7 @@ public sealed partial class IconGroupPage
     }
 
     /// <summary>
-    /// 点击「编辑图标组信息」按键
+    ///     点击「编辑图标组信息」按键
     /// </summary>
     private async void EditGroupInfo_Click(object sender, RoutedEventArgs e)
     {
@@ -61,7 +59,7 @@ public sealed partial class IconGroupPage
         var content = new CreateIconGroupDialog
         {
             Logo = new BitmapIcon { Icon = (BitmapImage)group.Logo },
-            Name = group.Name,
+            GroupName = group.Name,
             Description = group.Description
         };
         var dialog = new ContentDialog
@@ -78,11 +76,11 @@ public sealed partial class IconGroupPage
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 编辑操作
-        IconGroupService.Instance.Edit(group, content.Name, content.Description, content.Logo);
+        IconGroupService.Instance.Edit(group, content.GroupName, content.Description, content.Logo);
     }
 
     /// <summary>
-    /// 点击「导入图标」按键
+    ///     点击「导入图标」按键
     /// </summary>
     private async void ImportIcon_Click(object sender, RoutedEventArgs e)
     {
@@ -98,7 +96,7 @@ public sealed partial class IconGroupPage
     }
 
     /// <summary>
-    /// 点击「导入图标组」按钮
+    ///     点击「导入图标组」按钮
     /// </summary>
     private async void ImportGroup_Click(object sender, RoutedEventArgs e)
     {
@@ -114,7 +112,7 @@ public sealed partial class IconGroupPage
             [.. files.Where(file => IconGroupService.IconExtensions.Contains(Path.GetExtension(file)))]; // 检查拓展名
 
         // 设置图标组信息
-        var content = new CreateIconGroupDialog { Name = Path.GetFileName(folder) };
+        var content = new CreateIconGroupDialog { GroupName = Path.GetFileName(folder) };
         if (icons.Count > 0) // 选取第一个图标作为默认 Logo
             content.Logo = new BitmapIcon
             {
@@ -136,11 +134,11 @@ public sealed partial class IconGroupPage
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 创建操作
-        IconGroupService.Instance.Add(content.Name, content.Description, content.Logo, icons);
+        IconGroupService.Instance.Add(content.GroupName, content.Description, content.Logo, icons);
     }
 
     /// <summary>
-    /// 点击「创建图标组」按钮
+    ///     点击「创建图标组」按钮
     /// </summary>
     private async void CreateGroup_Click(object sender, RoutedEventArgs e)
     {
@@ -159,11 +157,11 @@ public sealed partial class IconGroupPage
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 创建操作
-        IconGroupService.Instance.Add(content.Name, content.Description, content.Logo);
+        IconGroupService.Instance.Add(content.GroupName, content.Description, content.Logo);
     }
 
     /// <summary>
-    /// 点击图标组后跳转到详情页
+    ///     点击图标组后跳转到详情页
     /// </summary>
     private void IconGroup_Click(object sender, RoutedEventArgs e)
     {
@@ -172,7 +170,7 @@ public sealed partial class IconGroupPage
     }
 
     /// <summary>
-    /// 打开图标组所在文件夹
+    ///     打开图标组所在文件夹
     /// </summary>
     private void OpenGroupFolder_Click(object sender, RoutedEventArgs e)
     {

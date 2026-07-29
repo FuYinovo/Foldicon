@@ -2,10 +2,11 @@ namespace Foldicon.Xaml.Dialog;
 
 public sealed partial class DescriptionDialog
 {
-    public string Description { get; set; }
+    public readonly string Description;
 
-    public DescriptionDialog()
+    public DescriptionDialog(string description)
     {
+        Description = description;
         InitializeComponent();
     }
 }

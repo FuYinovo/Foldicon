@@ -19,7 +19,7 @@
             </StackPanel>
             <StackPanel Spacing="16">
                 <TextBox Header="名称"
-                         Text="{x:Bind Name, Mode=TwoWay}"
+                         Text="{x:Bind GroupName, Mode=TwoWay}"
                          TextWrapping="Wrap"
                          Width="200"
                          PlaceholderText="输入图标组的名称..." />

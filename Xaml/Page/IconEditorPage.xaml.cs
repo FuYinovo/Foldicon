@@ -17,12 +17,15 @@ namespace Foldicon.Xaml.Page;
 public sealed partial class IconEditorPage // 回调方法
 {
     /// <summary>
-    /// 点击「启用筛选」时应用筛选
+    ///     点击「启用筛选」时应用筛选
     /// </summary>
-    private void EnableEnumFilterButton_OnClick(object sender, RoutedEventArgs e) => ApplyFilter();
+    private void EnableEnumFilterButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        ApplyFilter();
+    }
 
     /// <summary>
-    /// 「选择文件夹」按钮
+    ///     「选择文件夹」按钮
     /// </summary>
     private async void PickFolderButton_Click(object sender, RoutedEventArgs e)
     {
@@ -42,7 +45,7 @@ public sealed partial class IconEditorPage // 回调方法
     }
 
     /// <summary>
-    /// 「应用所有图标」按钮
+    ///     「应用所有图标」按钮
     /// </summary>
     private void ApplyAllButton_Click(object sender, RoutedEventArgs e)
     {
@@ -50,9 +53,9 @@ public sealed partial class IconEditorPage // 回调方法
     }
 
     /// <summary>
-    /// 点击 TypeFilterGroup 的 Item 时，
-    /// 在 OneWay 基础上手动实现 TwoWay，
-    /// 防止 <see cref="DependencyProperty.UnsetValue"/> 引发异常
+    ///     点击 TypeFilterGroup 的 Item 时，
+    ///     在 OneWay 基础上手动实现 TwoWay，
+    ///     防止 <see cref="DependencyProperty.UnsetValue" /> 引发异常
     /// </summary>
     private void TypeFilterItem_Click(object sender, RoutedEventArgs e)
     {
@@ -62,9 +65,9 @@ public sealed partial class IconEditorPage // 回调方法
     }
 
     /// <summary>
-    /// 点击 StateFilterGroup 的 Item 时，
-    /// 在 OneWay 基础上手动实现 TwoWay，
-    /// 防止 <see cref="DependencyProperty.UnsetValue"/> 引发异常
+    ///     点击 StateFilterGroup 的 Item 时，
+    ///     在 OneWay 基础上手动实现 TwoWay，
+    ///     防止 <see cref="DependencyProperty.UnsetValue" /> 引发异常
     /// </summary>
     private void StateFilterItem_Click(object sender, RoutedEventArgs e)
     {
@@ -77,7 +80,7 @@ public sealed partial class IconEditorPage // 回调方法
 public sealed partial class IconEditorPage // 普通方法
 {
     /// <summary>
-    /// 刷新子文件夹
+    ///     刷新子文件夹
     /// </summary>
     private async Task RefreshSubfoldersAsync()
     {
@@ -89,7 +92,6 @@ public sealed partial class IconEditorPage // 普通方法
 
         // 创建 FolderEntry 实例
         foreach (var icon in icons)
-        {
             try
             {
                 // 获取可选 exe 程序图标
@@ -100,14 +102,13 @@ public sealed partial class IconEditorPage // 普通方法
             {
                 Debug.WriteLine(e.Message);
             }
-        }
 
 
         ApplyFilter();
     }
 
     /// <summary>
-    /// 应用文件夹筛选
+    ///     应用文件夹筛选
     /// </summary>
     private void ApplyFilter()
     {
@@ -115,7 +116,7 @@ public sealed partial class IconEditorPage // 普通方法
         foreach (var folder in SubFolders)
         {
             // 名称筛选
-            if (!folder.FolderName.Contains((string)FolderNameFilter)) continue;
+            if (!folder.FolderName.Contains(FolderNameFilter)) continue;
 
             // 标签筛选
             if (IsEnumFilterEnabled)
@@ -164,18 +165,33 @@ public sealed partial class IconEditorPage // 属性、属性 OnChanged 方法�
         InitializeComponent();
     }
 
-    [ObservableProperty] private string _parentFolder = string.Empty;
-    [ObservableProperty] private bool _isSubFoldersLoaded;
-    [ObservableProperty] private bool _isEnumFilterEnabled = true;
-    [ObservableProperty] private string _folderNameFilter = string.Empty;
-    [ObservableProperty] private TypeFilterEnum _folderTypeFilter = TypeFilterEnum.All;
-    [ObservableProperty] private StateFilterEnum _folderStateFilter = StateFilterEnum.All;
+    [ObservableProperty] public partial string ParentFolder { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial bool IsSubFoldersLoaded { get; set; }
+
+    [ObservableProperty] public partial bool IsEnumFilterEnabled { get; set; } = true;
+
+    [ObservableProperty] public partial string FolderNameFilter { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial TypeFilterEnum FolderTypeFilter { get; set; } = TypeFilterEnum.All;
+
+    [ObservableProperty] public partial StateFilterEnum FolderStateFilter { get; set; } = StateFilterEnum.All;
+
     public ObservableCollection<FolderEntry> FilteredSubFolders { get; } = []; // UI 显示
     private List<FolderEntry> SubFolders { get; } = []; // 数据源
 
-    partial void OnFolderTypeFilterChanged(TypeFilterEnum value) => ApplyFilter();
+    partial void OnFolderTypeFilterChanged(TypeFilterEnum value)
+    {
+        ApplyFilter();
+    }
 
-    partial void OnFolderStateFilterChanged(StateFilterEnum value) => ApplyFilter();
+    partial void OnFolderStateFilterChanged(StateFilterEnum value)
+    {
+        ApplyFilter();
+    }
 
-    partial void OnFolderNameFilterChanged(string value) => ApplyFilter();
+    partial void OnFolderNameFilterChanged(string value)
+    {
+        ApplyFilter();
+    }
 }

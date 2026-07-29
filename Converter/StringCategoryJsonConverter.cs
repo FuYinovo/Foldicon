@@ -8,12 +8,13 @@ using Foldicon.Struct;
 namespace Foldicon.Converter;
 
 /// <summary>
-/// Json {"分类名": ["图标1", "图标2"], ...}
-/// => ObservableCollection = [ Category{"分类名", ["图标1","图标2"]}, ... ]
+///     Json {"分类名": ["图标1", "图标2"], ...}
+///     => ObservableCollection = [ Category{"分类名", ["图标1","图标2"]}, ... ]
 /// </summary>
 public class StringCategoryJsonConverter : JsonConverter<ObservableCollection<Category<string>>>
 {
-    public override ObservableCollection<Category<string>>? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override ObservableCollection<Category<string>>? Read(ref Utf8JsonReader reader, Type typeToConvert,
+        JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.Null)
             return null;
@@ -50,7 +51,8 @@ public class StringCategoryJsonConverter : JsonConverter<ObservableCollection<Ca
         return result;
     }
 
-    public override void Write(Utf8JsonWriter writer, ObservableCollection<Category<string>>? value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ObservableCollection<Category<string>>? value,
+        JsonSerializerOptions options)
     {
         if (value is null)
         {
@@ -64,6 +66,7 @@ public class StringCategoryJsonConverter : JsonConverter<ObservableCollection<Ca
             writer.WritePropertyName(category.Name);
             JsonSerializer.Serialize(writer, category.Items, options);
         }
+
         writer.WriteEndObject();
     }
 }

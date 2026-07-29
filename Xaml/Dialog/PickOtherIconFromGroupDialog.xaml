@@ -36,7 +36,7 @@
                 ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}">
                 <GridView.ItemContainerStyle>
                     <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
-                        <Setter Property="Margin" Value="4"/>
+                        <Setter Property="Margin" Value="4" />
                     </Style>
                 </GridView.ItemContainerStyle>
 
@@ -59,7 +59,7 @@
 
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal"/>
+                        <ItemsWrapGrid Orientation="Horizontal" />
                     </ItemsPanelTemplate>
                 </GridView.ItemsPanel>
 

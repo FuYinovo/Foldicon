@@ -17,12 +17,12 @@ using Vanara.PInvoke;
 namespace Foldicon.Tool;
 
 /// <summary>
-/// System.Drawing.Common 版本必须低于ver9.0
+///     System.Drawing.Common 版本必须低于ver9.0
 /// </summary>
 public static partial class IconHelper // 公开方法
 {
     /// <summary>
-    /// 设置文件夹图标
+    ///     设置文件夹图标
     /// </summary>
     /// <param name="folderPath">文件夹的完整路径</param>
     /// <param name="iconPath">图标的完整路径</param>
@@ -38,7 +38,7 @@ public static partial class IconHelper // 公开方法
     }
 
     /// <summary>
-    /// 获取文件夹的图标
+    ///     获取文件夹的图标
     /// </summary>
     /// <param name="path">文件夹完整路径</param>
     /// <returns>PNG数组；失败返回 null</returns>
@@ -48,7 +48,7 @@ public static partial class IconHelper // 公开方法
     }
 
     /// <summary>
-    /// 获取文件的图标
+    ///     获取文件的图标
     /// </summary>
     /// <param name="path">文件完整路径</param>
     /// <returns>PNG数组；失败返回 null</returns>
@@ -58,7 +58,7 @@ public static partial class IconHelper // 公开方法
     }
 
     /// <summary>
-    /// 获取文件夹下所有exe程序的路径及图标
+    ///     获取文件夹下所有exe程序的路径及图标
     /// </summary>
     /// <param name="fullPath">文件夹完整路径</param>
     /// <param name="configureAwait">是否以调用进程返回</param>
@@ -90,7 +90,7 @@ public static partial class IconHelper // 公开方法
     }
 
     /// <summary>
-    /// 获取文件夹下所有子文件夹的路径及图标
+    ///     获取文件夹下所有子文件夹的路径及图标
     /// </summary>
     /// <param name="fullPath">文件夹完整路径</param>
     /// <param name="configureAwait">是否以调用进程返回</param>
@@ -116,7 +116,7 @@ public static partial class IconHelper // 公开方法
     }
 
     /// <summary>
-    /// 获取文件夹自定义图标的路径
+    ///     获取文件夹自定义图标的路径
     /// </summary>
     /// <param name="folderPath">文件夹完整路径</param>
     /// <param name="encoding">读取Ini文件的编码</param>
@@ -153,11 +153,11 @@ public static partial class IconHelper // 公开方法
     }
 
     /// <summary>
-    /// 从数组创建 <see cref="BitmapImage"/> 实例
+    ///     从数组创建 <see cref="BitmapImage" /> 实例
     /// </summary>
     /// <param name="bytes">图片数组</param>
     /// <exception cref="COMException">没有在 UI 线程调用方法</exception>
-    /// <returns><see cref="BitmapImage"/> 实例</returns>
+    /// <returns><see cref="BitmapImage" /> 实例</returns>
     public static BitmapImage CreateBitmapImage(byte[] bytes)
     {
         var bitmap = new BitmapImage();
@@ -169,7 +169,7 @@ public static partial class IconHelper // 公开方法
 public static partial class IconHelper // 私有方法
 {
     /// <summary>
-    /// 获取文件(夹)的图标位图
+    ///     获取文件(夹)的图标位图
     /// </summary>
     /// <param name="path">文件夹完整路径</param>
     /// <param name="isFolder">是否是文件夹</param>
@@ -189,12 +189,12 @@ public static partial class IconHelper // 私有方法
     }
 
     /// <summary>
-    /// 尝试使用 Shell32 获取文件或文件夹的图标信息
+    ///     尝试使用 Shell32 获取文件或文件夹的图标信息
     /// </summary>
     /// <para>警告：路径斜杠必须为"\"</para>
     /// <param name="path">完整路径</param>
     /// <param name="isFolder">是否为文件夹</param>
-    /// <param name="iconInfo">接收图标信息的 <see cref="Shell32.SHFILEINFO"/></param>
+    /// <param name="iconInfo">接收图标信息的 <see cref="Shell32.SHFILEINFO" /></param>
     /// <example>路径斜杠错误</example>
     /// <returns>是否成功</returns>
     private static bool TryShell32GetIcon(string path, bool isFolder, out Shell32.SHFILEINFO iconInfo)

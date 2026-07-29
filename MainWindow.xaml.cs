@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
 using Foldicon.Class;
+using Foldicon.Service;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -19,7 +20,6 @@ namespace Foldicon;
 public sealed partial class MainWindow
 {
     private static readonly Type DefaultPage = typeof(IconEditorPage);
-    private static ObservableCollection<IconGroup> IconGroups => Service.IconGroupService.Instance.Groups;
 
     public MainWindow()
     {
@@ -28,8 +28,10 @@ public sealed partial class MainWindow
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
+    private static ObservableCollection<IconGroup> IconGroups => IconGroupService.Instance.Groups;
+
     /// <summary>
-    /// 尝试设置窗口背景为亚克力
+    ///     尝试设置窗口背景为亚克力
     /// </summary>
     /// <returns>是否成功</returns>
     public bool TrySetAcrylicBackdrop()
@@ -41,7 +43,7 @@ public sealed partial class MainWindow
     }
 
     /// <summary>
-    /// 尝试设置窗口背景为云母
+    ///     尝试设置窗口背景为云母
     /// </summary>
     /// <param name="style">云母样式</param>
     /// <returns>是否成功</returns>
@@ -57,7 +59,7 @@ public sealed partial class MainWindow
     }
 
     /// <summary>
-    /// 尝试设置窗口颜色主题
+    ///     尝试设置窗口颜色主题
     /// </summary>
     /// <param name="theme">主题样式</param>
     /// <returns>是否成功</returns>
@@ -84,7 +86,7 @@ public sealed partial class MainWindow
     }
 
     /// <summary>
-    /// 获取当前颜色主题
+    ///     获取当前颜色主题
     /// </summary>
     public ElementTheme GetRequestedTheme()
     {
@@ -100,7 +102,7 @@ public sealed partial class MainWindow
     }
 
     /// <summary>
-    ///让 NavigationView 跳转到某个页面
+    ///     让 NavigationView 跳转到某个页面
     /// </summary>
     /// <param name="targetPage">页面类型</param>
     /// <param name="parm">传参（null即留空）</param>
@@ -111,7 +113,7 @@ public sealed partial class MainWindow
     }
 
     /// <summary>
-    /// 响应 NavigationView 的跳转点击
+    ///     响应 NavigationView 的跳转点击
     /// </summary>
     private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {

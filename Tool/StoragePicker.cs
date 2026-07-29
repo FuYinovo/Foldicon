@@ -10,7 +10,7 @@ namespace Foldicon.Tool;
 public static class StoragePicker
 {
     /// <summary>
-    /// 使用 FolderPicker 选择一个文件夹
+    ///     使用 FolderPicker 选择一个文件夹
     /// </summary>
     /// <returns>完整路径</returns>
     public static async Task<string?> PickFolder(WindowId windowId)
@@ -27,7 +27,7 @@ public static class StoragePicker
     }
 
     /// <summary>
-    /// 使用 FolderPicker 选择多个文件夹
+    ///     使用 FolderPicker 选择多个文件夹
     /// </summary>
     /// <returns>完整路径</returns>
     public static async Task<string[]> PickFolders(WindowId windowId)
@@ -45,7 +45,7 @@ public static class StoragePicker
     }
 
     /// <summary>
-    /// 使用 FileOpenPicker 选择一个文件
+    ///     使用 FileOpenPicker 选择一个文件
     /// </summary>
     /// <returns>文件完整路径；未选则返回null</returns>
     public static async Task<string?> PickFile(IEnumerable<string> fileTypeFilter, WindowId windowId)
@@ -63,7 +63,7 @@ public static class StoragePicker
     }
 
     /// <summary>
-    /// 使用 FileOpenPicker 选择多个文件
+    ///     使用 FileOpenPicker 选择多个文件
     /// </summary>
     /// <returns>所有文件的完整路径</returns>
     public static async Task<string[]> PickFiles(IEnumerable<string> fileTypeFilter, WindowId windowId)

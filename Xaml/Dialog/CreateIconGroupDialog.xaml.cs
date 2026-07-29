@@ -4,7 +4,6 @@ using Foldicon.Service;
 using Foldicon.Tool;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
 
@@ -13,19 +12,21 @@ namespace Foldicon.Xaml.Dialog;
 [ObservableObject]
 public sealed partial class CreateIconGroupDialog
 {
-    [ObservableProperty] private string _name = string.Empty;
-    [ObservableProperty] private string _description = string.Empty;
-
-    [ObservableProperty] private BitmapIcon _logo = new()
-        { Icon = new BitmapImage(new Uri(UriHelper.GetFilePathFromAssets("LogoFallback.png"))) };
-
     public CreateIconGroupDialog()
     {
         InitializeComponent();
     }
 
+    [ObservableProperty] public partial string GroupName { get; set; } = string.Empty;
+
+    [ObservableProperty] public partial string Description { get; set; } = string.Empty;
+
+    [ObservableProperty]
+    public partial BitmapIcon Logo { get; set; } = new()
+        { Icon = new BitmapImage(new Uri(UriHelper.GetFilePathFromAssets("LogoFallback.png"))) };
+
     /// <summary>
-    /// 选取一个图片作为图标组 Logo
+    ///     选取一个图片作为图标组 Logo
     /// </summary>
     private async void ChooseLogo_Click(object sender, RoutedEventArgs e)
     {

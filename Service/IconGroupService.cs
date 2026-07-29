@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Class;
 using Foldicon.Struct;
 using Foldicon.Tool;
@@ -12,7 +11,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 namespace Foldicon.Service;
 
 /// <summary>
-/// 负责管理图标组的名称、简介、Logo（读写操作）
+///     负责管理图标组的名称、简介、Logo（读写操作）
 /// </summary>
 public class IconGroupService
 {
@@ -23,12 +22,17 @@ public class IconGroupService
     public static readonly string[] IconExtensions = [".ico"];
     public static readonly string[] LogoExtensions = [".ico", ".png", ".jpg", ".jpeg", ".bmp"];
     public static readonly string RootPath = UriHelper.GetFolderPathFromAssets(RootFolderName);
-    public static IconGroupService Instance { get; } = new();
     public readonly ObservableCollection<IconGroup> Groups = [];
-    private IconGroupService() => Load();
+
+    private IconGroupService()
+    {
+        Load();
+    }
+
+    public static IconGroupService Instance { get; } = new();
 
     /// <summary>
-    ///  从 Assets 加载所有图标组
+    ///     从 Assets 加载所有图标组
     /// </summary>
     private void Load()
     {
@@ -56,7 +60,7 @@ public class IconGroupService
     }
 
     /// <summary>
-    /// 添加一个图标组并保存到 Assets
+    ///     添加一个图标组并保存到 Assets
     /// </summary>
     /// <param name="name">名称</param>
     /// <param name="description">简介</param>
@@ -73,7 +77,7 @@ public class IconGroupService
         {
             Name = name,
             Description = description,
-            Logo = logo.Icon,
+            Logo = logo.Icon
         };
 
         // 创建 Json 文件
@@ -94,9 +98,9 @@ public class IconGroupService
     }
 
     /// <summary>
-    /// 从 Assets 删除一个导入的图标组
+    ///     从 Assets 删除一个导入的图标组
     /// </summary>
-    /// <param name="group"><see cref="Groups"/>>图标组实例</param>
+    /// <param name="group"><see cref="Groups" />>图标组实例</param>
     public void Remove(IconGroup group)
     {
         // 删除文件夹
@@ -107,7 +111,7 @@ public class IconGroupService
     }
 
     /// <summary>
-    /// 编辑并保存一个已导入到 Assets 的图标组信息
+    ///     编辑并保存一个已导入到 Assets 的图标组信息
     /// </summary>
     /// <param name="group">图标组实例</param>
     /// <param name="name">新名称</param>

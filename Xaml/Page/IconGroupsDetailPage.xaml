@@ -125,13 +125,6 @@
                             </Style>
                         </GridView.ItemContainerStyle>
                     </GridView>
-                    <!-- <ItemsRepeater -->
-                    <!--     ItemTemplate="{StaticResource BigIconDataTemplate}" -->
-                    <!--     ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}"> -->
-                    <!--     <ItemsRepeater.Layout> -->
-                    <!--         <control:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" /> -->
-                    <!--     </ItemsRepeater.Layout> -->
-                    <!-- </ItemsRepeater> -->
                 </control:Case>
 
                 <control:Case Value="1">
@@ -144,13 +137,6 @@
                             </Style>
                         </GridView.ItemContainerStyle>
                     </GridView>
-                    <!-- <ItemsRepeater -->
-                    <!--     ItemTemplate="{StaticResource SmallIconDataTemplate}" -->
-                    <!--     ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}"> -->
-                    <!--     <ItemsRepeater.Layout> -->
-                    <!--         <control:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" /> -->
-                    <!--     </ItemsRepeater.Layout> -->
-                    <!-- </ItemsRepeater> -->
                 </control:Case>
             </control:SwitchPresenter>
 

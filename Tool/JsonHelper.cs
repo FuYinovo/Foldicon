@@ -7,7 +7,7 @@ namespace Foldicon.Tool;
 public static class JsonHelper
 {
     /// <summary>
-    /// 尝试链式获取一个 Json 值
+    ///     尝试链式获取一个 Json 值
     /// </summary>
     /// <param name="node">根节点</param>
     /// <param name="keys">键</param>
@@ -31,7 +31,7 @@ public static class JsonHelper
     }
 
     /// <summary>
-    /// 尝试链式设置一个 Json 值（若键不存在，则自动创建结构）
+    ///     尝试链式设置一个 Json 值（若键不存在，则自动创建结构）
     /// </summary>
     /// <param name="node">根节点</param>
     /// <param name="value">值</param>
@@ -53,7 +53,10 @@ public static class JsonHelper
                 }
 
                 var next = current[parm];
-                if (next is not null) current = next;
+                if (next is not null)
+                {
+                    current = next;
+                }
                 else
                 {
                     // 若下一个 Key 不存在，则自动创建结构
