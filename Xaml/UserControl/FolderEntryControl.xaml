@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:struct="using:Foldicon.Struct"
+    xmlns:ui="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
     <Grid>
@@ -55,8 +56,25 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
             <!-- 选择其他自定义图标 -->
-            <Button Content="浏览"
-                    Click="PickOtherIconButton_Click"/>
+            <DropDownButton Content="浏览">
+                <DropDownButton.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem
+                            Icon="{ui:FontIcon Glyph=&#xEC50; }"
+                            Text="从文件"
+                            Click="PickIconFromFile_Click"/>
+                        <MenuFlyoutSubItem
+                            x:Name="PickIconFromGroupFlyout"
+                            Icon="{ui:FontIcon Glyph=&#xE7B8; }"
+                            Text="从图标库">
+                            <!-- C#代码动态生成 -->
+                            <!-- <MenuFlyoutItem Click="PickOtherIconFromGroup_Click"  -->
+                            <!--                 Tag="{x:Bind group}" -->
+                            <!--                 Text="{x:Bind groupName}"/> -->
+                        </MenuFlyoutSubItem>
+                    </MenuFlyout>
+                </DropDownButton.Flyout>
+            </DropDownButton>
             <!-- 应用自定义图标 -->
             <Button
                 IsEnabled="{x:Bind FolderEntry.IsSelectedIconChanged, Mode=OneWay}"

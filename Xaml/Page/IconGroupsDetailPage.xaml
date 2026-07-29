@@ -26,15 +26,35 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <StackPanel Spacing="8">
+        <Grid Grid.Row="0" ColumnSpacing="14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="auto"/>
+            </Grid.ColumnDefinitions>
+            
+            <StackPanel Spacing="8" Grid.Column="0">
                 <TextBlock Text="视图模式" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                 <control:Segmented HorizontalAlignment="Left" x:Name="ViewModeSegmented" SelectedIndex="0">
                     <control:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8A9;}" Content="大图标" />
                     <control:SegmentedItem Icon="{ui:FontIcon Glyph=&#xE8FD;}" Content="小图标" />
                 </control:Segmented>
             </StackPanel>
-            <Button Content="导入图标" HorizontalAlignment="Right" Click="ImportIcon_Click" />
+
+            <AutoSuggestBox 
+                Text="{x:Bind IconNameFilter, Mode=TwoWay}"
+                VerticalAlignment="Bottom"
+                Height="32"
+                PlaceholderText="搜索图标名称..."
+                BorderThickness="0"
+                Grid.Column="1"
+                QueryIcon="Find"/>
+
+            <Button 
+                VerticalAlignment="Bottom"
+                Content="导入图标" 
+                    Click="ImportIcon_Click" 
+                    Grid.Column="2"/>
         </Grid>
 
         <StackPanel Spacing="8" Grid.Row="1">
@@ -43,7 +63,7 @@
                 SelectionChanged="CategoryFilter_Changed"
                 IsWrapped="True"
                 SelectionMode="Multiple"
-                ItemsSource="{x:Bind Group.Categories, Mode=OneWay}" />
+                ItemsSource="{x:Bind _group.Categories, Mode=OneWay}" />
         </StackPanel>
 
         <Line Grid.Row="2"
@@ -57,7 +77,7 @@
                 <control:SwitchPresenter
                     Value="{Binding SelectedIndex, ElementName=ViewModeSegmented, Converter={StaticResource IntToStringConverter}}">
                     <control:Case Value="0">
-                        <ItemsRepeater ItemsSource="{x:Bind Group.Icons, Mode=OneWay}">
+                        <ItemsRepeater ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}">
                             <ItemsRepeater.Layout>
                                 <control:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" />
                             </ItemsRepeater.Layout>
@@ -89,7 +109,7 @@
                     </control:Case>
 
                     <control:Case Value="1">
-                        <ItemsRepeater ItemsSource="{x:Bind Group.Icons, Mode=OneWay}">
+                        <ItemsRepeater ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}">
                             <ItemsRepeater.Layout>
                                 <control:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
                             </ItemsRepeater.Layout>
@@ -122,7 +142,7 @@
                        TextAlignment="Center"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
-                       Visibility="{x:Bind Group.Icons.Count, Mode=OneWay,
+                       Visibility="{x:Bind FilteredIcons.Count, Mode=OneWay,
                        Converter={StaticResource CountToVisibilityConverter},
                        ConverterParameter=True}" />
         </Grid>

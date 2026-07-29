@@ -1,4 +1,5 @@
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Class;
@@ -16,7 +17,9 @@ namespace Foldicon.Xaml.Page;
 [ObservableObject]
 public sealed partial class IconGroupsDetailPage
 {
-    [ObservableProperty] private IconGroup _group = new();
+    private IconGroup _group = new();
+    [ObservableProperty] private ObservableCollection<BitmapIcon> _filteredIcons = []; // UI
+    [ObservableProperty] private string _iconNameFilter = string.Empty;
 
     public IconGroupsDetailPage()
     {
@@ -26,9 +29,13 @@ public sealed partial class IconGroupsDetailPage
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        // 接收新的 IconGroup 作为 ViewModel
-        if (e.Parameter is IconGroup group) Group = group;
+        if (e.Parameter is not IconGroup group) return;
+        _group = group;
+        FilteredIcons = [.. group.Icons];
     }
+
+    partial void OnIconNameFilterChanged(string value) => ApplyFilter();
+
 
     /// <summary>
     /// 点击「导入图标」按键
@@ -43,7 +50,7 @@ public sealed partial class IconGroupsDetailPage
         if (icons.Length == 0) return;
 
         // 导入图标
-        foreach (var icon in icons) Group.Add(icon);
+        foreach (var icon in icons) _group.Add(icon);
     }
 
     /// <summary>
@@ -71,14 +78,14 @@ public sealed partial class IconGroupsDetailPage
             PrimaryButtonText = "确定",
             CloseButtonText = "取消",
             DefaultButton = ContentDialogButton.Primary,
-            Content = new DescriptionDialog {Description = "此操作将无法从回收站恢复"},
+            Content = new DescriptionDialog { Description = "此操作将无法从回收站恢复" },
             XamlRoot = XamlRoot,
         };
         var result = await dialog.ShowAsync();
         if (result == ContentDialogResult.None) return;
 
         // 延迟到下一个UI帧移除（让ContextFlyout先关闭），防止 E_FAIL (0x80004005) 崩溃
-        DispatcherQueue.GetForCurrentThread().TryEnqueue(() => Group.Remove(icon));
+        DispatcherQueue.GetForCurrentThread().TryEnqueue(() => _group.Remove(icon));
     }
 
     /// <summary>
@@ -88,5 +95,21 @@ public sealed partial class IconGroupsDetailPage
     {
         if (sender is not Button { DataContext: BitmapIcon icon }) return;
         if (icon.FullPath is not null) Process.Start("explorer.exe", icon.FullPath);
+    }
+
+    /// <summary>
+    /// 应用筛选
+    /// </summary>
+    private void ApplyFilter()
+    {
+        FilteredIcons.Clear();
+        foreach (var icon in _group.Icons)
+        {
+            // 名称筛选
+            if (!icon.FileName.Contains(IconNameFilter)) continue;
+
+            // TODO)) 类型筛选
+            FilteredIcons.Add(icon);
+        }
     }
 }
