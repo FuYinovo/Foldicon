@@ -75,6 +75,20 @@ public sealed partial class IconGroupPage
         var result = await dialog.ShowAsync();
         if (result == ContentDialogResult.None) return; // 取消操作
 
+        // 名称不可为空
+        if (string.IsNullOrWhiteSpace(content.GroupName))
+        {
+            await new ContentDialog
+            {
+                RequestedTheme = App.MainWindow.GetRequestedTheme(),
+                Title = "编辑失败",
+                CloseButtonText = "确定",
+                XamlRoot = XamlRoot,
+                Content = new DescriptionDialog("名称不能为空")
+            }.ShowAsync();
+            return;
+        }
+
         // 编辑操作
         IconGroupService.Instance.Edit(group, content.GroupName, content.Description, content.Logo);
     }
@@ -133,6 +147,20 @@ public sealed partial class IconGroupPage
         var result = await dialog.ShowAsync();
         if (result == ContentDialogResult.None) return; // 取消操作
 
+        // 名称不可为空
+        if (string.IsNullOrWhiteSpace(content.GroupName))
+        {
+            await new ContentDialog
+            {
+                RequestedTheme = App.MainWindow.GetRequestedTheme(),
+                Title = "导入失败",
+                CloseButtonText = "确定",
+                XamlRoot = XamlRoot,
+                Content = new DescriptionDialog("名称不能为空")
+            }.ShowAsync();
+            return;
+        }
+
         // 创建操作
         IconGroupService.Instance.Add(content.GroupName, content.Description, content.Logo, icons);
     }
@@ -155,6 +183,20 @@ public sealed partial class IconGroupPage
         };
         var result = await dialog.ShowAsync();
         if (result == ContentDialogResult.None) return; // 取消操作
+
+        // 名称不可为空
+        if (string.IsNullOrWhiteSpace(content.GroupName))
+        {
+            await new ContentDialog
+            {
+                RequestedTheme = App.MainWindow.GetRequestedTheme(),
+                Title = "创建失败",
+                CloseButtonText = "确定",
+                XamlRoot = XamlRoot,
+                Content = new DescriptionDialog("名称不能为空")
+            }.ShowAsync();
+            return;
+        }
 
         // 创建操作
         IconGroupService.Instance.Add(content.GroupName, content.Description, content.Logo);
