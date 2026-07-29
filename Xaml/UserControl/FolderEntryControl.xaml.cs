@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Foldicon.Class;
 using Foldicon.Service;
 using Foldicon.Tool;
@@ -109,6 +110,7 @@ public sealed partial class FolderEntryControl
     {
         foreach (var group in IconGroupService.Instance.Groups)
         {
+            if (IsItemExists(group)) continue;
             var item = new MenuFlyoutItem
             {
                 Text = group.Name,
@@ -116,6 +118,13 @@ public sealed partial class FolderEntryControl
             };
             item.Click += PickOtherIconFromGroup_Click;
             PickIconFromGroupFlyout.Items.Add(item);
+        }
+
+        return;
+
+        bool IsItemExists(IconGroup group)
+        {
+            return PickIconFromGroupFlyout.Items.Any(item => ReferenceEquals(group, item.Tag));
         }
     }
 }
