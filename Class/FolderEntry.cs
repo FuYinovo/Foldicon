@@ -2,70 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Struct;
 using Foldicon.Tool;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Class;
 
 public partial class FolderEntry : ObservableObject
 {
     private readonly string _fullPath;
-
-
-    /// <param name="fullPath">文件夹完整路径</param>
-    /// <param name="currentIcon">文件夹图标</param>
-    /// <param name="exeIcons">可选exe路径及图标</param>
-    public FolderEntry(string fullPath, byte[] currentIcon, List<BytesIcon> exeIcons)
-    {
-        _fullPath = fullPath;
-
-        // OptionalIcons
-        foreach (var icon in exeIcons)
-        {
-            var bitmap = new BitmapIcon
-            {
-                FullPath = icon.FullPath,
-                Icon = IconHelper.CreateBitmapImage(icon.Icon!) // 此处不可能 null
-            };
-            OptionalIcons.Add(bitmap);
-        }
-
-        // CurrentIcon
-        CurrentIcon = IconHelper.CreateBitmapImage(currentIcon);
-
-        InitIconSelectorIndex();
-        Refresh();
-    }
-
-    /// <param name="fullPath">文件夹完整路径</param>
-    public FolderEntry(string fullPath)
-    {
-        _fullPath = fullPath;
-
-        // OptionalIcons
-        var icons = IconHelper.GetExeIconsAsync(fullPath, false).Result;
-        foreach (var icon in icons)
-        {
-            var bitmap = new BitmapIcon
-            {
-                FullPath = icon.FullPath,
-                Icon = IconHelper.CreateBitmapImage(icon.Icon!) // 此处不可能 null
-            };
-            OptionalIcons.Add(bitmap);
-        }
-
-        // CurrentIcon
-        CurrentIcon =
-            IconHelper.CreateBitmapImage(IconHelper.GetFolderIcon(fullPath) ??
-                                         throw new Exception($"读取'{fullPath}'文件夹图标失败"));
-
-        InitIconSelectorIndex();
-        Refresh();
-    }
-
     [ObservableProperty] public partial ImageSource CurrentIcon { get; set; }
 
     [ObservableProperty] public partial ObservableCollection<BitmapIcon> OptionalIcons { get; set; } = [];
@@ -81,6 +31,50 @@ public partial class FolderEntry : ObservableObject
     public bool IsSystemIcon { get; private set; }
     public string FolderName => Path.GetFileName(_fullPath);
     public bool IsSelectedIconChanged => SelectedIndex != AppliedIndex;
+
+    public static async Task<FolderEntry> CreateAsync(string fullPath, byte[] currentIcon, List<BytesIcon> exeIcons)
+    {
+        var selection = await Task.Run(() => ComputeSelection(fullPath, exeIcons));
+        return new FolderEntry(fullPath, currentIcon, exeIcons, selection);
+    }
+
+    private FolderEntry(string fullPath, byte[] currentIcon, List<BytesIcon> exeIcons, SelectionResult selection)
+    {
+        _fullPath = fullPath;
+        var selectedIndex = selection.SelectedIndex;
+
+        // OptionalIcons
+        foreach (var icon in exeIcons)
+        {
+            // byte[] => BitmapImage
+            OptionalIcons.Add(new BitmapIcon
+            {
+                FullPath = icon.FullPath,
+                Icon = IconHelper.CreateBitmapImage(icon.Icon!)
+            });
+        }
+
+        // 若文件夹当前图标不在 exeIcons 中，则单独创建条目
+        if (selection is { IsSysIcon: false, ExtraIcon: not null })
+        {
+            OptionalIcons.Add(new BitmapIcon
+            {
+                FullPath = selection.ExtraIcon.FullPath,
+                Icon = IconHelper.CreateBitmapImage(selection.ExtraIcon.Icon)
+            });
+            selectedIndex = OptionalIcons.Count - 1;
+        }
+
+        // CurrentIcon
+        CurrentIcon = selection.IsSysIcon
+            ? IconHelper.CreateBitmapImage(currentIcon)
+            : OptionalIcons[selectedIndex].Icon; // 避免多次创建 BitmapImage
+
+
+        SelectedIndex = selectedIndex;
+        AppliedIndex = selectedIndex;
+        IsSystemIcon = selectedIndex == -1;
+    }
 
     /// <summary>
     ///     应用当前选中的图标到文件夹
@@ -126,37 +120,41 @@ public partial class FolderEntry : ObservableObject
         SelectedIndex = OptionalIcons.Count - 1;
     }
 
+    /// <param name="SelectedIndex">文件夹图标在 exeIcon 的索引 (-1:不在)</param>
+    /// <param name="ExtraIcon">文件夹图标不在 exeIcon 中情况下，需额外创建的图标条目</param>
+    /// <param name="IsSysIcon">是否为系统默认图标</param>
+    private sealed record SelectionResult(int SelectedIndex, BytesIcon? ExtraIcon, bool IsSysIcon);
+
     /// <summary>
-    ///     读 desktop.ini，把当前已应用图标定位到可选列表的索引
+    ///     获取当前文件夹图标在 exeIcons 中的索引
     /// </summary>
-    public void InitIconSelectorIndex()
+    /// <param name="fullPath">文件夹路径</param>
+    /// <param name="exeIcons">文件夹中所有的exe图标</param>
+    /// <returns><see cref="SelectionResult"/>实例</returns>
+    private static SelectionResult ComputeSelection(string fullPath, List<BytesIcon> exeIcons)
     {
         // 尝试 UTF-8 读取路径
-        var iconPath = IconHelper.GetFolderCustomIconPath(_fullPath, Encoding.UTF8);
+        var iconPath = IconHelper.GetFolderCustomIconPath(fullPath, Encoding.UTF8);
         // 若路径或图标为 null，尝试 GBK 读取路径
         if (iconPath is null || !TryGetIcon(iconPath, out var icon))
         {
-            iconPath = IconHelper.GetFolderCustomIconPath(_fullPath, Encoding.GetEncoding("GBK"));
-            // GBK 也失败，直接返回
-            if (iconPath is null || !TryGetIcon(iconPath, out icon)) return;
+            iconPath = IconHelper.GetFolderCustomIconPath(fullPath, Encoding.GetEncoding("GBK"));
+            // GBK 也失败：文件夹为系统默认图标
+            if (iconPath is null || !TryGetIcon(iconPath, out icon))
+                return new SelectionResult(-1, null, true);
         }
 
         // 尝试在自定义图标可选项里查找
-        for (var i = 0; i < OptionalIcons.Count; i++)
+        for (var i = 0; i < exeIcons.Count; i++)
         {
-            var path = OptionalIcons[i].FullPath;
+            var path = exeIcons[i].FullPath;
             if (path != iconPath) continue;
-            // 找到：直接设为初始选择项
-            SelectedIndex = i;
-            return;
+            // 找到：直接返回其索引
+            return new SelectionResult(i, null, false);
         }
 
-        // 未找到：创建新的自定义图标可选项
-        if (icon is null) return;
-        OptionalIcons.Add(new BitmapIcon { FullPath = iconPath, Icon = IconHelper.CreateBitmapImage(icon) });
-        SelectedIndex = OptionalIcons.Count - 1;
-
-        return;
+        // 未找到：返回额外自定义图标字节，由构造函数补进 OptionalIcons 并选中
+        return new SelectionResult(-1, new BytesIcon { FullPath = iconPath, Icon = icon }, false);
 
         bool TryGetIcon(string path, out byte[]? bitmap)
         {

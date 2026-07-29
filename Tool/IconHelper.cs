@@ -130,9 +130,8 @@ public static partial class IconHelper // 公开方法
             var resource = iniSharp.GetValue(".ShellClassInfo", "IconResource");
             return resource is null ? null : ConsumeResource(resource);
         }
-        catch (ArgumentNullException e)
+        catch (Exception e)
         {
-            // IniSharp.GetValue 在键/节不存在且 defaultValue 为 null 时会抛出 ArgumentNullException
             Debug.WriteLine(e.Message);
             return null;
         }
@@ -179,11 +178,11 @@ public static partial class IconHelper // 私有方法
         if (!TryShell32GetIcon(path, isFolder, out var info) || info.hIcon.IsInvalid) return null;
 
         // 使用 Icon.FromHandle，防止 Bitmap.FromHIcon 丢失透明度
-        var bitmap = Icon.FromHandle(info.hIcon.DangerousGetHandle()).ToBitmap();
+        using var bitmap = Icon.FromHandle(info.hIcon.DangerousGetHandle()).ToBitmap();
         User32.DestroyIcon(info.hIcon);
 
         // Bitmap -> MemoryStream -> RandomAccessStream -> BitmapImage
-        var stream = new MemoryStream();
+        using var stream = new MemoryStream();
         bitmap.Save(stream, ImageFormat.Png);
         return stream.ToArray();
     }

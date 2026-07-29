@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Class;
@@ -87,21 +88,26 @@ public sealed partial class IconEditorPage // 普通方法
         if (!Directory.Exists(ParentFolder)) return;
         SubFolders.Clear();
 
-        // 获取子文件夹图标
-        var icons = await IconHelper.GetSubfolderIconsAsync(ParentFolder);
+        // 并行获取子文件夹图标
+        var subfolderIcons = await IconHelper.GetSubfolderIconsAsync(ParentFolder);
 
-        // 创建 FolderEntry 实例
-        foreach (var icon in icons)
+        // 并行创建 FolderEntry 实例
+        var tasks = subfolderIcons.Select(async icon =>
+        {
             try
             {
-                // 获取可选 exe 程序图标
                 var exeIcons = await IconHelper.GetExeIconsAsync(icon.FullPath);
-                SubFolders.Add(new FolderEntry(icon.FullPath, icon.Icon, exeIcons));
+                return await FolderEntry.CreateAsync(icon.FullPath, icon.Icon, exeIcons);
             }
             catch (Exception e)
             {
                 Debug.WriteLine(e.Message);
+                return null;
             }
+        });
+        foreach (var entry in await Task.WhenAll(tasks))
+            if (entry is not null)
+                SubFolders.Add(entry);
 
 
         ApplyFilter();
