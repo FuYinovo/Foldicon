@@ -66,9 +66,13 @@ public partial class IconGroup : ObservableObject
     /// <param name="icon">图标完整路径</param>
     public void Add(string icon)
     {
-        // 复制到目录
+        // 复制覆盖
         var targetPath = Path.Combine(RootPath, IconGroupService.IconsFolderName, Path.GetFileName(icon));
-        File.Copy(icon, targetPath);
+        if (File.Exists(icon))
+        {
+            if (File.Exists(targetPath)) File.Delete(targetPath);
+            File.Copy(icon, targetPath);
+        }
 
         // 读取 -> BitmapIcon 实例
         var bitmap = new BitmapImage(new Uri(targetPath));
@@ -81,9 +85,10 @@ public partial class IconGroup : ObservableObject
     /// <param name="icon">图标实例</param>
     public void Remove(BitmapIcon icon)
     {
-        if (icon.FullPath is null) return;
+        var path = icon.FullPath;
+        if (path is null) return;
         // 删除文件
-        File.Delete(icon.FullPath);
+        if (File.Exists(path)) File.Delete(path);
         // 删除已加载实例
         Icons.Remove(icon);
     }

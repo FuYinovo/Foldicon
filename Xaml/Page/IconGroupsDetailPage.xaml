@@ -16,6 +16,46 @@
     <Page.Resources>
         <converter:IntToStringConverter x:Key="IntToStringConverter" />
         <converter:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+        <DataTemplate
+            x:Key="BigIconDataTemplate"
+            x:DataType="struct:BitmapIcon">
+            <Button Width="74"
+                    Height="100"
+                    Padding="4"
+                    Click="Icon_Click"
+                    ToolTipService.ToolTip="{Binding FileName}"
+                    Background="{ThemeResource CardBackgroundFillColorDefault}">
+                <Button.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="删除图标" Icon="Delete" Click="DeleteIcon_Click" />
+                    </MenuFlyout>
+                </Button.ContextFlyout>
+                <StackPanel>
+                    <Image Width="64" Height="64" Source="{Binding Icon}" />
+                    <TextBlock Text="{Binding FileName}"
+                               MaxWidth="60"
+                               TextWrapping="NoWrap"
+                               TextAlignment="Center" />
+                </StackPanel>
+            </Button>
+        </DataTemplate>
+        <DataTemplate
+            x:Key="SmallIconDataTemplate"
+            x:DataType="struct:BitmapIcon">
+            <Button Width="40"
+                    Height="40"
+                    Padding="4"
+                    ToolTipService.ToolTip="{Binding FileName}"
+                    Background="{ThemeResource CardBackgroundFillColorDefault}">
+                <Button.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="删除图标" Icon="Delete" />
+                    </MenuFlyout>
+                </Button.ContextFlyout>
+                <Image Width="32" Height="32" Source="{Binding Icon}" />
+            </Button>
+        </DataTemplate>
+
     </Page.Resources>
 
     <Grid RowSpacing="12">
@@ -28,11 +68,11 @@
 
         <Grid Grid.Row="0" ColumnSpacing="14">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            
+
             <StackPanel Spacing="8" Grid.Column="0">
                 <TextBlock Text="视图模式" Style="{ThemeResource BodyStrongTextBlockStyle}" />
                 <control:Segmented HorizontalAlignment="Left" x:Name="ViewModeSegmented" SelectedIndex="0">
@@ -41,20 +81,20 @@
                 </control:Segmented>
             </StackPanel>
 
-            <AutoSuggestBox 
+            <AutoSuggestBox
                 Text="{x:Bind IconNameFilter, Mode=TwoWay}"
                 VerticalAlignment="Bottom"
                 Height="32"
                 PlaceholderText="搜索图标名称..."
                 BorderThickness="0"
                 Grid.Column="1"
-                QueryIcon="Find"/>
+                QueryIcon="Find" />
 
-            <Button 
+            <Button
                 VerticalAlignment="Bottom"
-                Content="导入图标" 
-                    Click="ImportIcon_Click" 
-                    Grid.Column="2"/>
+                Content="导入图标"
+                Click="ImportIcon_Click"
+                Grid.Column="2" />
         </Grid>
 
         <StackPanel Spacing="8" Grid.Row="1">
@@ -73,67 +113,46 @@
               StrokeThickness="1" />
 
         <Grid Row="3">
-            <ScrollViewer>
-                <control:SwitchPresenter
-                    Value="{Binding SelectedIndex, ElementName=ViewModeSegmented, Converter={StaticResource IntToStringConverter}}">
-                    <control:Case Value="0">
-                        <ItemsRepeater ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}">
-                            <ItemsRepeater.Layout>
-                                <control:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" />
-                            </ItemsRepeater.Layout>
+            <control:SwitchPresenter
+                Value="{Binding SelectedIndex, ElementName=ViewModeSegmented, Converter={StaticResource IntToStringConverter}}">
+                <control:Case Value="0">
+                    <GridView
+                        ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}"
+                        ItemTemplate="{StaticResource BigIconDataTemplate}">
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                <Setter Property="Margin" Value="4" />
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                    </GridView>
+                    <!-- <ItemsRepeater -->
+                    <!--     ItemTemplate="{StaticResource BigIconDataTemplate}" -->
+                    <!--     ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}"> -->
+                    <!--     <ItemsRepeater.Layout> -->
+                    <!--         <control:WrapLayout HorizontalSpacing="8" VerticalSpacing="8" /> -->
+                    <!--     </ItemsRepeater.Layout> -->
+                    <!-- </ItemsRepeater> -->
+                </control:Case>
 
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="struct:BitmapIcon">
-                                    <Button Width="74"
-                                            Height="100"
-                                            Padding="4"
-                                            Click="Icon_Click"
-                                            ToolTipService.ToolTip="{Binding FileName}"
-                                            Background="{ThemeResource CardBackgroundFillColorDefault}">
-                                        <Button.ContextFlyout>
-                                            <MenuFlyout>
-                                                <MenuFlyoutItem Text="删除图标" Icon="Delete" Click="DeleteIcon_Click" />
-                                            </MenuFlyout>
-                                        </Button.ContextFlyout>
-                                        <StackPanel>
-                                            <Image Width="64" Height="64" Source="{Binding Icon}" />
-                                            <TextBlock Text="{Binding FileName}"
-                                                       MaxWidth="60"
-                                                       TextWrapping="NoWrap"
-                                                       TextAlignment="Center" />
-                                        </StackPanel>
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </control:Case>
-
-                    <control:Case Value="1">
-                        <ItemsRepeater ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}">
-                            <ItemsRepeater.Layout>
-                                <control:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" />
-                            </ItemsRepeater.Layout>
-
-                            <ItemsRepeater.ItemTemplate>
-                                <DataTemplate x:DataType="struct:BitmapIcon">
-                                    <Button Width="40"
-                                            Height="40"
-                                            Padding="4"
-                                            ToolTipService.ToolTip="{Binding FileName}"
-                                            Background="{ThemeResource CardBackgroundFillColorDefault}">
-                                        <Button.ContextFlyout>
-                                            <MenuFlyout>
-                                                <MenuFlyoutItem Text="删除图标" Icon="Delete" />
-                                            </MenuFlyout>
-                                        </Button.ContextFlyout>
-                                        <Image Width="32" Height="32" Source="{Binding Icon}" />
-                                    </Button>
-                                </DataTemplate>
-                            </ItemsRepeater.ItemTemplate>
-                        </ItemsRepeater>
-                    </control:Case>
-                </control:SwitchPresenter>
-            </ScrollViewer>
+                <control:Case Value="1">
+                    <GridView
+                        ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}"
+                        ItemTemplate="{StaticResource SmallIconDataTemplate}">
+                        <GridView.ItemContainerStyle>
+                            <Style TargetType="GridViewItem" BasedOn="{StaticResource DefaultGridViewItemStyle}">
+                                <Setter Property="Margin" Value="2" />
+                            </Style>
+                        </GridView.ItemContainerStyle>
+                    </GridView>
+                    <!-- <ItemsRepeater -->
+                    <!--     ItemTemplate="{StaticResource SmallIconDataTemplate}" -->
+                    <!--     ItemsSource="{x:Bind FilteredIcons, Mode=OneWay}"> -->
+                    <!--     <ItemsRepeater.Layout> -->
+                    <!--         <control:WrapLayout HorizontalSpacing="4" VerticalSpacing="4" /> -->
+                    <!--     </ItemsRepeater.Layout> -->
+                    <!-- </ItemsRepeater> -->
+                </control:Case>
+            </control:SwitchPresenter>
 
             <TextBlock Text="(｡•́︿•̀｡) 一个图标都没有呢……&#10;要不添加个新成员吧？"
                        FontSize="40"

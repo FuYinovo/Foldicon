@@ -32,6 +32,7 @@ public sealed partial class IconGroupsDetailPage
         if (e.Parameter is not IconGroup group) return;
         _group = group;
         FilteredIcons = [.. group.Icons];
+        _group.Icons.CollectionChanged += (_, _) => ApplyFilter(); // 更新UI（FilteredIcons 同步 _group.Icons)
     }
 
     partial void OnIconNameFilterChanged(string value) => ApplyFilter();
@@ -69,8 +70,6 @@ public sealed partial class IconGroupsDetailPage
         if (sender is not MenuFlyoutItem { DataContext: BitmapIcon icon }) return;
 
         // 二次确认
-        var content = new Grid();
-
         var dialog = new ContentDialog
         {
             RequestedTheme = App.MainWindow.GetRequestedTheme(),
