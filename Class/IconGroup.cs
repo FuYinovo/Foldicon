@@ -16,9 +16,6 @@ namespace Foldicon.Class;
 /// </summary>
 public partial class IconGroup : ObservableObject
 {
-    [JsonIgnore] public string RootPath = string.Empty; // 在 Init() 初始化
-
-
     /// <summary>
     ///     创建一个图标组
     /// </summary>
@@ -36,6 +33,7 @@ public partial class IconGroup : ObservableObject
     {
     }
 
+    [JsonIgnore] public string RootPath = string.Empty; // 在 Init() 初始化
     [JsonIgnore] public ObservableCollection<BitmapIcon> Icons { get; set; } = []; // 在 Init() 初始化
     [ObservableProperty] public partial string Name { get; set; } = string.Empty;
     [ObservableProperty] public partial string Description { get; set; } = string.Empty;

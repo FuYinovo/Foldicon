@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:CommunityToolkit.WinUI"
     xmlns:foldicon="using:Foldicon"
+    xmlns:class="using:Foldicon.Class"
     mc:Ignorable="d"
     Title="Foldicon">
 
@@ -22,15 +23,17 @@
             IsBackButtonVisible="Collapsed">
             <NavigationView.MenuItems>
                 <NavigationViewItem Icon="Edit" Content="图标编辑器" Tag="IconEditor" />
-                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7B8;}" Content="图标库" IsExpanded="True">
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
-                                            Content="浏览器"
-                                            Tag="IconGroup"
-                                            MenuItemsSource="{x:Bind foldicon:MainWindow.IconGroups}" />
-                        <NavigationViewItem Icon="Tag" Content="分类器" Tag="IconGroupCategorize" />
-                    </NavigationViewItem.MenuItems>
+                <NavigationViewItemHeader Content="图标库" />
+                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
+                                    Content="首页"
+                                    Tag="IconGroup"/>
+                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7B8;}"
+                                    Content="详情"
+                                    MenuItemsSource="{x:Bind foldicon:MainWindow.IconGroups}">
                 </NavigationViewItem>
+                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE97C;}"
+                                    Content="分类" IsEnabled="False"
+                                    MenuItemsSource="{x:Bind foldicon:MainWindow.IconGroups}"/>
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" Padding="24" CacheSize="16" />
         </NavigationView>

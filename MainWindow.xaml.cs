@@ -19,7 +19,6 @@ namespace Foldicon;
 
 public sealed partial class MainWindow
 {
-    private static readonly Type DefaultPage = typeof(IconEditorPage);
 
     public MainWindow()
     {
@@ -28,6 +27,7 @@ public sealed partial class MainWindow
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
     }
 
+    private static readonly Type DefaultPage = typeof(IconEditorPage);
     private static ObservableCollection<IconGroup> IconGroups => IconGroupService.Instance.Groups;
 
     /// <summary>
