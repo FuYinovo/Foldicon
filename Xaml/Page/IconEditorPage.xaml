@@ -21,7 +21,6 @@
         <converter:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
     </Page.Resources>
 
-
     <Grid RowSpacing="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
@@ -139,16 +138,36 @@
                     </ItemsRepeater.Layout>
                 </ItemsRepeater>
             </ScrollViewer>
-            <TextBlock Text="(´･ω･`) 空空如也……&#10;请先打开一个文件夹吧！"
-                       FontSize="40"
-                       FontWeight="Black"
-                       Opacity=".3"
-                       TextAlignment="Center"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Visibility="{x:Bind IsSubFoldersLoaded, Mode=OneWay,
+
+            <control:SwitchPresenter Value="{x:Bind IsSubFoldersLoading.ToString(), Mode=OneWay}">
+                <control:Case Value="True">
+                    <StackPanel
+                        Padding="24"
+                        Background="{ThemeResource CardBackgroundFillColorDefault}"
+                        CornerRadius="8"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="16">
+                        <TextBlock Text="正在读取文件夹"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Top" />
+                        <ProgressBar Width="180"
+                                     IsIndeterminate="True" />
+                    </StackPanel>
+                </control:Case>
+                <control:Case Value="False">
+                    <TextBlock Text="(´･ω･`) 空空如也……&#10;请先打开一个文件夹吧！"
+                               FontSize="40"
+                               FontWeight="Black"
+                               Opacity=".3"
+                               TextAlignment="Center"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{x:Bind IsSubFoldersLoaded, Mode=OneWay,
                        Converter={StaticResource BoolToVisibilityConverter},
                        ConverterParameter=True}" />
+                </control:Case>
+            </control:SwitchPresenter>
         </Grid>
     </Grid>
 </Page>

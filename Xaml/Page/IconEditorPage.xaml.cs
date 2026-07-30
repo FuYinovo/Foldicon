@@ -25,14 +25,16 @@ public sealed partial class IconEditorPage // 回调方法
     {
         if (sender is not Button btn) return;
         btn.IsEnabled = false;
-        var fullPath = await StoragePicker.PickFolder(btn.XamlRoot.ContentIslandEnvironment.AppWindowId);
 
+        var fullPath = await StoragePicker.PickFolder(btn.XamlRoot.ContentIslandEnvironment.AppWindowId);
         if (fullPath is not null)
         {
             ParentFolder = fullPath;
             IsSubFoldersLoaded = false;
+            IsSubFoldersLoading = true;
             await RefreshSubfoldersAsync();
             IsSubFoldersLoaded = true;
+            IsSubFoldersLoading = false;
         }
 
         btn.IsEnabled = true;
@@ -77,7 +79,6 @@ public sealed partial class IconEditorPage // 普通方法
         foreach (var entry in await Task.WhenAll(tasks))
             if (entry is not null)
                 SubFolders.Add(entry);
-
 
         ApplyFilter();
     }
@@ -141,7 +142,7 @@ public sealed partial class IconEditorPage // 属性、属性 OnChanged 方法�
     [ObservableProperty] public partial string NameFilter { get; set; } = string.Empty;
     [ObservableProperty] public partial TypeFilterEnum TypeFilter { get; set; } = TypeFilterEnum.All;
     [ObservableProperty] public partial StatusFilterEnum StatusFilter { get; set; } = StatusFilterEnum.All;
-    [ObservableProperty] public partial int StatusFilterIndex { get; set; } = 0;  // Index 更新触发 Enum 更新
+    [ObservableProperty] public partial int StatusFilterIndex { get; set; } = 0; // Index 更新触发 Enum 更新
     [ObservableProperty] public partial int TypeFilterIndex { get; set; } = 0;
     partial void OnTypeFilterChanged(TypeFilterEnum value) => ApplyFilter();
     partial void OnStatusFilterChanged(StatusFilterEnum value) => ApplyFilter();
@@ -176,7 +177,8 @@ public sealed partial class IconEditorPage // 属性、属性 OnChanged 方法�
     #endregion
 
     [ObservableProperty] public partial string ParentFolder { get; set; } = string.Empty;
-    [ObservableProperty] public partial bool IsSubFoldersLoaded { get; set; }
+    [ObservableProperty] public partial bool IsSubFoldersLoaded { get; set; } = false;
+    [ObservableProperty] public partial bool IsSubFoldersLoading { get; set; } = false;
     public ObservableCollection<FolderEntry> FilteredSubFolders { get; } = []; // UI 显示
     private List<FolderEntry> SubFolders { get; } = []; // 数据源
 }
