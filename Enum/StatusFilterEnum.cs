@@ -1,6 +1,6 @@
 ﻿namespace Foldicon.Enum;
 
-public enum StateFilterEnum
+public enum StatusFilterEnum
 {
     All,
     Unmodified,

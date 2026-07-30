@@ -20,19 +20,21 @@
             OpenPaneLength="250"
             IsBackButtonVisible="Collapsed">
             <NavigationView.MenuItems>
-                <NavigationViewItem Icon="Edit" Content="图标编辑器" Tag="IconEditor" />
+                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE790;}" 
+                                    Content="图标编辑器" 
+                                    Tag="IconEditor" />
                 <NavigationViewItemHeader Content="图标库" />
-                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
+                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7B8;}"
                                     Content="首页"
                                     Tag="IconGroup" />
-                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7B8;}"
+                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
                                     Content="详情"
                                     IsEnabled="{x:Bind CountToBool(IconGroups.Count), Mode=OneWay}"
                                     MenuItemsSource="{x:Bind IconGroups}">
                 </NavigationViewItem>
                 <!-- Window 类不满足使用 Converter 要求的 FrameworkElement 类 -->
                 <!-- 使用 CountToBool() 替代 CountToBoolConverter -->
-                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE97C;}"
+                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE8EC;}"
                                     Content="分类"
                                     IsEnabled="{x:Bind CountToBool(IconGroups.Count), Mode=OneWay}"
                                     MenuItemsSource="{x:Bind IconGroups}" />

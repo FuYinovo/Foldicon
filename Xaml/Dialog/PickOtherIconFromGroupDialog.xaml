@@ -25,8 +25,7 @@
             Text="{x:Bind IconNameFilter, Mode=TwoWay}"
             Height="32"
             PlaceholderText="搜索图标名称..."
-            BorderThickness="0"
-            QueryIcon="Find" />
+                QueryIcon="Find" />
 
         <Grid Grid.Row="1">
             <GridView

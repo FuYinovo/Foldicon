@@ -47,6 +47,7 @@
             <Button Width="40"
                     Height="40"
                     Padding="4"
+                    Click="Icon_Click"
                     ToolTipService.ToolTip="{Binding FileName}"
                     Background="{ThemeResource CardBackgroundFillColorDefault}">
                 <Button.ContextFlyout>
@@ -94,7 +95,6 @@
                     Height="32"
                     Width="200"
                     PlaceholderText="搜索图标名称..."
-                    BorderThickness="0"
                     QueryIcon="Find" />
 
                 <Button

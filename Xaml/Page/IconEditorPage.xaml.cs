@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.WinUI.Controls;
 using Foldicon.Class;
 using Foldicon.Enum;
 using Foldicon.Tool;
@@ -17,14 +18,6 @@ namespace Foldicon.Xaml.Page;
 [ObservableObject]
 public sealed partial class IconEditorPage // 回调方法
 {
-    /// <summary>
-    ///     点击「启用筛选」时应用筛选
-    /// </summary>
-    private void EnableEnumFilterButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        ApplyFilter();
-    }
-
     /// <summary>
     ///     「选择文件夹」按钮
     /// </summary>
@@ -51,30 +44,6 @@ public sealed partial class IconEditorPage // 回调方法
     private void ApplyAllButton_Click(object sender, RoutedEventArgs e)
     {
         foreach (var entry in SubFolders) entry.Apply();
-    }
-
-    /// <summary>
-    ///     点击 TypeFilterGroup 的 Item 时，
-    ///     在 OneWay 基础上手动实现 TwoWay，
-    ///     防止 <see cref="DependencyProperty.UnsetValue" /> 引发异常
-    /// </summary>
-    private void TypeFilterItem_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is not RadioMenuFlyoutItem item) return;
-        if (System.Enum.TryParse<TypeFilterEnum>(item.Tag.ToString(), out var enumValue))
-            FolderTypeFilter = enumValue;
-    }
-
-    /// <summary>
-    ///     点击 StateFilterGroup 的 Item 时，
-    ///     在 OneWay 基础上手动实现 TwoWay，
-    ///     防止 <see cref="DependencyProperty.UnsetValue" /> 引发异常
-    /// </summary>
-    private void StateFilterItem_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is not RadioMenuFlyoutItem item) return;
-        if (System.Enum.TryParse<StateFilterEnum>(item.Tag.ToString(), out var enumValue))
-            FolderStateFilter = enumValue;
     }
 }
 
@@ -122,40 +91,36 @@ public sealed partial class IconEditorPage // 普通方法
         foreach (var folder in SubFolders)
         {
             // 名称筛选
-            if (!folder.FolderName.Contains(FolderNameFilter)) continue;
+            if (!folder.FolderName.Contains(NameFilter)) continue;
 
-            // 标签筛选
-            if (IsEnumFilterEnabled)
+            // 类型筛选
+            switch (TypeFilter)
             {
-                // 类型筛选
-                switch (FolderTypeFilter)
-                {
-                    case TypeFilterEnum.All:
-                        break;
-                    case TypeFilterEnum.System:
-                        if (!folder.IsSystemIcon) continue;
-                        break;
-                    case TypeFilterEnum.Custom:
-                        if (folder.IsSystemIcon) continue;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                case TypeFilterEnum.All:
+                    break;
+                case TypeFilterEnum.System:
+                    if (!folder.IsSystemIcon) continue;
+                    break;
+                case TypeFilterEnum.Custom:
+                    if (folder.IsSystemIcon) continue;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-                // 状态筛选
-                switch (FolderStateFilter)
-                {
-                    case StateFilterEnum.All:
-                        break;
-                    case StateFilterEnum.Unmodified:
-                        if (folder.IsSelectedIconChanged) continue;
-                        break;
-                    case StateFilterEnum.Unapplied:
-                        if (!folder.IsSelectedIconChanged) continue;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+            // 状态筛选
+            switch (StatusFilter)
+            {
+                case StatusFilterEnum.All:
+                    break;
+                case StatusFilterEnum.Unmodified:
+                    if (folder.IsSelectedIconChanged) continue;
+                    break;
+                case StatusFilterEnum.Unapplied:
+                    if (!folder.IsSelectedIconChanged) continue;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
             // 通过筛选
@@ -171,33 +136,47 @@ public sealed partial class IconEditorPage // 属性、属性 OnChanged 方法�
         InitializeComponent();
     }
 
+    #region Filter
+
+    [ObservableProperty] public partial string NameFilter { get; set; } = string.Empty;
+    [ObservableProperty] public partial TypeFilterEnum TypeFilter { get; set; } = TypeFilterEnum.All;
+    [ObservableProperty] public partial StatusFilterEnum StatusFilter { get; set; } = StatusFilterEnum.All;
+    [ObservableProperty] public partial int StatusFilterIndex { get; set; } = 0;  // Index 更新触发 Enum 更新
+    [ObservableProperty] public partial int TypeFilterIndex { get; set; } = 0;
+    partial void OnTypeFilterChanged(TypeFilterEnum value) => ApplyFilter();
+    partial void OnStatusFilterChanged(StatusFilterEnum value) => ApplyFilter();
+    partial void OnNameFilterChanged(string value) => ApplyFilter();
+
+    partial void OnStatusFilterIndexChanged(int value)
+    {
+        try
+        {
+            var item = (SegmentedItem)StatusFilterSegmented.Items[value];
+            StatusFilter = (StatusFilterEnum)item.Tag;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    partial void OnTypeFilterIndexChanged(int value)
+    {
+        try
+        {
+            var item = (SegmentedItem)TypeFilterSegmented.Items[value];
+            TypeFilter = (TypeFilterEnum)item.Tag;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+    }
+
+    #endregion
+
     [ObservableProperty] public partial string ParentFolder { get; set; } = string.Empty;
-
     [ObservableProperty] public partial bool IsSubFoldersLoaded { get; set; }
-
-    [ObservableProperty] public partial bool IsEnumFilterEnabled { get; set; } = true;
-
-    [ObservableProperty] public partial string FolderNameFilter { get; set; } = string.Empty;
-
-    [ObservableProperty] public partial TypeFilterEnum FolderTypeFilter { get; set; } = TypeFilterEnum.All;
-
-    [ObservableProperty] public partial StateFilterEnum FolderStateFilter { get; set; } = StateFilterEnum.All;
-
     public ObservableCollection<FolderEntry> FilteredSubFolders { get; } = []; // UI 显示
     private List<FolderEntry> SubFolders { get; } = []; // 数据源
-
-    partial void OnFolderTypeFilterChanged(TypeFilterEnum value)
-    {
-        ApplyFilter();
-    }
-
-    partial void OnFolderStateFilterChanged(StateFilterEnum value)
-    {
-        ApplyFilter();
-    }
-
-    partial void OnFolderNameFilterChanged(string value)
-    {
-        ApplyFilter();
-    }
 }
