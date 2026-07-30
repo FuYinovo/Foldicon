@@ -29,36 +29,7 @@ public sealed partial class MainWindow
     private static readonly Type DefaultPage = typeof(IconEditorPage);
     private ObservableCollection<IconGroup> IconGroups => IconGroupService.Instance.Groups;
 
-    /// <summary>
-    ///     响应 NavigationView 的跳转点击
-    /// </summary>
-    private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
-    {
-        // 设置页面
-        if (args.IsSettingsSelected)
-        {
-            NavigateTo(typeof(SettingsPage));
-            return;
-        }
-
-        // 动态页面
-        if (args.SelectedItem is IconGroup group)
-        {
-            NavigateTo(typeof(IconGroupsDetailPage), group);
-            return;
-        }
-
-        // 静态页面
-        if (sender.SelectedItem is not NavigationViewItem item) return;
-        if (item.Tag is not string tag) return;
-        NavigateTo(tag switch
-        {
-            "IconEditor" => typeof(IconEditorPage),
-            "IconGroup" => typeof(IconGroupPage),
-            "IconGroupCategorize" => typeof(IconGroupsCategorizePage),
-            _ => DefaultPage
-        });
-    }
+    #region UI
 
     private bool CountToBool(int count) => count > 0;
 
@@ -132,6 +103,40 @@ public sealed partial class MainWindow
             return ElementTheme.Default;
         }
     }
+
+    #endregion
+
+    /// <summary>
+    ///     响应 NavigationView 的跳转点击
+    /// </summary>
+    private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    {
+        // 设置页面
+        if (args.IsSettingsSelected)
+        {
+            NavigateTo(typeof(SettingsPage));
+            return;
+        }
+
+        // 动态页面
+        if (args.SelectedItem is IconGroup group)
+        {
+            NavigateTo(typeof(IconGroupsDetailPage), group);
+            return;
+        }
+
+        // 静态页面
+        if (sender.SelectedItem is not NavigationViewItem item) return;
+        if (item.Tag is not string tag) return;
+        NavigateTo(tag switch
+        {
+            "IconEditor" => typeof(IconEditorPage),
+            "IconGroup" => typeof(IconGroupPage),
+            "IconGroupCategorize" => typeof(IconGroupsCategorizePage),
+            _ => DefaultPage
+        });
+    }
+
 
     /// <summary>
     ///     让 NavigationView 跳转到某个页面
