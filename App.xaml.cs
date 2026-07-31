@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using Foldicon.Service;
+using Foldicon.Services;
 using Microsoft.UI.Xaml;
 
 namespace Foldicon;
