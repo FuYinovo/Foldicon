@@ -2,18 +2,19 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using Foldicon.Class;
-using Foldicon.Service;
+
+using Foldicon.Services;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
-using IconEditorPage = Foldicon.Xaml.Page.IconEditorPage;
-using IconGroupPage = Foldicon.Xaml.Page.IconGroupPage;
-using IconGroupsCategorizePage = Foldicon.Xaml.Page.IconGroupsCategorizePage;
-using IconGroupsDetailPage = Foldicon.Xaml.Page.IconGroupsDetailPage;
-using SettingsPage = Foldicon.Xaml.Page.SettingsPage;
+using IconEditorPage = Foldicon.Views.Page.IconEditorPage;
+using IconGroup = Foldicon.Models.IconGroup;
+using IconGroupPage = Foldicon.Views.Page.IconGroupPage;
+using IconGroupsCategorizePage = Foldicon.Views.Page.IconGroupsCategorizePage;
+using IconGroupsDetailPage = Foldicon.Views.Page.IconGroupsDetailPage;
+using SettingsPage = Foldicon.Views.Page.SettingsPage;
 
 namespace Foldicon;
 

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Page NavigationCacheMode="Enabled"
+      x:Class="Foldicon.Views.Page.IconEditorPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:control="using:CommunityToolkit.WinUI.Controls"
+      xmlns:converterKit="using:CommunityToolkit.WinUI.Converters"
+      xmlns:ui="using:CommunityToolkit.WinUI"
+      xmlns:converters="using:Foldicon.Converters"
+      xmlns:models="using:Foldicon.Models"
+      xmlns:enum="using:Foldicon.Enums"
+      xmlns:userControl1="using:Foldicon.Views.UserControl"
+      xmlns:class="using:Foldicon.Class"
+      mc:Ignorable="d">
+
+    <Page.Resources>
+        <converterKit:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+        <converterKit:StringFormatConverter x:Key="StringFormatConverter" />
+        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+    </Page.Resources>
+
+    <Grid RowSpacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <StackPanel HorizontalAlignment="Left"
+                        Orientation="Horizontal"
+                        Spacing="2">
+                <TextBlock Text="图标编辑器"
+                           Style="{ThemeResource TitleLargeTextBlockStyle}" />
+                <TextBlock
+                    Text="{x:Bind ViewModel.FilteredSubFolders.Count, Mode=OneWay, Converter={StaticResource StringFormatConverter},ConverterParameter=' {0}个文件夹'}"
+                    Visibility="{x:Bind ViewModel.FilteredSubFolders.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
+                    Opacity=".6"
+                    VerticalAlignment="Bottom"
+                    Padding="0,0,0,5"
+                    Style="{ThemeResource SubtitleTextBlockStyle}" />
+                <TextBlock
+                    Text="{x:Bind ViewModel.ParentFolder, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='  ( {0} )'}"
+                    Visibility="{x:Bind ViewModel.FilteredSubFolders.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
+                    Opacity=".6"
+                    VerticalAlignment="Bottom"
+                    Padding="0,0,0,5"
+                    Style="{ThemeResource SubtitleTextBlockStyle}" />
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal"
+                        Spacing="8"
+                        HorizontalAlignment="Right">
+                <AutoSuggestBox
+                    Text="{x:Bind ViewModel.NameFilter, Mode=TwoWay}"
+                    VerticalAlignment="Bottom"
+                    HorizontalAlignment="Right"
+                    Height="32"
+                    Width="200"
+                    PlaceholderText="搜索文件夹名称..."
+                    QueryIcon="Find"
+                    IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}" />
+
+                <Button
+                    VerticalAlignment="Bottom"
+                    Content="打开文件夹"
+                    Command="{x:Bind ViewModel.LoadFolderAsyncCommand}"/>
+
+                <Button
+                    Style="{ThemeResource AccentButtonStyle}"
+                    VerticalAlignment="Bottom"
+                    Command="{x:Bind ViewModel.ApplyAllCommand}"
+                    Content="全部应用"
+                    IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}" />
+            </StackPanel>
+        </Grid>
+
+        <Line Grid.Row="1"
+              Stroke="{ThemeResource AccentAAFillColorDisabled}"
+              X1="0" Y1="0"
+              X2="999999" Y2="0"
+              StrokeThickness="1" />
+
+        <Grid Grid.Row="2">
+            <control:Segmented
+                SelectedIndex="{x:Bind ViewModel.TypeFilterIndex, Mode=TwoWay}"
+                HorizontalAlignment="Left"
+                IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}">
+                <control:SegmentedItem
+                    Icon="{ui:FontIcon Glyph=&#xE8A9;}"
+                    Content="全部" />
+                <control:SegmentedItem
+                    Icon="{ui:FontIcon Glyph=&#xE770;}"
+                    Content="系统" />
+                <control:SegmentedItem
+                    Icon="{ui:FontIcon Glyph=&#xE771;}"
+                    Content="自定义" />
+            </control:Segmented>
+
+            <control:Segmented
+                x:Name="StatusFilterSegmented"
+                SelectedIndex="{x:Bind ViewModel.StatusFilterIndex, Mode=TwoWay}"
+                HorizontalAlignment="Right"
+                IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}">
+                <control:SegmentedItem
+                    Tag="{x:Bind enum:StatusFilterEnum.All}"
+                    Icon="{ui:FontIcon Glyph=&#xE8A9;}"
+                    Content="全部" />
+                <control:SegmentedItem
+                    Tag="{x:Bind enum:StatusFilterEnum.Unmodified}"
+                    Icon="{ui:FontIcon Glyph=&#xF16D;}"
+                    Content="未修改" />
+                <control:SegmentedItem
+                    Tag="{x:Bind enum:StatusFilterEnum.Unapplied}"
+                    Icon="{ui:FontIcon Glyph=&#xE823;}"
+                    Content="待应用" />
+            </control:Segmented>
+        </Grid>
+
+        <Grid Grid.Row="3">
+            <ScrollViewer
+                Visibility="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.FilteredSubFolders, Mode=OneWay}">
+                    <ItemsRepeater.ItemTemplate>
+                        <DataTemplate x:DataType="models:FolderEntry">
+                            <userControl1:FolderEntryControl FolderEntry="{x:Bind}" />
+                        </DataTemplate>
+                    </ItemsRepeater.ItemTemplate>
+                    <ItemsRepeater.Layout>
+                        <StackLayout Spacing="8" />
+                    </ItemsRepeater.Layout>
+                </ItemsRepeater>
+            </ScrollViewer>
+
+            <control:SwitchPresenter Value="{x:Bind ViewModel.IsSubFoldersLoading.ToString(), Mode=OneWay}">
+                <control:Case Value="True">
+                    <StackPanel
+                        Padding="24"
+                        Background="{ThemeResource CardBackgroundFillColorDefault}"
+                        CornerRadius="8"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Spacing="16">
+                        <TextBlock Text="正在读取文件夹"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Top" />
+                        <ProgressBar Width="180"
+                                     IsIndeterminate="True" />
+                    </StackPanel>
+                </control:Case>
+                <control:Case Value="False">
+                    <TextBlock Text="(´･ω･`) 空空如也……&#10;请先打开一个文件夹吧！"
+                               FontSize="40"
+                               FontWeight="Black"
+                               Opacity=".3"
+                               TextAlignment="Center"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Visibility="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay,
+                       Converter={StaticResource BoolToVisibilityConverter},
+                       ConverterParameter=True}" />
+                </control:Case>
+            </control:SwitchPresenter>
+        </Grid>
+    </Grid>
+</Page>
