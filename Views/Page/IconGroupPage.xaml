@@ -31,7 +31,7 @@
                 <TextBlock Text="图标组"
                            Style="{ThemeResource TitleLargeTextBlockStyle}" />
                 <TextBlock
-                    Text="{x:Bind ViewModel.GroupService.Groups.Count, Mode=OneWay,
+                    Text="{x:Bind ViewModel.IconGroupService.Groups.Count, Mode=OneWay,
                     Converter={StaticResource StringFormatConverter},
                     ConverterParameter=' {0}个图标组'}"
                     Opacity=".6"
@@ -56,7 +56,7 @@
 
         <Grid Grid.Row="2">
             <ItemsRepeater
-                ItemsSource="{x:Bind ViewModel.GroupService.Groups}">
+                ItemsSource="{x:Bind ViewModel.IconGroupService.Groups}">
                 <ItemsRepeater.Layout>
                     <controls:WrapLayout HorizontalSpacing="18" VerticalSpacing="18" />
                 </ItemsRepeater.Layout>
@@ -116,7 +116,7 @@
                        TextAlignment="Center"
                        HorizontalAlignment="Center"
                        VerticalAlignment="Center"
-                       Visibility="{x:Bind ViewModel.GroupService.Groups.Count, Mode=OneWay,
+                       Visibility="{x:Bind ViewModel.IconGroupService.Groups.Count, Mode=OneWay,
                        Converter={StaticResource CountToVisibilityConverter},
                        ConverterParameter=True}" />
         </Grid>

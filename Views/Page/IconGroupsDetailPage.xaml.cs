@@ -7,7 +7,6 @@ using IconGroup = Foldicon.Models.IconGroup;
 
 namespace Foldicon.Views.Page;
 
-[ObservableObject]
 public sealed partial class IconGroupsDetailPage
 {
     private IconGroupsDetailPageViewModel ViewModel { get; } = new();

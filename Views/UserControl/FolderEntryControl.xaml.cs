@@ -57,7 +57,7 @@ public sealed partial class FolderEntryControl
     {
         if (sender is not MenuFlyoutItem { Tag: IconGroup group }) return;
         // 弹出选择图标对话框
-        var content = new PickOtherIconFromGroupDialog(group);
+        var content = new PickIconFromGroupDialog(group);
         var dialog = new ContentDialog
         {
             RequestedTheme = App.MainWindow.GetRequestedTheme(),

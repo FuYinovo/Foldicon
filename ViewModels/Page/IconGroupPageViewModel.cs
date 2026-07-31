@@ -18,10 +18,10 @@ using IconGroup = Foldicon.Models.IconGroup;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class IconGroupPageViewModel : ObservableObject
+public partial class IconGroupPageViewModel() : ObservableObject
 {
-    public IconGroupService GroupService => IconGroupService.Instance;
     public XamlRoot? XamlRoot { get; set; }
+    public IconGroupService IconGroupService => IconGroupService.Instance;
 
     /// <summary>
     ///     移除图标组
@@ -44,7 +44,7 @@ public partial class IconGroupPageViewModel : ObservableObject
         if (result == ContentDialogResult.None) return;
 
         // 延迟到下一个UI帧移除（让ContextFlyout先关闭），防止 E_FAIL (0x80004005) 崩溃
-        DispatcherQueue.GetForCurrentThread().TryEnqueue(() => GroupService.Remove(group));
+        DispatcherQueue.GetForCurrentThread().TryEnqueue(() => IconGroupService.Remove(group));
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public partial class IconGroupPageViewModel : ObservableObject
     [RelayCommand]
     public async void EditGroupInfoAsync(IconGroup group)
     {
-        var content = CreateIconGroupDialog.GetEditDialog(group);
+        var content = IconGroupInfoDialog.GetEditDialog(group);
         var dialog = new ContentDialog
         {
             RequestedTheme = App.MainWindow.GetRequestedTheme(),
@@ -82,7 +82,7 @@ public partial class IconGroupPageViewModel : ObservableObject
         }
 
         // 编辑操作
-        IconGroupService.Instance.Edit(group, content.GroupName, content.Description, content.Logo);
+        IconGroupService.Edit(group, content.GroupName, content.Description, content.Logo);
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public partial class IconGroupPageViewModel : ObservableObject
     public async void ImportIconAsync(IconGroup group)
     {
         // 选取图标
-        var icons = await StoragePicker.PickFiles(IconGroupService.IconExtensions,
+        var icons = await StoragePicker.PickFiles(Services.IconGroupService.IconExtensions,
             XamlRoot.ContentIslandEnvironment.AppWindowId);
         if (icons.Length == 0) return;
 
@@ -113,16 +113,13 @@ public partial class IconGroupPageViewModel : ObservableObject
         // 筛选有效图标
         var files = Directory.GetFiles(folder);
         List<string> icons =
-            [.. files.Where(file => IconGroupService.IconExtensions.Contains(Path.GetExtension(file)))]; // 检查拓展名
+            [.. files.Where(file => Services.IconGroupService.IconExtensions.Contains(Path.GetExtension(file)))]; // 检查拓展名
 
         // 设置图标组信息
-        var content = CreateIconGroupDialog.GetCreateDialog(Path.GetFileName(folder));
-        if (icons.Count > 0) // 选取第一个图标作为默认 Logo
-            content.Logo = new BitmapIcon
-            {
-                FullPath = icons.First(),
-                Icon = new BitmapImage(new Uri(icons.First()))
-            };
+        BitmapIcon? defaultIcon = icons.Count > 0 // 选取第一个图标作为默认 Logo
+            ? new BitmapIcon { FullPath = icons.First(), Icon = new BitmapImage(new Uri(icons.First())) }
+            : null;
+        var content = IconGroupInfoDialog.GetCreateDialog(Path.GetFileName(folder), null, defaultIcon);
 
         var dialog = new ContentDialog
         {
@@ -152,7 +149,7 @@ public partial class IconGroupPageViewModel : ObservableObject
         }
 
         // 创建操作
-        IconGroupService.Instance.Add(content.GroupName, content.Description, content.Logo, icons);
+        IconGroupService.Add(content.GroupName, content.Description, content.Logo, icons);
     }
 
     /// <summary>
@@ -161,7 +158,7 @@ public partial class IconGroupPageViewModel : ObservableObject
     [RelayCommand]
     public async void CreateGroupAsync()
     {
-        var content = CreateIconGroupDialog.GetCreateDialog();
+        var content = IconGroupInfoDialog.GetCreateDialog();
         var dialog = new ContentDialog
         {
             RequestedTheme = App.MainWindow.GetRequestedTheme(),
@@ -190,7 +187,7 @@ public partial class IconGroupPageViewModel : ObservableObject
         }
 
         // 创建操作
-        IconGroupService.Instance.Add(content.GroupName, content.Description, content.Logo);
+        IconGroupService.Add(content.GroupName, content.Description, content.Logo);
     }
 
     /// <summary>

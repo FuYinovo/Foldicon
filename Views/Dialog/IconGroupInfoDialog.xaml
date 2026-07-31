@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <Page
-    x:Class="Foldicon.Views.Dialog.CreateIconGroupDialog"
+    x:Class="Foldicon.Views.Dialog.IconGroupInfoDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -13,18 +13,18 @@
         <StackPanel Spacing="16" Orientation="Horizontal">
             <StackPanel Spacing="8">
                 <TextBlock Text="封面" />
-                <Button Padding="0" Click="ChooseLogo_Click">
+                <Button Padding="0"  Command="{x:Bind ViewModel.PickLogoAsyncCommand}">
                     <Image Width="128" Height="128" Source="{x:Bind Logo.Icon, Mode=OneWay}" />
                 </Button>
             </StackPanel>
             <StackPanel Spacing="16">
                 <TextBox Header="名称"
-                         Text="{x:Bind GroupName, Mode=TwoWay}"
+                         Text="{x:Bind ViewModel.GroupName, Mode=TwoWay}"
                          TextWrapping="Wrap"
                          Width="200"
                          PlaceholderText="输入图标组的名称..." />
                 <TextBox Header="简介"
-                         Text="{x:Bind Description, Mode=TwoWay}"
+                         Text="{x:Bind ViewModel.Description, Mode=TwoWay}"
                          TextWrapping="Wrap"
                          Width="200"
                          PlaceholderText="输入图标组的简介..." />

@@ -22,14 +22,10 @@ public class IconGroupService
     public static readonly string[] IconExtensions = [".ico"];
     public static readonly string[] LogoExtensions = [".ico", ".png", ".jpg", ".jpeg", ".bmp"];
     public static readonly string RootPath = UriHelper.GetFolderPathFromAssets(RootFolderName);
-    public readonly ObservableCollection<IconGroup> Groups = [];
-
-    private IconGroupService()
-    {
-        Load();
-    }
+    public ObservableCollection<IconGroup> Groups { get; } = [];
 
     public static IconGroupService Instance { get; } = new();
+    private IconGroupService() => Load();
 
     /// <summary>
     ///     从 Assets 加载所有图标组
@@ -128,7 +124,7 @@ public class IconGroupService
 
         // 覆盖 Logo 文件
         var logoPath = Path.Combine(group.RootPath, LogoFileName);
-        if (logo.FullPath is not null && logoPath != logo.FullPath)  // 用户可能未修改 Logo
+        if (logo.FullPath is not null && logoPath != logo.FullPath) // 用户可能未修改 Logo
         {
             if (File.Exists(logoPath)) File.Delete(logoPath);
             File.Copy(logo.FullPath, logoPath);
