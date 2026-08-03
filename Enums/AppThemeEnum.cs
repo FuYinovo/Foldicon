@@ -2,7 +2,7 @@
 
 namespace Foldicon.Enums;
 
-public enum ThemeOptionEnum
+public enum AppThemeEnum
 {
     [Description("跟随系统")] System,
     [Description("深色")] Dark,

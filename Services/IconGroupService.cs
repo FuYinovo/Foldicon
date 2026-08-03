@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Struct;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -13,7 +14,7 @@ namespace Foldicon.Services;
 /// <summary>
 ///     负责管理图标组的名称、简介、Logo（读写操作）
 /// </summary>
-public class IconGroupService
+public class IconGroupService : IIconGroupService
 {
     public const string LogoFileName = "logo.png";
     public const string InfoFileName = "info.json";
@@ -24,8 +25,7 @@ public class IconGroupService
     public static readonly string RootPath = UriHelper.GetFolderPathFromAssets(RootFolderName);
     public ObservableCollection<IconGroup> Groups { get; } = [];
 
-    public static IconGroupService Instance { get; } = new();
-    private IconGroupService() => Load();
+    public IconGroupService() => Load();
 
     /// <summary>
     ///     从 Assets 加载所有图标组

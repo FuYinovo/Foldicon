@@ -27,19 +27,15 @@
                 <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7B8;}"
                                     Content="首页"
                                     Tag="IconGroup" />
-                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
-                                    Content="详情"
-                                    IsEnabled="{x:Bind CountToBool(IconGroups.Count), Mode=OneWay}"
-                                    MenuItemsSource="{x:Bind IconGroups}">
-                </NavigationViewItem>
                 <!-- Window 类不满足使用 Converter 要求的 FrameworkElement 类 -->
                 <!-- 使用 CountToBool() 替代 CountToBoolConverter -->
-                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE8EC;}"
-                                    Content="分类"
-                                    IsEnabled="{x:Bind CountToBool(IconGroups.Count), Mode=OneWay}"
-                                    MenuItemsSource="{x:Bind IconGroups}" />
+                <NavigationViewItem Icon="{ui:FontIcon Glyph=&#xE7C5;}"
+                                    Content="详情"
+                                    IsEnabled="{x:Bind CountToBool(IconGroupService.Groups.Count), Mode=OneWay}"
+                                    MenuItemsSource="{x:Bind IconGroupService.Groups}">
+                </NavigationViewItem>
             </NavigationView.MenuItems>
-            <Frame x:Name="ContentFrame" Padding="24" CacheSize="16" />
+            <Frame x:Name="NavigationFrame" Padding="24" CacheSize="16" />
         </NavigationView>
     </Grid>
 </Window>

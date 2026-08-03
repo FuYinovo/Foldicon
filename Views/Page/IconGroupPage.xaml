@@ -43,8 +43,8 @@
                         VerticalAlignment="Bottom"
                         Orientation="Horizontal"
                         Spacing="4">
-                <Button Content="新建图标组" Command="{x:Bind ViewModel.CreateGroupAsyncCommand}" />
-                <Button Content="导入图标组" Command="{x:Bind ViewModel.ImportGroupAsyncCommand}" />
+                <Button Content="新建图标组" Command="{x:Bind ViewModel.CreateGroupCommand}" />
+                <Button Content="导入图标组" Command="{x:Bind ViewModel.ImportGroupCommand}" />
             </StackPanel>
         </Grid>
 

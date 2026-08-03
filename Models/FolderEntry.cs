@@ -20,11 +20,11 @@ public partial class FolderEntry : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
-    public partial int SelectedIndex { get; set; } = -1;
+    public partial int SelectedIndex { get; set; }
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsSelectedIconChanged))]
-    public partial int AppliedIndex { get; set; } = -1;
+    public partial int AppliedIndex { get; set; }
 
     public bool IsSystemIcon { get; private set; }
     public string FolderName => Path.GetFileName(_fullPath);
@@ -58,7 +58,7 @@ public partial class FolderEntry : ObservableObject
             OptionalIcons.Add(new BitmapIcon
             {
                 FullPath = selection.ExtraIcon.FullPath,
-                Icon = IconHelper.CreateBitmapImage(selection.ExtraIcon.Icon)
+                Icon = IconHelper.CreateBitmapImage(selection.ExtraIcon.Icon!)
             });
             selectedIndex = OptionalIcons.Count - 1;
         }

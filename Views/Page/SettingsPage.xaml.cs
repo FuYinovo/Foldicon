@@ -1,11 +1,11 @@
-
-using OptionService = Foldicon.Services.OptionService;
+using Foldicon.ViewModels.Page;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Foldicon.Views.Page;
 
 public sealed partial class SettingsPage
 {
-    private readonly OptionService _viewModel = OptionService.Instance;
+    public readonly SettingsPageViewModel ViewModel = App.Services.GetRequiredService<SettingsPageViewModel>();
 
     public SettingsPage()
     {

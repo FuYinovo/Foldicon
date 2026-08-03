@@ -7,16 +7,16 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Foldicon.Contracts;
 using Foldicon.Enums;
 using Foldicon.Helpers;
-using Microsoft.UI.Xaml;
 using FolderEntry = Foldicon.Models.FolderEntry;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class IconEditorPageViewModel : ObservableObject
+public partial class IconEditorPageViewModel(IDialogService dialogService) : ObservableObject
 {
-    public XamlRoot? XamlRoot { get; set; }
+    public readonly IDialogService DialogService = dialogService;
 
     #region Status Properties
 
@@ -83,9 +83,9 @@ public partial class IconEditorPageViewModel : ObservableObject
     ///     加载指定文件夹的子文件夹图标
     /// </summary>
     [RelayCommand]
-    public async void LoadFolderAsync()
+    public async Task LoadFolderAsync()
     {
-        var fullPath = await StoragePicker.PickFolder(XamlRoot.ContentIslandEnvironment.AppWindowId);
+        var fullPath = await StoragePicker.PickFolder(DialogService.WindowId);
         if (fullPath is not null)
         {
             ParentFolder = fullPath;
@@ -172,7 +172,7 @@ public partial class IconEditorPageViewModel : ObservableObject
             try
             {
                 var exeIcons = await IconHelper.GetExeIconsAsync(icon.FullPath);
-                return await FolderEntry.CreateAsync(icon.FullPath, icon.Icon, exeIcons);
+                return await FolderEntry.CreateAsync(icon.FullPath, icon.Icon!, exeIcons); // try-catch 处理 null 导致的异常
             }
             catch (Exception e)
             {

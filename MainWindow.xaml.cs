@@ -1,9 +1,7 @@
 using System;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Text;
-
-using Foldicon.Services;
+using Foldicon.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
@@ -12,7 +10,6 @@ using Microsoft.UI.Xaml.Media;
 using IconEditorPage = Foldicon.Views.Page.IconEditorPage;
 using IconGroup = Foldicon.Models.IconGroup;
 using IconGroupPage = Foldicon.Views.Page.IconGroupPage;
-using IconGroupsCategorizePage = Foldicon.Views.Page.IconGroupsCategorizePage;
 using IconGroupsDetailPage = Foldicon.Views.Page.IconGroupsDetailPage;
 using SettingsPage = Foldicon.Views.Page.SettingsPage;
 
@@ -20,15 +17,16 @@ namespace Foldicon;
 
 public sealed partial class MainWindow
 {
+    private IIconGroupService IconGroupService { get; } = App.Services.GetRequiredService<IIconGroupService>();
+    private INavigationService NavigationService { get; } = App.Services.GetRequiredService<INavigationService>();
+    private static readonly Type DefaultPage = typeof(IconEditorPage);
+
     public MainWindow()
     {
         InitializeComponent();
-        NavigateTo(DefaultPage);
-        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+        NavigationService.Initialize(NavigationFrame);
+        NavigationService.Navigate(DefaultPage);
     }
-
-    private static readonly Type DefaultPage = typeof(IconEditorPage);
-    private ObservableCollection<IconGroup> IconGroups => IconGroupService.Instance.Groups;
 
     #region UI
 
@@ -115,38 +113,25 @@ public sealed partial class MainWindow
         // 设置页面
         if (args.IsSettingsSelected)
         {
-            NavigateTo(typeof(SettingsPage));
+            NavigationService.Navigate(typeof(SettingsPage));
             return;
         }
 
         // 动态页面
         if (args.SelectedItem is IconGroup group)
         {
-            NavigateTo(typeof(IconGroupsDetailPage), group);
+            NavigationService.Navigate(typeof(IconGroupsDetailPage), group);
             return;
         }
 
         // 静态页面
-        if (sender.SelectedItem is not NavigationViewItem item) return;
-        if (item.Tag is not string tag) return;
-        NavigateTo(tag switch
+        if (sender.SelectedItem is not NavigationViewItem { Tag: string tag }) return;
+        var target = tag switch
         {
             "IconEditor" => typeof(IconEditorPage),
             "IconGroup" => typeof(IconGroupPage),
-            "IconGroupCategorize" => typeof(IconGroupsCategorizePage),
-            _ => DefaultPage
-        });
-    }
-
-
-    /// <summary>
-    ///     让 NavigationView 跳转到某个页面
-    /// </summary>
-    /// <param name="targetPage">页面类型</param>
-    /// <param name="parm">传参（null即留空）</param>
-    public void NavigateTo(Type targetPage, object? parm = null)
-    {
-        if (parm is null) ContentFrame.Navigate(targetPage);
-        else ContentFrame.Navigate(targetPage, parm);
+            _ => null
+        };
+        if (target is not null) NavigationService.Navigate(target);
     }
 }

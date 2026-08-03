@@ -1,11 +1,8 @@
 using System;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Helpers;
 using Foldicon.Models;
-using Foldicon.Services;
 using Foldicon.ViewModels.Dialog;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Media.Imaging;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
 
@@ -13,9 +10,10 @@ namespace Foldicon.Views.Dialog;
 
 public sealed partial class IconGroupInfoDialog
 {
-    private IconGroupInfoDialogViewModel ViewModel { get; } = new();
+    private IconGroupInfoDialogViewModel ViewModel { get; } =
+        App.Services.GetRequiredService<IconGroupInfoDialogViewModel>();
 
-    public static IconGroupInfoDialog GetEditDialog(IconGroup group)
+    public static IconGroupInfoDialog Create_EditDialog(IconGroup group)
     {
         var logo = (BitmapImage)group.Logo;
         return new IconGroupInfoDialog
@@ -29,23 +27,28 @@ public sealed partial class IconGroupInfoDialog
                     FullPath = logo.UriSource.AbsolutePath,
                     Icon = logo
                 }
-            },
+            }
         };
     }
 
-    public static IconGroupInfoDialog GetCreateDialog(
+    public static IconGroupInfoDialog Create_CreateDialog(
         string? name = null,
         string? description = null,
         BitmapIcon? icon = null
     )
     {
+        var fallback = UriHelper.GetFilePathFromAssets("LogoFallback.png");
         return new IconGroupInfoDialog
         {
             ViewModel =
             {
                 GroupName = name ?? string.Empty,
                 Description = description ?? string.Empty,
-                Logo = icon ?? new BitmapIcon()
+                Logo = icon ?? new BitmapIcon
+                {
+                    FullPath = fallback,
+                    Icon = new BitmapImage(new Uri(fallback))
+                }
             }
         };
     }
@@ -53,7 +56,6 @@ public sealed partial class IconGroupInfoDialog
     private IconGroupInfoDialog()
     {
         InitializeComponent();
-        Loaded += (_, _) => ViewModel.XamlRoot = XamlRoot;
     }
 
     public string GroupName => ViewModel.GroupName;

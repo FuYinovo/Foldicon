@@ -1,5 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.ViewModels.Page;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Navigation;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
@@ -9,12 +9,11 @@ namespace Foldicon.Views.Page;
 
 public sealed partial class IconGroupsDetailPage
 {
-    private IconGroupsDetailPageViewModel ViewModel { get; } = new();
+    private IconGroupsDetailPageViewModel ViewModel { get; } = App.Services.GetRequiredService<IconGroupsDetailPageViewModel>();
 
     public IconGroupsDetailPage()
     {
         InitializeComponent();
-        Loaded += (_, _) => ViewModel.XamlRoot = XamlRoot;
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

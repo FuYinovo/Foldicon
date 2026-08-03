@@ -1,9 +1,8 @@
-using System;
 using System.Linq;
-using Foldicon.Helpers;
+using Foldicon.Contracts;
 using Foldicon.Models;
-using Foldicon.Services;
-using Foldicon.Views.Dialog;
+using Foldicon.ViewModels.UserControl;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -11,6 +10,12 @@ namespace Foldicon.Views.UserControl;
 
 public sealed partial class FolderEntryControl
 {
+    public FolderEntryControl()
+    {
+        InitializeComponent();
+        Loaded += PickIconFromGroup_Flyout_GenerateItems;
+    }
+
     private static readonly DependencyProperty FolderEntryProperty = DependencyProperty.Register(
         nameof(FolderEntry),
         typeof(FolderEntry),
@@ -18,76 +23,26 @@ public sealed partial class FolderEntryControl
         new PropertyMetadata(null)
     );
 
-    public FolderEntryControl()
-    {
-        InitializeComponent();
-        Loaded += PickIconFromGroup_Flyout_ItemsGenerate;
-    }
-
     public FolderEntry FolderEntry
     {
         get => (FolderEntry)GetValue(FolderEntryProperty);
-        set => SetValue(FolderEntryProperty, value);
+        set
+        {
+            SetValue(FolderEntryProperty, value);
+            ViewModel.FolderEntry = value;
+        }
     }
 
-    /// <summary>
-    ///     应用选中的自定义图标
-    /// </summary>
-    private void ApplyButton_Click(object sender, RoutedEventArgs e)
-    {
-        FolderEntry.Apply();
-    }
-
-    /// <summary>
-    ///     使用 FilePicker 选择其他自定义图标
-    /// </summary>
-    private async void PickIconFromFile_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is not MenuFlyoutItem item) return;
-        var fullPath =
-            await StoragePicker.PickFile([".exe", ".ico"], item.XamlRoot.ContentIslandEnvironment.AppWindowId);
-        if (fullPath is null) return;
-        FolderEntry.AddCustomIcon(fullPath);
-    }
+    public readonly FolderEntryControlViewModel ViewModel =
+        App.Services.GetRequiredService<FolderEntryControlViewModel>();
 
     /// <summary>
     ///     从图标组选择其他自定义图标
     /// </summary>
-    private async void PickOtherIconFromGroup_Click(object sender, RoutedEventArgs e)
+    private void PickOtherIconFromGroup_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not MenuFlyoutItem { Tag: IconGroup group }) return;
-        // 弹出选择图标对话框
-        var content = new PickIconFromGroupDialog(group);
-        var dialog = new ContentDialog
-        {
-            RequestedTheme = App.MainWindow.GetRequestedTheme(),
-            Title = $"从\"{group.Name}\" 选择一个图标",
-            PrimaryButtonText = "确定",
-            CloseButtonText = "取消",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = XamlRoot,
-            Content = content
-        };
-        var res = await dialog.ShowAsync();
-        if (res == ContentDialogResult.None) return; // 取消操作
-
-        var selectedPath = content.GetSelectedIconPath();
-        if (selectedPath is null)
-        {
-            // 未选择提示
-            _ = await new ContentDialog
-            {
-                RequestedTheme = App.MainWindow.GetRequestedTheme(),
-                Title = "添加失败",
-                CloseButtonText = "确定",
-                XamlRoot = XamlRoot,
-                Content = new DescriptionDialog("未选中任何图标")
-            }.ShowAsync();
-            return;
-        }
-
-        // 正常选择 -> 添加图标
-        FolderEntry.AddCustomIcon(selectedPath);
+        ViewModel.PickIconFromGroupCommand.Execute(group);
     }
 
     /// <summary>
@@ -100,15 +55,15 @@ public sealed partial class FolderEntryControl
         if (sender is not ComboBox comboBox) return;
         var index = comboBox.SelectedIndex;
         if (index == -1) return; // 防止虚拟化回收时覆写 -1 污染数据
-        FolderEntry.SelectedIndex = index;
+        ViewModel.FolderEntry?.SelectedIndex = index;
     }
 
     /// <summary>
     ///     加载「浏览→从图标库」的子菜单
     /// </summary>
-    private void PickIconFromGroup_Flyout_ItemsGenerate(object sender, RoutedEventArgs e)
+    private void PickIconFromGroup_Flyout_GenerateItems(object sender, RoutedEventArgs e)
     {
-        foreach (var group in IconGroupService.Instance.Groups)
+        foreach (var group in App.Services.GetRequiredService<IIconGroupService>().Groups)
         {
             if (IsItemExists(group)) continue;
             var item = new MenuFlyoutItem

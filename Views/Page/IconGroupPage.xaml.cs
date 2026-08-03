@@ -1,4 +1,5 @@
 using Foldicon.ViewModels.Page;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using IconGroup = Foldicon.Models.IconGroup;
 
@@ -6,30 +7,29 @@ namespace Foldicon.Views.Page;
 
 public sealed partial class IconGroupPage
 {
-    public IconGroupPageViewModel ViewModel { get; } = new();
+    public IconGroupPageViewModel ViewModel { get; } =  App.Services.GetRequiredService<IconGroupPageViewModel>();
 
     public IconGroupPage()
     {
         InitializeComponent();
-        Loaded += (_, _) => ViewModel.XamlRoot = XamlRoot;
     }
 
     private void ImportIcon_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: IconGroup group })
-            ViewModel.ImportIconAsyncCommand.Execute(group);
+            ViewModel.ImportIconCommand.Execute(group);
     }
 
     private void EditGroupInfo_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: IconGroup group })
-            ViewModel.EditGroupInfoAsyncCommand.Execute(group);
+            ViewModel.EditGroupInfoCommand.Execute(group);
     }
 
     private void RemoveGroup_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: IconGroup group })
-            ViewModel.RemoveGroupAsyncCommand.Execute(group);
+            ViewModel.RemoveGroupCommand.Execute(group);
     }
 
     private void OpenGroupFolder_Click(object sender, RoutedEventArgs e)

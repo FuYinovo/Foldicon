@@ -13,8 +13,8 @@
         <StackPanel Spacing="16" Orientation="Horizontal">
             <StackPanel Spacing="8">
                 <TextBlock Text="封面" />
-                <Button Padding="0"  Command="{x:Bind ViewModel.PickLogoAsyncCommand}">
-                    <Image Width="128" Height="128" Source="{x:Bind Logo.Icon, Mode=OneWay}" />
+                <Button Padding="0"  Command="{x:Bind ViewModel.PickLogoCommand}">
+                    <Image Width="128" Height="128" Source="{x:Bind ViewModel.Logo.Icon, Mode=OneWay}" />
                 </Button>
             </StackPanel>
             <StackPanel Spacing="16">

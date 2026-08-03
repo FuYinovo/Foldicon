@@ -1,23 +1,22 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
+using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Services;
-using Foldicon.Views.Dialog;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
 using IconGroup = Foldicon.Models.IconGroup;
+using System.Threading.Tasks;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class IconGroupsDetailPageViewModel : ObservableObject
+public partial class IconGroupsDetailPageViewModel(IDialogService dialogService) : ObservableObject
 {
     public IconGroup Group = new();
-    public XamlRoot? XamlRoot { get; set; }
+    public readonly IDialogService DialogService = dialogService;
 
     #region Filter
 
@@ -32,11 +31,10 @@ public partial class IconGroupsDetailPageViewModel : ObservableObject
     ///     导入图标
     /// </summary>
     [RelayCommand]
-    public async void ImportIcon()
+    public async Task ImportIcon()
     {
         // 选取图标
-        var icons = await StoragePicker.PickFiles(IconGroupService.IconExtensions,
-            XamlRoot.ContentIslandEnvironment.AppWindowId);
+        var icons = await StoragePicker.PickFiles(IconGroupService.IconExtensions, DialogService.WindowId);
         if (icons.Length == 0) return;
 
         // 导入图标
@@ -47,20 +45,10 @@ public partial class IconGroupsDetailPageViewModel : ObservableObject
     ///     删除图标
     /// </summary>
     [RelayCommand]
-    public async void DeleteIcon(BitmapIcon icon)
+    public async Task DeleteIcon(BitmapIcon icon)
     {
         // 二次确认
-        var dialog = new ContentDialog
-        {
-            RequestedTheme = App.MainWindow.GetRequestedTheme(),
-            Title = $"确定删除\"{icon.FileName}\"吗？",
-            PrimaryButtonText = "确定",
-            CloseButtonText = "取消",
-            DefaultButton = ContentDialogButton.Primary,
-            Content = new DescriptionDialog("此操作将无法从回收站恢复"),
-            XamlRoot = XamlRoot
-        };
-        var result = await dialog.ShowAsync();
+        var result = await DialogService.ShowMessageAsync($"确定删除\"{icon.FileName}\"吗？", "此操作将无法从回收站恢复");
         if (result == ContentDialogResult.None) return;
 
         // 延迟到下一个UI帧移除（让ContextFlyout先关闭），防止 E_FAIL (0x80004005) 崩溃
@@ -71,7 +59,7 @@ public partial class IconGroupsDetailPageViewModel : ObservableObject
     ///     打开图标
     /// </summary>
     [RelayCommand]
-    public void OpenIconFile(BitmapIcon icon)
+    public static void OpenIconFile(BitmapIcon icon)
     {
         if (icon.FullPath is not null) Process.Start("explorer.exe", icon.FullPath);
     }
@@ -85,10 +73,7 @@ public partial class IconGroupsDetailPageViewModel : ObservableObject
         foreach (var icon in Group.Icons)
         {
             // 名称筛选
-            if (!icon.FileName.Contains(IconNameFilter)) continue;
-
-            // TODO)) 类型筛选
-
+            if (icon.FileName is not null && !icon.FileName.Contains(IconNameFilter)) continue;
 
             FilteredIcons.Add(icon);
         }

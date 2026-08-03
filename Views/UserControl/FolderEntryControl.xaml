@@ -22,11 +22,11 @@
             <!-- 文件夹当前图标 -->
             <Image Width="32"
                    Height="32"
-                   Source="{x:Bind FolderEntry.CurrentIcon, Mode=OneWay}" />
+                   Source="{x:Bind ViewModel.FolderEntry.CurrentIcon, Mode=OneWay}" />
             <!-- 文件夹名称 -->
             <TextBlock
                 VerticalAlignment="Center"
-                Text="{x:Bind FolderEntry.FolderName, Mode=OneWay}"
+                Text="{x:Bind ViewModel.FolderEntry.FolderName, Mode=OneWay}"
                 Style="{StaticResource BodyTextBlockStyle}" />
         </StackPanel>
 
@@ -36,8 +36,8 @@
                     HorizontalAlignment="Right">
             <!-- 文件夹可选自定义图标 -->
             <ComboBox
-                ItemsSource="{x:Bind FolderEntry.OptionalIcons, Mode=OneWay}"
-                SelectedIndex="{x:Bind FolderEntry.SelectedIndex, Mode=OneWay}"
+                ItemsSource="{x:Bind ViewModel.FolderEntry.OptionalIcons, Mode=OneWay}"
+                SelectedIndex="{x:Bind ViewModel.FolderEntry.SelectedIndex, Mode=OneWay}"
                 SelectionChanged="IconSelector_Changed">
                 <!-- SelectedIndex 设为 OneWay，防止 TwoWay 在虚拟化控件回收时覆写 -1 污染数据 -->
                 <!-- SelectionChanged 手动处理 UI 操作 -->
@@ -62,7 +62,7 @@
                         <MenuFlyoutItem
                             Icon="{ui:FontIcon Glyph=&#xEC50; }"
                             Text="从文件"
-                            Click="PickIconFromFile_Click" />
+                            Command="{x:Bind ViewModel.PickIconFromFileCommand}"/>
                         <MenuFlyoutSubItem
                             x:Name="PickIconFromGroupFlyout"
                             Icon="{ui:FontIcon Glyph=&#xE7B8; }"
@@ -77,8 +77,8 @@
             </DropDownButton>
             <!-- 应用自定义图标 -->
             <Button
-                IsEnabled="{x:Bind FolderEntry.IsSelectedIconChanged, Mode=OneWay}"
-                Click="ApplyButton_Click"
+                IsEnabled="{x:Bind ViewModel.FolderEntry.IsSelectedIconChanged, Mode=OneWay}"
+                Command="{x:Bind ViewModel.ApplyCommand}"
                 Style="{ThemeResource AccentButtonStyle}"
                 Padding="18,6"
                 Content="应用" />

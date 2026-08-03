@@ -1,29 +1,61 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using Foldicon.Contracts;
+using Foldicon.Helpers;
 using Foldicon.Services;
+using Foldicon.ViewModels.Dialog;
+using Foldicon.ViewModels.Page;
+using Foldicon.ViewModels.UserControl;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 
 namespace Foldicon;
 
 public partial class App
 {
+    public static ServiceProvider Services { get; } = ConfigureServices();
+    public static MainWindow MainWindow { get; } = new();
+
     public App()
     {
+        Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
         InitializeComponent();
-        UnhandledException += (sender, args) =>
-        {
-            Debug.WriteLine($"[ERROR] {args.Message}");
-            args.Handled = true;
-        };
+        UnhandledException += OnUnhandledException;
     }
 
-    public static MainWindow MainWindow { get; } = MainWindow = new MainWindow();
-
-    // 所有 Service 随 App 启动
-    public static OptionService OptionService { get; private set; } = OptionService.Instance;
-    public static IconGroupService IconGroupService { get; private set; } = IconGroupService.Instance;
+    private static void OnUnhandledException(object sender, UnhandledExceptionEventArgs args)
+    {
+        Debug.WriteLine($"[ERROR] {args.Message}");
+        args.Handled = true;
+    }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         MainWindow.Activate();
+    }
+
+    private static ServiceProvider ConfigureServices()
+    {
+        var builder = new ServiceCollection();
+
+        // MainWindow
+        builder.AddSingleton<MainWindow>(_ => MainWindow);
+
+        // ViewModel
+        builder.AddTransient<IconEditorPageViewModel>();
+        builder.AddTransient<IconGroupPageViewModel>();
+        builder.AddTransient<IconGroupsDetailPageViewModel>();
+        builder.AddTransient<SettingsPageViewModel>();
+        builder.AddTransient<IconGroupInfoDialogViewModel>();
+        builder.AddTransient<FolderEntryControlViewModel>();
+
+        // Service
+        builder.AddSingleton<IIconGroupService, IconGroupService>();
+        builder.AddSingleton<IDialogService, DialogService>();
+        builder.AddSingleton<INavigationService, NavigationService>();
+        builder.AddSingleton<IOptionService, JsonOptionService>(_ =>
+            new JsonOptionService(UriHelper.GetFilePathFromAssets("options.json")));
+
+        return builder.BuildServiceProvider();
     }
 }

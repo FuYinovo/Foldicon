@@ -20,14 +20,18 @@
                 <community:SettingsCard Header="应用主题"
                                         Description="指定应用的主题样式"
                                         HeaderIcon="{winUi:FontIcon Glyph=&#xE790;}">
-                    <ComboBox SelectedIndex="{x:Bind _viewModel.ThemeOptionIndex, Mode=TwoWay}"
-                              ItemsSource="{x:Bind _viewModel.ThemeOptions.Values}" />
+                    <ComboBox
+                        SelectedItem="{x:Bind ViewModel.SelectedAppTheme, Mode=TwoWay}"
+                        ItemsSource="{x:Bind ViewModel.AppThemes}"
+                        />
                 </community:SettingsCard>
                 <community:SettingsCard Header="应用背景"
                                         Description="指定应用的背景样式"
                                         HeaderIcon="{winUi:FontIcon Glyph=&#xEF1F;}">
-                    <ComboBox SelectedIndex="{x:Bind _viewModel. BackdropOptionIndex, Mode=TwoWay}"
-                              ItemsSource="{x:Bind _viewModel.BackdropOptions.Values}" />
+                    <ComboBox
+                        SelectedItem="{x:Bind ViewModel.SelectedAppBackdrop, Mode=TwoWay}"
+                        ItemsSource="{x:Bind ViewModel.AppBackdrops}"
+                    />
                 </community:SettingsCard>
             </StackPanel>
 

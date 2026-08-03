@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Foldicon.Contracts;
 using Foldicon.Helpers;
-using Foldicon.Services;
 using Foldicon.Views.Dialog;
 using Foldicon.Views.Page;
 using Microsoft.UI.Dispatching;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using BitmapIcon = Foldicon.Struct.BitmapIcon;
@@ -18,29 +18,26 @@ using IconGroup = Foldicon.Models.IconGroup;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class IconGroupPageViewModel() : ObservableObject
+public partial class IconGroupPageViewModel(
+    IIconGroupService iconGroupService,
+    IDialogService dialogService,
+    INavigationService navigationService) : ObservableObject
 {
-    public XamlRoot? XamlRoot { get; set; }
-    public IconGroupService IconGroupService => IconGroupService.Instance;
+    public readonly IIconGroupService IconGroupService = iconGroupService;
+    public readonly IDialogService DialogService = dialogService;
+    public readonly INavigationService NavigationService = navigationService;
 
     /// <summary>
     ///     移除图标组
     /// </summary>
     [RelayCommand]
-    public async void RemoveGroupAsync(IconGroup group)
+    public async Task RemoveGroupAsync(IconGroup group)
     {
         // 二次确认
-        var dialog = new ContentDialog
-        {
-            RequestedTheme = App.MainWindow.GetRequestedTheme(),
-            Title = $"确定删除\"{group.Name}\"吗？",
-            PrimaryButtonText = "确定",
-            CloseButtonText = "取消",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = XamlRoot,
-            Content = new DescriptionDialog($"导入的{group.Icons.Count}个图标将无法从回收站恢复")
-        };
-        var result = await dialog.ShowAsync();
+        var result = await DialogService.ShowMessageAsync(
+            $"确定删除\"{group.Name}\"吗？",
+            $"导入的{group.Icons.Count}个图标将无法从回收站恢复",
+            true);
         if (result == ContentDialogResult.None) return;
 
         // 延迟到下一个UI帧移除（让ContextFlyout先关闭），防止 E_FAIL (0x80004005) 崩溃
@@ -51,33 +48,16 @@ public partial class IconGroupPageViewModel() : ObservableObject
     ///     编辑图标组信息
     /// </summary>
     [RelayCommand]
-    public async void EditGroupInfoAsync(IconGroup group)
+    public async Task EditGroupInfoAsync(IconGroup group)
     {
-        var content = IconGroupInfoDialog.GetEditDialog(group);
-        var dialog = new ContentDialog
-        {
-            RequestedTheme = App.MainWindow.GetRequestedTheme(),
-            Title = "编辑图标组",
-            PrimaryButtonText = "确认",
-            CloseButtonText = "取消",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = XamlRoot,
-            Content = content
-        };
-        var result = await dialog.ShowAsync();
+        var content = IconGroupInfoDialog.Create_EditDialog(group);
+        var result = await DialogService.ShowDialogAsync(title: "编辑图标组", content: content);
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await new ContentDialog
-            {
-                RequestedTheme = App.MainWindow.GetRequestedTheme(),
-                Title = "编辑失败",
-                CloseButtonText = "确定",
-                XamlRoot = XamlRoot,
-                Content = new DescriptionDialog("名称不能为空")
-            }.ShowAsync();
+            await DialogService.ShowMessageAsync("编辑失败", "名称不能为空");
             return;
         }
 
@@ -89,11 +69,11 @@ public partial class IconGroupPageViewModel() : ObservableObject
     ///     导入图标
     /// </summary>
     [RelayCommand]
-    public async void ImportIconAsync(IconGroup group)
+    public async Task ImportIconAsync(IconGroup group)
     {
         // 选取图标
         var icons = await StoragePicker.PickFiles(Services.IconGroupService.IconExtensions,
-            XamlRoot.ContentIslandEnvironment.AppWindowId);
+            DialogService.WindowId);
         if (icons.Length == 0) return;
 
         // 导入图标
@@ -104,47 +84,31 @@ public partial class IconGroupPageViewModel() : ObservableObject
     ///     导入图标组
     /// </summary>
     [RelayCommand]
-    public async void ImportGroupAsync()
+    public async Task ImportGroupAsync()
     {
         // 选取文件夹
-        var folder = await StoragePicker.PickFolder(XamlRoot.ContentIslandEnvironment.AppWindowId);
+        var folder = await StoragePicker.PickFolder(DialogService.WindowId);
         if (folder is null) return; // 取消操作
 
         // 筛选有效图标
         var files = Directory.GetFiles(folder);
         List<string> icons =
-            [.. files.Where(file => Services.IconGroupService.IconExtensions.Contains(Path.GetExtension(file)))]; // 检查拓展名
+        [
+            .. files.Where(file => Services.IconGroupService.IconExtensions.Contains(Path.GetExtension(file)))
+        ]; // 检查拓展名
 
         // 设置图标组信息
         BitmapIcon? defaultIcon = icons.Count > 0 // 选取第一个图标作为默认 Logo
             ? new BitmapIcon { FullPath = icons.First(), Icon = new BitmapImage(new Uri(icons.First())) }
             : null;
-        var content = IconGroupInfoDialog.GetCreateDialog(Path.GetFileName(folder), null, defaultIcon);
-
-        var dialog = new ContentDialog
-        {
-            RequestedTheme = App.MainWindow.GetRequestedTheme(),
-            Title = "创建图标组",
-            PrimaryButtonText = "创建",
-            CloseButtonText = "取消",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = XamlRoot,
-            Content = content
-        };
-        var result = await dialog.ShowAsync();
+        var content = IconGroupInfoDialog.Create_CreateDialog(Path.GetFileName(folder), null, defaultIcon);
+        var result = await DialogService.ShowDialogAsync(title: "创建图标组", content: content);
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await new ContentDialog
-            {
-                RequestedTheme = App.MainWindow.GetRequestedTheme(),
-                Title = "导入失败",
-                CloseButtonText = "确定",
-                XamlRoot = XamlRoot,
-                Content = new DescriptionDialog("名称不能为空")
-            }.ShowAsync();
+            await DialogService.ShowMessageAsync("导入失败", "名称不能为空");
             return;
         }
 
@@ -156,33 +120,16 @@ public partial class IconGroupPageViewModel() : ObservableObject
     ///    创建图标组
     /// </summary>
     [RelayCommand]
-    public async void CreateGroupAsync()
+    public async Task CreateGroupAsync()
     {
-        var content = IconGroupInfoDialog.GetCreateDialog();
-        var dialog = new ContentDialog
-        {
-            RequestedTheme = App.MainWindow.GetRequestedTheme(),
-            Title = "创建图标组",
-            PrimaryButtonText = "创建",
-            CloseButtonText = "取消",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = XamlRoot,
-            Content = content
-        };
-        var result = await dialog.ShowAsync();
+        var content = IconGroupInfoDialog.Create_CreateDialog();
+        var result = await DialogService.ShowDialogAsync(title: "创建图标组", content: content);
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await new ContentDialog
-            {
-                RequestedTheme = App.MainWindow.GetRequestedTheme(),
-                Title = "创建失败",
-                CloseButtonText = "确定",
-                XamlRoot = XamlRoot,
-                Content = new DescriptionDialog("名称不能为空")
-            }.ShowAsync();
+            await DialogService.ShowMessageAsync("创建失败", "名称不能为空");
             return;
         }
 
@@ -194,9 +141,9 @@ public partial class IconGroupPageViewModel() : ObservableObject
     ///     跳转图标组到详情页
     /// </summary>
     [RelayCommand]
-    public static void NavigateGroupPage(IconGroup group)
+    private void NavigateGroupPage(IconGroup group)
     {
-        App.MainWindow.NavigateTo(typeof(IconGroupsDetailPage), group);
+        NavigationService.Navigate(typeof(IconGroupsDetailPage), group);
     }
 
     /// <summary>

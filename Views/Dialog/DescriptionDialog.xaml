@@ -10,6 +10,6 @@
 
 
     <Grid>
-        <TextBlock Text="{x:Bind Description, Mode=OneWay}" />
+        <TextBlock Text="{x:Bind Description}" />
     </Grid>
 </Page>

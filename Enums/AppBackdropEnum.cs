@@ -2,7 +2,7 @@
 
 namespace Foldicon.Enums;
 
-public enum BackdropOptionEnum
+public enum AppBackdropEnum
 {
     [Description("云母")] Mica,
     [Description("云母变体")] MicaAlt,
