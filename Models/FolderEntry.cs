@@ -5,8 +5,10 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Struct;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Media;
 
 namespace Foldicon.Models;
@@ -72,6 +74,15 @@ public partial class FolderEntry : ObservableObject
         SelectedIndex = selectedIndex;
         AppliedIndex = selectedIndex;
         IsSystemIcon = selectedIndex == -1;
+
+        // 若文件夹没有自定义图标，存在可用的exe图标，且开启了「自动图标」
+        // 则选择第一个可用图标
+        if (IsSystemIcon
+            && exeIcons.Count > 0
+            && App.Services.GetRequiredService<IOptionService>().Options.IsAutoSelectIcon)
+        {
+            SelectedIndex = 0;
+        }
     }
 
     /// <summary>

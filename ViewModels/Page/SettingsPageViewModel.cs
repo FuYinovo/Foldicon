@@ -8,7 +8,7 @@ using Microsoft.UI.Xaml;
 
 namespace Foldicon.ViewModels.Page;
 
-public  partial class SettingsPageViewModel(IOptionService optionService, MainWindow window) : ObservableObject
+public partial class SettingsPageViewModel(IOptionService optionService, MainWindow window) : ObservableObject
 {
     #region ItemsSource
 
@@ -23,6 +23,11 @@ public  partial class SettingsPageViewModel(IOptionService optionService, MainWi
 
     [ObservableProperty]
     public partial AppBackdropEnum SelectedAppBackdrop { get; set; } = optionService.Options.AppBackdrop;
+
+    [ObservableProperty] public partial bool IsCaseSensitive { get; set; } = optionService.Options.IsCaseSensitive;
+    [ObservableProperty] public partial bool IsRecursive { get; set; } = optionService.Options.IsRecursive;
+    [ObservableProperty] public partial bool IsAutoSelectIcon { get; set; } = optionService.Options.IsAutoSelectIcon;
+    [ObservableProperty] public partial int MaxRecursive { get; set; } = optionService.Options.MaxRecursive;
 
     #endregion
 
@@ -56,6 +61,29 @@ public  partial class SettingsPageViewModel(IOptionService optionService, MainWi
         optionService.SaveAll();
     }
 
+    partial void OnIsCaseSensitiveChanged(bool value)
+    {
+        optionService.Options.IsCaseSensitive = value;
+        optionService.SaveAll();
+    }
+
+    partial void OnIsRecursiveChanged(bool value)
+    {
+        optionService.Options.IsRecursive = value;
+        optionService.SaveAll();
+    }
+
+    partial void OnIsAutoSelectIconChanged(bool value)
+    {
+        optionService.Options.IsAutoSelectIcon = value;
+        optionService.SaveAll();
+    }
+
+    partial void OnMaxRecursiveChanged(int value)
+    {
+        optionService.Options.MaxRecursive = value;
+        optionService.SaveAll();
+    }
     #endregion
 
     private static List<TEnum> GetEnumValues<TEnum>() where TEnum : struct, Enum

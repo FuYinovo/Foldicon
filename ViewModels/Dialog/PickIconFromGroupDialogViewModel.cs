@@ -1,6 +1,9 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using Foldicon.Contracts;
 using Foldicon.Struct;
+using Microsoft.Extensions.DependencyInjection;
 using IconGroup = Foldicon.Models.IconGroup;
 
 namespace Foldicon.ViewModels.Dialog;
@@ -8,10 +11,12 @@ namespace Foldicon.ViewModels.Dialog;
 public partial class PickIconFromGroupDialogViewModel : ObservableObject
 {
     private readonly IconGroup _group;
+    private readonly IOptionService _optionService;
 
     public PickIconFromGroupDialogViewModel(IconGroup group)
     {
         _group = group;
+        _optionService = App.Services.GetService<IOptionService>()!;
         FilteredIcons = [.. group.Icons];
     }
 
@@ -25,7 +30,10 @@ public partial class PickIconFromGroupDialogViewModel : ObservableObject
         FilteredIcons.Clear();
         foreach (var icon in _group.Icons)
         {
-            if (icon.FileName is not null && icon.FileName.Contains(IconNameFilter))
+            var comparison = _optionService.Options.IsCaseSensitive
+                ? StringComparison.Ordinal
+                : StringComparison.OrdinalIgnoreCase;
+            if (icon.FileName is not null && icon.FileName.Contains(IconNameFilter,comparison))
                 FilteredIcons.Add(icon);
         }
     }

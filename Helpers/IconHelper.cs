@@ -58,22 +58,20 @@ public static partial class IconHelper // 公开方法
     }
 
     /// <summary>
-    ///     获取文件夹下所有exe程序的路径及图标
+    ///     递归获取文件夹下所有exe程序的路径及图标
     /// </summary>
     /// <param name="fullPath">文件夹完整路径</param>
+    /// <param name="maxRecursiveDepth">最大递归层数（最小值是1）</param>
     /// <param name="configureAwait">是否以调用进程返回</param>
     /// <returns>BytesIcon 实例的列表</returns>
-    public static async Task<List<BytesIcon>> GetExeIconsAsync(string fullPath, bool configureAwait = true)
+    public static async Task<List<BytesIcon>> GetExeIconsAsync(string fullPath, uint maxRecursiveDepth,
+        bool configureAwait = true)
     {
         // 创建任务
         List<Task<BytesIcon>> tasks = [];
-        var files = Directory.GetFiles(fullPath);
+        var files = GetFilesRecursive(fullPath, "*.exe", maxRecursiveDepth);
         foreach (var file in files)
         {
-            // 扩展名必须为exe
-            var extension = Path.GetExtension(file);
-            if (!extension.Equals(".exe", StringComparison.OrdinalIgnoreCase)) continue;
-
             tasks.Add(Task.Run(() => new BytesIcon { FullPath = file, Icon = GetFileIcon(file) }));
         }
 
@@ -211,5 +209,30 @@ public static partial class IconHelper // 私有方法
         );
         iconInfo = info;
         return state != IntPtr.Zero;
+    }
+
+    /// <summary>
+    /// 递归获取文件夹中所有文件
+    /// </summary>
+    /// <param name="path">起始文件夹</param>
+    /// <param name="searchPattern">例如「*.exe」只返回exe文件</param>
+    /// <param name="maxDepth">最大深度，最小值是1</param>
+    private static List<string> GetFilesRecursive(string path, string searchPattern, uint maxDepth)
+    {
+        if (maxDepth == 0) return [];
+
+        var result = new List<string>();
+        GetFiles(path, 1, ref result);
+        return result;
+
+        void GetFiles(string currentPath, uint currentDepth, ref List<string> files)
+        {
+            if (currentDepth > maxDepth) return;
+            files.AddRange(Directory.GetFiles(currentPath, searchPattern));
+            foreach (var nextPath in Directory.GetDirectories(currentPath))
+            {
+                GetFiles(nextPath, currentDepth + 1, ref files);
+            }
+        }
     }
 }

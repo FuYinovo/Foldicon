@@ -10,7 +10,6 @@
     xmlns:winUi="using:CommunityToolkit.WinUI"
     mc:Ignorable="d">
 
-
     <Grid>
         <StackPanel Spacing="36">
             <TextBlock Text="设置" Style="{StaticResource TitleTextBlockStyle}" />
@@ -22,16 +21,57 @@
                                         HeaderIcon="{winUi:FontIcon Glyph=&#xE790;}">
                     <ComboBox
                         SelectedItem="{x:Bind ViewModel.SelectedAppTheme, Mode=TwoWay}"
-                        ItemsSource="{x:Bind ViewModel.AppThemes}"
-                        />
+                        ItemsSource="{x:Bind ViewModel.AppThemes}" />
                 </community:SettingsCard>
                 <community:SettingsCard Header="应用背景"
                                         Description="指定应用的背景样式"
                                         HeaderIcon="{winUi:FontIcon Glyph=&#xEF1F;}">
                     <ComboBox
                         SelectedItem="{x:Bind ViewModel.SelectedAppBackdrop, Mode=TwoWay}"
-                        ItemsSource="{x:Bind ViewModel.AppBackdrops}"
-                    />
+                        ItemsSource="{x:Bind ViewModel.AppBackdrops}" />
+                </community:SettingsCard>
+            </StackPanel>
+
+            <!-- 应用 -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="应用" Style="{StaticResource BodyStrongTextBlockStyle}" />
+                <community:SettingsCard Header="区分大小写"
+                                        Description="搜索框是否区分大小写"
+                                        HeaderIcon="{winUi:FontIcon Glyph=&#xE8E9;}">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsCaseSensitive, Mode=TwoWay}" />
+                </community:SettingsCard>
+                <community:SettingsExpander Header="递归遍历"
+                                            Description="查找可用图标是否遍历所有子文件夹"
+                                            HeaderIcon="{winUi:FontIcon Glyph=&#xED43;}">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsRecursive, Mode=TwoWay}" />
+                    <community:SettingsExpander.ItemsHeader>
+                        <InfoBar
+                            IsOpen="True"
+                            BorderThickness="0"
+                            CornerRadius="0"
+                            Severity="Warning"
+                            Title="过高的递归深度可能导致加载缓慢" />
+                    </community:SettingsExpander.ItemsHeader>
+
+                    <community:SettingsExpander.Items>
+                        <community:SettingsCard Header="递归深度"
+                                                Description="递归文件夹的最大深度"
+                                                HeaderIcon="{winUi:FontIcon Glyph=&#xE81E;}"
+                                                IsEnabled="{x:Bind ViewModel.IsRecursive, Mode=OneWay}">
+                            <Slider
+                                Value="{x:Bind ViewModel.MaxRecursive, Mode=TwoWay}"
+                                SnapsTo="Ticks"
+                                TickFrequency="1"
+                                TickPlacement="Outside"
+                                Maximum="4"
+                                Minimum="1" />
+                        </community:SettingsCard>
+                    </community:SettingsExpander.Items>
+                </community:SettingsExpander>
+                <community:SettingsCard Header="自动图标"
+                                        Description="为没有设置图标的文件夹自动选择一个图标"
+                                        HeaderIcon="{winUi:FontIcon Glyph=&#xE99A;}">
+                    <ToggleSwitch IsOn="{x:Bind ViewModel.IsAutoSelectIcon, Mode=TwoWay}" />
                 </community:SettingsCard>
             </StackPanel>
 
