@@ -14,10 +14,9 @@ using FolderEntry = Foldicon.Models.FolderEntry;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class IconEditorPageViewModel(IDialogService dialogService) : ObservableObject
+public partial class IconEditorPageViewModel(IDialogService dialogService, IOptionService optionService)
+    : ObservableObject
 {
-    public readonly IDialogService DialogService = dialogService;
-
     #region Status Properties
 
     [ObservableProperty] public partial string ParentFolder { get; set; } = string.Empty;
@@ -85,7 +84,7 @@ public partial class IconEditorPageViewModel(IDialogService dialogService) : Obs
     [RelayCommand]
     public async Task LoadFolderAsync()
     {
-        var fullPath = await StoragePicker.PickFolder(DialogService.WindowId);
+        var fullPath = await StoragePicker.PickFolder(dialogService.WindowId);
         if (fullPath is not null)
         {
             ParentFolder = fullPath;
@@ -119,7 +118,10 @@ public partial class IconEditorPageViewModel(IDialogService dialogService) : Obs
         foreach (var folder in SubFolders)
         {
             // 名称筛选
-            if (!folder.FolderName.Contains(NameFilter)) continue;
+            var comparison = optionService.Options.IsCaseSensitive
+                ? StringComparison.Ordinal
+                : StringComparison.OrdinalIgnoreCase;
+            if (!folder.FolderName.Contains(NameFilter, comparison)) continue;
 
             // 类型筛选
             switch (TypeFilter)
@@ -171,7 +173,8 @@ public partial class IconEditorPageViewModel(IDialogService dialogService) : Obs
         {
             try
             {
-                var exeIcons = await IconHelper.GetExeIconsAsync(icon.FullPath);
+                var maxDepth = optionService.Options.IsRecursive ? optionService.Options.MaxRecursive : 1;
+                var exeIcons = await IconHelper.GetExeIconsAsync(icon.FullPath, (uint)maxDepth);
                 return await FolderEntry.CreateAsync(icon.FullPath, icon.Icon!, exeIcons); // try-catch 处理 null 导致的异常
             }
             catch (Exception e)

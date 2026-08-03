@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
@@ -13,10 +14,9 @@ using System.Threading.Tasks;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class IconGroupsDetailPageViewModel(IDialogService dialogService) : ObservableObject
+public partial class IconGroupsDetailPageViewModel(IDialogService dialogService, IOptionService optionService) : ObservableObject
 {
     public IconGroup Group = new();
-    public readonly IDialogService DialogService = dialogService;
 
     #region Filter
 
@@ -34,7 +34,7 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService)
     public async Task ImportIcon()
     {
         // 选取图标
-        var icons = await StoragePicker.PickFiles(IconGroupService.IconExtensions, DialogService.WindowId);
+        var icons = await StoragePicker.PickFiles(IconGroupService.IconExtensions, dialogService.WindowId);
         if (icons.Length == 0) return;
 
         // 导入图标
@@ -48,7 +48,7 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService)
     public async Task DeleteIcon(BitmapIcon icon)
     {
         // 二次确认
-        var result = await DialogService.ShowMessageAsync($"确定删除\"{icon.FileName}\"吗？", "此操作将无法从回收站恢复");
+        var result = await dialogService.ShowMessageAsync($"确定删除\"{icon.FileName}\"吗？", "此操作将无法从回收站恢复");
         if (result == ContentDialogResult.None) return;
 
         // 延迟到下一个UI帧移除（让ContextFlyout先关闭），防止 E_FAIL (0x80004005) 崩溃
@@ -73,7 +73,10 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService)
         foreach (var icon in Group.Icons)
         {
             // 名称筛选
-            if (icon.FileName is not null && !icon.FileName.Contains(IconNameFilter)) continue;
+            var comparison = optionService.Options.IsCaseSensitive
+                ? StringComparison.Ordinal
+                : StringComparison.OrdinalIgnoreCase;
+            if (icon.FileName is not null && !icon.FileName.Contains(IconNameFilter,comparison)) continue;
 
             FilteredIcons.Add(icon);
         }
