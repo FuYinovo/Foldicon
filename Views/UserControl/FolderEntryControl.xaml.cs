@@ -46,19 +46,6 @@ public sealed partial class FolderEntryControl
     }
 
     /// <summary>
-    ///     图标选择器在 OneWay 的基础上手动实现 TwoWay
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void IconSelector_Changed(object sender, SelectionChangedEventArgs e)
-    {
-        if (sender is not ComboBox comboBox) return;
-        var index = comboBox.SelectedIndex;
-        if (index == -1) return; // 防止虚拟化回收时覆写 -1 污染数据
-        ViewModel.FolderEntry?.SelectedIndex = index;
-    }
-
-    /// <summary>
     ///     加载「浏览→从图标库」的子菜单
     /// </summary>
     private void PickIconFromGroup_Flyout_GenerateItems(object sender, RoutedEventArgs e)
@@ -81,5 +68,13 @@ public sealed partial class FolderEntryControl
         {
             return PickIconFromGroupFlyout.Items.Any(item => ReferenceEquals(group, item.Tag));
         }
+    }
+
+    ///<summary>手动实现 TwoWay</summary>
+    private void Selector_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is not ComboBox box) return;
+        // 防止 TwoWay 在虚拟化控件回收时覆写 null 污染数据 -->
+        if (box.SelectedItem is IFolderIcon item) ViewModel?.FolderEntry?.SelectedIcon = item;
     }
 }

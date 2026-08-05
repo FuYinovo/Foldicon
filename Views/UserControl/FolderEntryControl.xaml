@@ -8,6 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:struct="using:Foldicon.Struct"
     xmlns:ui="using:CommunityToolkit.WinUI"
+    xmlns:contracts="using:Foldicon.Contracts"
     mc:Ignorable="d">
 
     <Grid>
@@ -22,7 +23,7 @@
             <!-- 文件夹当前图标 -->
             <Image Width="32"
                    Height="32"
-                   Source="{x:Bind ViewModel.FolderEntry.CurrentIcon, Mode=OneWay}" />
+                   Source="{x:Bind ViewModel.FolderEntry.CurrentIcon.Bitmap, Mode=OneWay}" />
             <!-- 文件夹名称 -->
             <TextBlock
                 VerticalAlignment="Center"
@@ -37,19 +38,19 @@
             <!-- 文件夹可选自定义图标 -->
             <ComboBox
                 ItemsSource="{x:Bind ViewModel.FolderEntry.OptionalIcons, Mode=OneWay}"
-                SelectedIndex="{x:Bind ViewModel.FolderEntry.SelectedIndex, Mode=OneWay}"
-                SelectionChanged="IconSelector_Changed">
-                <!-- SelectedIndex 设为 OneWay，防止 TwoWay 在虚拟化控件回收时覆写 -1 污染数据 -->
-                <!-- SelectionChanged 手动处理 UI 操作 -->
+                SelectedItem="{x:Bind ViewModel.FolderEntry.SelectedIcon, Mode=OneWay}"
+                SelectionChanged="Selector_OnSelectionChanged">
+                <!-- 防止 TwoWay 在虚拟化控件回收时覆写 null 污染数据 -->
+                <!-- SelectionChanged 手动实现安全 TwoWay -->
                 <ComboBox.ItemTemplate>
-                    <DataTemplate x:DataType="struct:BitmapIcon">
+                    <DataTemplate x:DataType="contracts:IFolderIcon">
                         <StackPanel Orientation="Horizontal"
                                     Spacing="8">
                             <Image Width="24"
                                    Height="24"
-                                   Source="{x:Bind Icon}"
+                                   Source="{x:Bind Bitmap}"
                                    VerticalAlignment="Center" />
-                            <TextBlock Text="{x:Bind FullPath}"
+                            <TextBlock Text="{x:Bind DisplayName}"
                                        VerticalAlignment="Center" />
                         </StackPanel>
                     </DataTemplate>

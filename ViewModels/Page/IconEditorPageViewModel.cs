@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -39,40 +37,17 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
 
     #region Filter Propertries
 
-    // 与 XAML 中 SegmentedItem 的排列一致
-    private static readonly TypeFilterEnum[] TypeFilterMapping =
-        [TypeFilterEnum.All, TypeFilterEnum.System, TypeFilterEnum.Custom];
-
-    private static readonly StatusFilterEnum[] StatusFilterMapping =
-        [StatusFilterEnum.All, StatusFilterEnum.Unmodified, StatusFilterEnum.Unapplied];
-
     [ObservableProperty] public partial string NameFilter { get; set; } = string.Empty;
 
     [ObservableProperty] public partial TypeFilterEnum TypeFilter { get; set; } = TypeFilterEnum.All;
 
     [ObservableProperty] public partial StatusFilterEnum StatusFilter { get; set; } = StatusFilterEnum.All;
 
-    [ObservableProperty] public partial int StatusFilterIndex { get; set; }
-
-    [ObservableProperty] public partial int TypeFilterIndex { get; set; }
-
     partial void OnTypeFilterChanged(TypeFilterEnum value) => ApplyFilter();
 
     partial void OnStatusFilterChanged(StatusFilterEnum value) => ApplyFilter();
 
     partial void OnNameFilterChanged(string value) => ApplyFilter();
-
-    partial void OnStatusFilterIndexChanged(int value)
-    {
-        if (value >= 0 && value < StatusFilterMapping.Length)
-            StatusFilter = StatusFilterMapping[value];
-    }
-
-    partial void OnTypeFilterIndexChanged(int value)
-    {
-        if (value >= 0 && value < TypeFilterMapping.Length)
-            TypeFilter = TypeFilterMapping[value];
-    }
 
     #endregion
 
@@ -166,27 +141,14 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
         SubFolders.Clear();
 
         // 并行获取子文件夹图标
-        var subfolderIcons = await IconHelper.GetSubfolderIconsAsync(ParentFolder);
-
-        // 并行创建 FolderEntry 实例
-        var tasks = subfolderIcons.Select(async icon =>
+        foreach (var path in Directory.GetDirectories(ParentFolder))
         {
-            try
-            {
-                var maxDepth = optionService.Options.IsRecursive ? optionService.Options.MaxRecursive : 1;
-                var exeIcons = await IconHelper.GetExeIconsAsync(icon.FullPath, (uint)maxDepth);
-                return await FolderEntry.CreateAsync(icon.FullPath, icon.Icon!, exeIcons); // try-catch 处理 null 导致的异常
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.Message);
-                return null;
-            }
-        });
-
-        foreach (var entry in await Task.WhenAll(tasks))
-            if (entry is not null)
-                SubFolders.Add(entry);
+            if (!IconHelper.TryGetFolderIcon(path, out var icon)) continue;
+            var maxDepth = optionService.Options.IsRecursive ? optionService.Options.MaxRecursive : 1;
+            var exeIcons = await IconHelper.GetExeIconsAsync(path, (uint)maxDepth);
+            var entry = new FolderEntry(path, icon, exeIcons);
+            SubFolders.Add(entry);
+        }
 
         ApplyFilter();
     }

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using Foldicon.Struct;
+using Foldicon.Contracts;
+using Foldicon.Models.Icon;
 using IniFileSharp;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Vanara.InteropServices;
@@ -37,152 +36,129 @@ public static partial class IconHelper // 公开方法
         Shell32.SHGetSetFolderCustomSettings(ref settings, folderPath, Shell32.FCS.FCS_FORCEWRITE);
     }
 
-    /// <summary>
-    ///     获取文件夹的图标
-    /// </summary>
-    /// <param name="path">文件夹完整路径</param>
-    /// <returns>PNG数组；失败返回 null</returns>
-    public static byte[]? GetFolderIcon(string path)
+    public static void SetFolderIcon(string folderPath, string dllPath, int dllIndex)
     {
-        return GetIcon(path, true);
+        var settings = new Shell32.SHFOLDERCUSTOMSETTINGS
+        {
+            dwMask = Shell32.FOLDERCUSTOMSETTINGSMASK.FCSM_ICONFILE,
+            pszIconFile = new StrPtrAuto(dllPath),
+            iIconIndex = dllIndex
+        };
+        Shell32.SHGetSetFolderCustomSettings(ref settings, folderPath, Shell32.FCS.FCS_FORCEWRITE);
     }
 
-    /// <summary>
-    ///     获取文件的图标
-    /// </summary>
-    /// <param name="path">文件完整路径</param>
-    /// <returns>PNG数组；失败返回 null</returns>
-    public static byte[]? GetFileIcon(string path)
+
+    public static bool TryGetFileIcon(string path, out FolderFileIcon icon)
     {
-        return GetIcon(path, false);
+        if (!File.Exists(path) ||
+            !TryShell32GetIcon(path, false, out var info)
+            || !TryCreateBitmapImage(info, out var bitmap))
+        {
+            icon = null!;
+            return false;
+        }
+
+        icon = new FolderFileIcon(bitmap, path);
+        return true;
     }
 
-    /// <summary>
-    ///     递归获取文件夹下所有exe程序的路径及图标
-    /// </summary>
-    /// <param name="fullPath">文件夹完整路径</param>
-    /// <param name="maxRecursiveDepth">最大递归层数（最小值是1）</param>
-    /// <param name="configureAwait">是否以调用进程返回</param>
-    /// <returns>BytesIcon 实例的列表</returns>
-    public static async Task<List<BytesIcon>> GetExeIconsAsync(string fullPath, uint maxRecursiveDepth,
-        bool configureAwait = true)
+    public static bool TryGetFolderIcon(string path, out IFolderIcon icon)
     {
-        // 创建任务
-        List<Task<BytesIcon>> tasks = [];
+        // 获取失败、文件夹不存在、创建位图失败
+        if (!Directory.Exists(path) ||
+            !TryShell32GetIcon(path, true, out var info) ||
+            !TryCreateBitmapImage(info, out var bitmap))
+        {
+            icon = null!;
+            return false;
+        }
+
+        // 检查 desktop.ini 是否存在
+        var desktopIni = Path.Combine(path, "desktop.ini");
+        if (!File.Exists(desktopIni))
+        {
+            // 系统图标
+            icon = new FolderSystemIcon(bitmap);
+        }
+        else
+        {
+            // 获取图标路径
+            var iniReader = new IniSharp(desktopIni, Encoding.GetEncoding("GBK")); // desktop.ini 可能不是 UTF-8 编码
+            if (!TryGetIniValue(iniReader, ".ShellClassInfo", "IconResource", out var value))
+            {
+                // 读取 desktop.ini 失败
+                icon = null!;
+                return false;
+            }
+
+            var resource = value.Split(",");
+            var iconPath = resource[0];
+            // 检查图标拓展名
+            if (Path.GetExtension(iconPath).Equals(".dll", StringComparison.OrdinalIgnoreCase))
+            {
+                // Dll 图标
+                var iconIndex = int.Parse(resource[1]);
+                icon = new FolderDllIcon(bitmap, iconPath, iconIndex);
+            }
+            else
+            {
+                // 文件图标
+                icon = new FolderFileIcon(bitmap, iconPath);
+            }
+        }
+
+        return true;
+
+        bool TryGetIniValue(IniSharp reader, string section, string key, out string value)
+        {
+            try
+            {
+                value = reader.GetValue(section, key);
+                return true;
+            }
+            catch (Exception)
+            {
+                value = null!;
+                return false;
+            }
+        }
+    }
+
+
+    public static async Task<List<FolderFileIcon>> GetExeIconsAsync(string fullPath, uint maxRecursiveDepth)
+    {
+        List<FolderFileIcon> icons = [];
         var files = GetFilesRecursive(fullPath, "*.exe", maxRecursiveDepth);
         foreach (var file in files)
         {
-            tasks.Add(Task.Run(() => new BytesIcon { FullPath = file, Icon = GetFileIcon(file) }));
-        }
-
-        // 获取结果
-        await Task.WhenAll(tasks).ConfigureAwait(configureAwait);
-        List<BytesIcon> icons = [];
-        foreach (var task in tasks)
-        {
-            var icon = task.Result;
-            if (icon.Icon is not null) icons.Add(icon);
+            if (!TryGetFileIcon(file, out var icon)) continue;
+            icons.Add(icon);
         }
 
         return icons;
-    }
-
-    /// <summary>
-    ///     获取文件夹下所有子文件夹的路径及图标
-    /// </summary>
-    /// <param name="fullPath">文件夹完整路径</param>
-    /// <param name="configureAwait">是否以调用进程返回</param>
-    /// <returns>BytesIcon 实例的列表</returns>
-    public static async Task<List<BytesIcon>> GetSubfolderIconsAsync(string fullPath, bool configureAwait = true)
-    {
-        // 创建任务
-        List<Task<BytesIcon>> tasks = [];
-        var subFolders = Directory.GetDirectories(fullPath);
-        foreach (var subFolder in subFolders)
-            tasks.Add(Task.Run(() => new BytesIcon { FullPath = subFolder, Icon = GetFolderIcon(subFolder) }));
-
-        // 获取结果
-        List<BytesIcon> icons = [];
-        await Task.WhenAll(tasks).ConfigureAwait(configureAwait);
-        foreach (var task in tasks)
-        {
-            var icon = task.Result;
-            if (icon.Icon is not null) icons.Add(icon);
-        }
-
-        return icons;
-    }
-
-    /// <summary>
-    ///     获取文件夹自定义图标的路径
-    /// </summary>
-    /// <param name="folderPath">文件夹完整路径</param>
-    /// <param name="encoding">读取Ini文件的编码</param>
-    /// <returns>图标路径(失败返回null)</returns>
-    public static string? GetFolderCustomIconPath(string folderPath, Encoding encoding)
-    {
-        var iniPath = Path.Combine(folderPath, "desktop.ini");
-        try
-        {
-            var iniSharp = new IniSharp(iniPath, encoding);
-            var resource = iniSharp.GetValue(".ShellClassInfo", "IconResource");
-            return resource is null ? null : ConsumeResource(resource);
-        }
-        catch (Exception e)
-        {
-            Debug.WriteLine(e.Message);
-            return null;
-        }
-
-        string? ConsumeResource(string resource)
-        {
-            var path = resource.Split(",").FirstOrDefault(string.Empty);
-            if (string.IsNullOrEmpty(path)) return null;
-
-            // 忽略 .dll 图标
-            if (path.EndsWith(".dll")) return null;
-
-            // 相对路径 -> 绝对路径
-            if (!Path.IsPathRooted(path)) path = Path.Combine(folderPath, path);
-
-            return path;
-        }
-    }
-
-    /// <summary>
-    ///     从数组创建 <see cref="BitmapImage" /> 实例
-    /// </summary>
-    /// <param name="bytes">图片数组</param>
-    /// <exception cref="COMException">没有在 UI 线程调用方法</exception>
-    /// <returns><see cref="BitmapImage" /> 实例</returns>
-    public static BitmapImage CreateBitmapImage(byte[] bytes)
-    {
-        var bitmap = new BitmapImage();
-        bitmap.SetSource(new MemoryStream(bytes).AsRandomAccessStream());
-        return bitmap;
     }
 }
 
 public static partial class IconHelper // 私有方法
 {
-    /// <summary>
-    ///     获取文件(夹)的图标位图
-    /// </summary>
-    /// <param name="path">文件夹完整路径</param>
-    /// <param name="isFolder">是否是文件夹</param>
-    /// <returns>PNG数组；失败返回 null</returns>
-    private static byte[]? GetIcon(string path, bool isFolder)
+    private static bool TryCreateBitmapImage(Shell32.SHFILEINFO info, out BitmapImage bitmap)
     {
-        if (!TryShell32GetIcon(path, isFolder, out var info) || info.hIcon.IsInvalid) return null;
+        if (info.hIcon.IsInvalid || info.hIcon.IsNull)
+        {
+            bitmap = null!;
+            return false;
+        }
 
         // 使用 Icon.FromHandle，防止 Bitmap.FromHIcon 丢失透明度
-        using var bitmap = Icon.FromHandle(info.hIcon.DangerousGetHandle()).ToBitmap();
+        using var icon = Icon.FromHandle(info.hIcon.DangerousGetHandle()).ToBitmap();
         User32.DestroyIcon(info.hIcon);
 
         // Bitmap -> MemoryStream -> RandomAccessStream -> BitmapImage
         using var stream = new MemoryStream();
-        bitmap.Save(stream, ImageFormat.Png);
-        return stream.ToArray();
+        icon.Save(stream, ImageFormat.Png);
+        bitmap = new BitmapImage();
+        bitmap.SetSource(new MemoryStream(stream.ToArray()).AsRandomAccessStream());
+        return true;
     }
 
     /// <summary>
@@ -228,10 +204,22 @@ public static partial class IconHelper // 私有方法
         void GetFiles(string currentPath, uint currentDepth, ref List<string> files)
         {
             if (currentDepth > maxDepth) return;
-            files.AddRange(Directory.GetFiles(currentPath, searchPattern));
-            foreach (var nextPath in Directory.GetDirectories(currentPath))
+            files.AddRange(SafeDirectoryOperation(() => Directory.GetFiles(currentPath, searchPattern)));
+            foreach (var nextPath in SafeDirectoryOperation(() => Directory.GetDirectories(currentPath)))
             {
                 GetFiles(nextPath, currentDepth + 1, ref files);
+            }
+        }
+
+        string[] SafeDirectoryOperation(Func<string[]> operation)
+        {
+            try
+            {
+                return operation();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return [];
             }
         }
     }

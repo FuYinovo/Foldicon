@@ -87,23 +87,29 @@
 
         <Grid Grid.Row="2">
             <control:Segmented
-                SelectedIndex="{x:Bind ViewModel.TypeFilterIndex, Mode=TwoWay}"
+                SelectedIndex="0"
+                SelectedValue="{x:Bind ViewModel.TypeFilter, Mode=TwoWay}"
+                SelectedValuePath="Tag"
                 HorizontalAlignment="Left"
                 IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}">
                 <control:SegmentedItem
                     Icon="{ui:FontIcon Glyph=&#xE8A9;}"
+                    Tag="{x:Bind enum:TypeFilterEnum.All}"
                     Content="全部" />
                 <control:SegmentedItem
                     Icon="{ui:FontIcon Glyph=&#xE770;}"
+                    Tag="{x:Bind enum:TypeFilterEnum.System}"
                     Content="系统" />
                 <control:SegmentedItem
                     Icon="{ui:FontIcon Glyph=&#xE771;}"
+                    Tag="{x:Bind enum:TypeFilterEnum.Custom}"
                     Content="自定义" />
             </control:Segmented>
 
             <control:Segmented
-                x:Name="StatusFilterSegmented"
-                SelectedIndex="{x:Bind ViewModel.StatusFilterIndex, Mode=TwoWay}"
+                SelectedIndex="0"
+                SelectedValue="{x:Bind ViewModel.StatusFilter, Mode=TwoWay}"
+                SelectedValuePath="Tag"
                 HorizontalAlignment="Right"
                 IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}">
                 <control:SegmentedItem
