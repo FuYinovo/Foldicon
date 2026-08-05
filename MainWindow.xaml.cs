@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using Foldicon.Contracts;
+using Foldicon.ViewModels.Page;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
@@ -17,16 +18,28 @@ namespace Foldicon;
 
 public sealed partial class MainWindow
 {
-    private IIconGroupService IconGroupService { get; } = App.Services.GetRequiredService<IIconGroupService>();
-    private INavigationService NavigationService { get; } = App.Services.GetRequiredService<INavigationService>();
+    private IIconGroupService IconGroupService { get; }
+    private INavigationService NavigationService { get; }
     private static readonly Type DefaultPage = typeof(IconEditorPage);
 
     public MainWindow()
     {
         InitializeComponent();
+        IconGroupService = App.Services.GetRequiredService<IIconGroupService>();
+        NavigationService = App.Services.GetRequiredService<INavigationService>();
+
+        Activated += OnActivated;
+    }
+
+    private void OnActivated(object sender, WindowActivatedEventArgs args)
+    {
+        App.Services.GetRequiredService<SettingsPageViewModel>().UpdateTheme(this);
         NavigationService.Initialize(NavigationFrame);
         NavigationService.Navigate(DefaultPage);
+
+        Activated -= OnActivated; // 防止每次从最小化恢复都触发
     }
+
 
     #region UI
 

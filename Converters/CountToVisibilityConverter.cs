@@ -4,6 +4,10 @@ using Microsoft.UI.Xaml.Data;
 
 namespace Foldicon.Converters;
 
+/// <summary>
+/// 将数量转换为可视性
+/// <example>当数字为0时不可见，可以传入true反转此规则</example>
+/// </summary>
 public partial class CountToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)

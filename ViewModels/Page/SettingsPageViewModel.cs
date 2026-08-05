@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
 using Foldicon.Enums;
+using Foldicon.Helpers;
+using Foldicon.Struct;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 
@@ -10,10 +12,23 @@ namespace Foldicon.ViewModels.Page;
 
 public partial class SettingsPageViewModel(IOptionService optionService, MainWindow window) : ObservableObject
 {
+
+    /// <summary>
+    ///     由<see cref="MainWindow"/>调用一次，触发主题更新，与<see cref="OptionData"/>同步
+    /// </summary>
+    /// <param name="_">占位符</param>
+    public void UpdateTheme(MainWindow _)
+    {
+        OnSelectedAppThemeChanged(SelectedAppTheme);
+        OnSelectedAppBackdropChanged(SelectedAppBackdrop);
+    }
+
     #region ItemsSource
 
-    public List<AppThemeEnum> AppThemes { get; } = GetEnumValues<AppThemeEnum>();
-    public List<AppBackdropEnum> AppBackdrops { get; } = GetEnumValues<AppBackdropEnum>();
+    public List<LocalizationItem<AppThemeEnum>> AppThemes { get; } = LocalizationHelper.GetEnums<AppThemeEnum>();
+
+    public List<LocalizationItem<AppBackdropEnum>> AppBackdrops { get; } =
+        LocalizationHelper.GetEnums<AppBackdropEnum>();
 
     #endregion
 
@@ -36,7 +51,14 @@ public partial class SettingsPageViewModel(IOptionService optionService, MainWin
     partial void OnSelectedAppThemeChanged(AppThemeEnum value)
     {
         optionService.Options.AppTheme = value;
-        window.TrySetTheme(ConvertTheme(value));
+        var theme = value switch
+        {
+            AppThemeEnum.System => ElementTheme.Default,
+            AppThemeEnum.Dark => ElementTheme.Dark,
+            AppThemeEnum.Light => ElementTheme.Light,
+            _ => ElementTheme.Default
+        };
+        window.TrySetTheme(theme);
         optionService.SaveAll();
     }
 
@@ -84,21 +106,6 @@ public partial class SettingsPageViewModel(IOptionService optionService, MainWin
         optionService.Options.MaxRecursive = value;
         optionService.SaveAll();
     }
+
     #endregion
-
-    private static List<TEnum> GetEnumValues<TEnum>() where TEnum : struct, Enum
-    {
-        return [.. Enum.GetValues<TEnum>()];
-    }
-
-    private static ElementTheme ConvertTheme(AppThemeEnum theme)
-    {
-        return theme switch
-        {
-            AppThemeEnum.System => ElementTheme.Default,
-            AppThemeEnum.Dark => ElementTheme.Dark,
-            AppThemeEnum.Light => ElementTheme.Light,
-            _ => ElementTheme.Default
-        };
-    }
 }

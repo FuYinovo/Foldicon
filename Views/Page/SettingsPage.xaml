@@ -8,7 +8,12 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:community="using:CommunityToolkit.WinUI.Controls"
     xmlns:winUi="using:CommunityToolkit.WinUI"
+    xmlns:converters="using:Foldicon.Converters"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:EnumToIntConverter x:Key="EnumToIntConverter"/>
+    </Page.Resources>
 
     <Grid>
         <StackPanel Spacing="36">
@@ -20,14 +25,20 @@
                                         Description="指定应用的主题样式"
                                         HeaderIcon="{winUi:FontIcon Glyph=&#xE790;}">
                     <ComboBox
-                        SelectedItem="{x:Bind ViewModel.SelectedAppTheme, Mode=TwoWay}"
+                        SelectedIndex="{x:Bind ViewModel.SelectedAppTheme, Converter={StaticResource EnumToIntConverter}}"
+                        SelectedValue="{x:Bind ViewModel.SelectedAppTheme, Mode=TwoWay}"
+                        SelectedValuePath="Item"
+                        DisplayMemberPath="Localization"
                         ItemsSource="{x:Bind ViewModel.AppThemes}" />
                 </community:SettingsCard>
                 <community:SettingsCard Header="应用背景"
                                         Description="指定应用的背景样式"
                                         HeaderIcon="{winUi:FontIcon Glyph=&#xEF1F;}">
                     <ComboBox
-                        SelectedItem="{x:Bind ViewModel.SelectedAppBackdrop, Mode=TwoWay}"
+                        SelectedIndex="{x:Bind ViewModel.SelectedAppBackdrop, Converter={StaticResource EnumToIntConverter}}"
+                        SelectedValue="{x:Bind ViewModel.SelectedAppBackdrop, Mode=TwoWay}"
+                        SelectedValuePath="Item"
+                        DisplayMemberPath="Localization"
                         ItemsSource="{x:Bind ViewModel.AppBackdrops}" />
                 </community:SettingsCard>
             </StackPanel>

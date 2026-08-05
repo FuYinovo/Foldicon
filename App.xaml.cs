@@ -45,9 +45,9 @@ public partial class App
         builder.AddTransient<IconEditorPageViewModel>();
         builder.AddTransient<IconGroupPageViewModel>();
         builder.AddTransient<IconGroupsDetailPageViewModel>();
-        builder.AddTransient<SettingsPageViewModel>();
         builder.AddTransient<IconGroupInfoDialogViewModel>();
         builder.AddTransient<FolderEntryControlViewModel>();
+        builder.AddSingleton<SettingsPageViewModel>();
 
         // Service
         builder.AddSingleton<IIconGroupService, IconGroupService>();
