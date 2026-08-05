@@ -75,6 +75,6 @@ public sealed partial class FolderEntryControl
     {
         if (sender is not ComboBox box) return;
         // 防止 TwoWay 在虚拟化控件回收时覆写 null 污染数据 -->
-        if (box.SelectedItem is IFolderIcon item) ViewModel?.FolderEntry?.SelectedIcon = item;
+        if (box.SelectedItem is IFolderIcon item) ViewModel.FolderEntry?.SelectedIcon = item;
     }
 }

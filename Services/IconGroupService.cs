@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Struct;

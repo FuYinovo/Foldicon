@@ -24,17 +24,15 @@ public partial class IconGroupPageViewModel(
     INavigationService navigationService) : ObservableObject
 {
     public readonly IIconGroupService IconGroupService = iconGroupService;
-    public readonly IDialogService DialogService = dialogService;
-    public readonly INavigationService NavigationService = navigationService;
 
     /// <summary>
     ///     移除图标组
     /// </summary>
     [RelayCommand]
-    public async Task RemoveGroupAsync(IconGroup group)
+    private async Task RemoveGroupAsync(IconGroup group)
     {
         // 二次确认
-        var result = await DialogService.ShowMessageAsync(
+        var result = await dialogService.ShowMessageAsync(
             $"确定删除\"{group.Name}\"吗？",
             $"导入的{group.Icons.Count}个图标将无法从回收站恢复",
             true);
@@ -48,16 +46,16 @@ public partial class IconGroupPageViewModel(
     ///     编辑图标组信息
     /// </summary>
     [RelayCommand]
-    public async Task EditGroupInfoAsync(IconGroup group)
+    private async Task EditGroupInfoAsync(IconGroup group)
     {
         var content = IconGroupInfoDialog.Create_EditDialog(group);
-        var result = await DialogService.ShowDialogAsync(title: "编辑图标组", content: content);
+        var result = await dialogService.ShowDialogAsync(title: "编辑图标组", content: content);
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await DialogService.ShowMessageAsync("编辑失败", "名称不能为空");
+            await dialogService.ShowMessageAsync("编辑失败", "名称不能为空");
             return;
         }
 
@@ -69,11 +67,11 @@ public partial class IconGroupPageViewModel(
     ///     导入图标
     /// </summary>
     [RelayCommand]
-    public async Task ImportIconAsync(IconGroup group)
+    private async Task ImportIconAsync(IconGroup group)
     {
         // 选取图标
         var icons = await StoragePicker.PickFiles(Services.IconGroupService.IconExtensions,
-            DialogService.WindowId);
+            dialogService.WindowId);
         if (icons.Length == 0) return;
 
         // 导入图标
@@ -84,10 +82,10 @@ public partial class IconGroupPageViewModel(
     ///     导入图标组
     /// </summary>
     [RelayCommand]
-    public async Task ImportGroupAsync()
+    private async Task ImportGroupAsync()
     {
         // 选取文件夹
-        var folder = await StoragePicker.PickFolder(DialogService.WindowId);
+        var folder = await StoragePicker.PickFolder(dialogService.WindowId);
         if (folder is null) return; // 取消操作
 
         // 筛选有效图标
@@ -102,13 +100,13 @@ public partial class IconGroupPageViewModel(
             ? new BitmapIcon { FullPath = icons.First(), Icon = new BitmapImage(new Uri(icons.First())) }
             : null;
         var content = IconGroupInfoDialog.Create_CreateDialog(Path.GetFileName(folder), null, defaultIcon);
-        var result = await DialogService.ShowDialogAsync(title: "创建图标组", content: content);
+        var result = await dialogService.ShowDialogAsync(title: "创建图标组", content: content);
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await DialogService.ShowMessageAsync("导入失败", "名称不能为空");
+            await dialogService.ShowMessageAsync("导入失败", "名称不能为空");
             return;
         }
 
@@ -120,16 +118,16 @@ public partial class IconGroupPageViewModel(
     ///    创建图标组
     /// </summary>
     [RelayCommand]
-    public async Task CreateGroupAsync()
+    private async Task CreateGroupAsync()
     {
         var content = IconGroupInfoDialog.Create_CreateDialog();
-        var result = await DialogService.ShowDialogAsync(title: "创建图标组", content: content);
+        var result = await dialogService.ShowDialogAsync(title: "创建图标组", content: content);
         if (result == ContentDialogResult.None) return; // 取消操作
 
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await DialogService.ShowMessageAsync("创建失败", "名称不能为空");
+            await dialogService.ShowMessageAsync("创建失败", "名称不能为空");
             return;
         }
 
@@ -143,14 +141,14 @@ public partial class IconGroupPageViewModel(
     [RelayCommand]
     private void NavigateGroupPage(IconGroup group)
     {
-        NavigationService.Navigate(typeof(IconGroupsDetailPage), group);
+        navigationService.Navigate(typeof(IconGroupsDetailPage), group);
     }
 
     /// <summary>
     ///     打开图标组所在文件夹
     /// </summary>
     [RelayCommand]
-    public static void OpenGroupFolder(IconGroup group)
+    private static void OpenGroupFolder(IconGroup group)
     {
         Process.Start("explorer.exe", group.RootPath);
     }

@@ -31,7 +31,7 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
     ///     导入图标
     /// </summary>
     [RelayCommand]
-    public async Task ImportIcon()
+    private async Task ImportIcon()
     {
         // 选取图标
         var icons = await StoragePicker.PickFiles(IconGroupService.IconExtensions, dialogService.WindowId);
@@ -45,7 +45,7 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
     ///     删除图标
     /// </summary>
     [RelayCommand]
-    public async Task DeleteIcon(BitmapIcon icon)
+    private async Task DeleteIcon(BitmapIcon icon)
     {
         // 二次确认
         var result = await dialogService.ShowMessageAsync($"确定删除\"{icon.FileName}\"吗？", "此操作将无法从回收站恢复");
@@ -59,7 +59,7 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
     ///     打开图标
     /// </summary>
     [RelayCommand]
-    public static void OpenIconFile(BitmapIcon icon)
+    private static void OpenIconFile(BitmapIcon icon)
     {
         if (icon.FullPath is not null) Process.Start("explorer.exe", icon.FullPath);
     }

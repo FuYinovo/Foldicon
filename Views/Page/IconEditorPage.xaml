@@ -13,12 +13,12 @@
       xmlns:models="using:Foldicon.Models"
       xmlns:enum="using:Foldicon.Enums"
       xmlns:userControl1="using:Foldicon.Views.UserControl"
-      xmlns:class="using:Foldicon.Class"
       mc:Ignorable="d">
 
     <Page.Resources>
         <converterKit:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converterKit:StringFormatConverter x:Key="StringFormatConverter" />
+        <converters:EnumToIntConverter x:Key="EnumToIntConverter"/>
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
     </Page.Resources>
 
@@ -87,7 +87,7 @@
 
         <Grid Grid.Row="2">
             <control:Segmented
-                SelectedIndex="0"
+                SelectedIndex="{x:Bind ViewModel.TypeFilter, Converter={StaticResource EnumToIntConverter}}"
                 SelectedValue="{x:Bind ViewModel.TypeFilter, Mode=TwoWay}"
                 SelectedValuePath="Tag"
                 HorizontalAlignment="Left"
@@ -107,7 +107,7 @@
             </control:Segmented>
 
             <control:Segmented
-                SelectedIndex="0"
+                SelectedIndex="{x:Bind ViewModel.StatusFilter, Converter={StaticResource EnumToIntConverter}}"
                 SelectedValue="{x:Bind ViewModel.StatusFilter, Mode=TwoWay}"
                 SelectedValuePath="Tag"
                 HorizontalAlignment="Right"

@@ -36,6 +36,12 @@ public static partial class IconHelper // 公开方法
         Shell32.SHGetSetFolderCustomSettings(ref settings, folderPath, Shell32.FCS.FCS_FORCEWRITE);
     }
 
+    /// <summary>
+    ///     设置文件夹图标
+    /// </summary>
+    /// <param name="folderPath">文件夹路径</param>
+    /// <param name="dllPath">DLL 文件路径</param>
+    /// <param name="dllIndex">图标在 DLL 文件的索引</param>
     public static void SetFolderIcon(string folderPath, string dllPath, int dllIndex)
     {
         var settings = new Shell32.SHFOLDERCUSTOMSETTINGS
@@ -47,7 +53,12 @@ public static partial class IconHelper // 公开方法
         Shell32.SHGetSetFolderCustomSettings(ref settings, folderPath, Shell32.FCS.FCS_FORCEWRITE);
     }
 
-
+    /// <summary>
+    ///     尝试获取文件图标
+    /// </summary>
+    /// <param name="path">文件路径</param>
+    /// <param name="icon">图标（失败为null）</param>
+    /// <returns>是否成功</returns>
     public static bool TryGetFileIcon(string path, out FolderFileIcon icon)
     {
         if (!File.Exists(path) ||
@@ -62,6 +73,12 @@ public static partial class IconHelper // 公开方法
         return true;
     }
 
+    /// <summary>
+    ///     尝试获取文件夹图标
+    /// </summary>
+    /// <param name="path">文件夹路径</param>
+    /// <param name="icon">图标（失败为null）</param>
+    /// <returns>是否成功</returns>
     public static bool TryGetFolderIcon(string path, out IFolderIcon icon)
     {
         // 获取失败、文件夹不存在、创建位图失败
@@ -125,10 +142,15 @@ public static partial class IconHelper // 公开方法
     }
 
 
-    public static async Task<List<FolderFileIcon>> GetExeIconsAsync(string fullPath, uint maxRecursiveDepth)
+    /// <summary>
+    ///     尝试一个文件夹内所有exe程序的图标
+    /// </summary>
+    /// <param name="path">文件夹路径</param>
+    /// <param name="maxRecursiveDepth">最大递归深度</param>
+    public static async Task<List<FolderFileIcon>> GetExeIconsAsync(string path, uint maxRecursiveDepth)
     {
         List<FolderFileIcon> icons = [];
-        var files = GetFilesRecursive(fullPath, "*.exe", maxRecursiveDepth);
+        var files = GetFilesRecursive(path, "*.exe", maxRecursiveDepth);
         foreach (var file in files)
         {
             if (!TryGetFileIcon(file, out var icon)) continue;
@@ -141,6 +163,10 @@ public static partial class IconHelper // 公开方法
 
 public static partial class IconHelper // 私有方法
 {
+    /// <summary>
+    ///     尝试从<see cref="Shell32.SHFILEINFO"/>获取图标数据并创建<see cref="BitmapImage"/>
+    /// </summary>
+    /// <returns>是否成功</returns>
     private static bool TryCreateBitmapImage(Shell32.SHFILEINFO info, out BitmapImage bitmap)
     {
         if (info.hIcon.IsInvalid || info.hIcon.IsNull)

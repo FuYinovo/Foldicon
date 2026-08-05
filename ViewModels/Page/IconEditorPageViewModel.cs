@@ -18,35 +18,20 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
     #region Status Properties
 
     [ObservableProperty] public partial string ParentFolder { get; set; } = string.Empty;
-
     [ObservableProperty] public partial bool IsSubFoldersLoaded { get; set; }
-
     [ObservableProperty] public partial bool IsSubFoldersLoading { get; set; }
-
-    /// <summary>
-    ///     UI 显示的筛选后列表
-    /// </summary>
-    public ObservableCollection<FolderEntry> FilteredSubFolders { get; } = [];
-
-    /// <summary>
-    ///     完整数据源（未筛选）
-    /// </summary>
     private List<FolderEntry> SubFolders { get; } = [];
 
     #endregion
 
     #region Filter Propertries
 
+    public ObservableCollection<FolderEntry> FilteredSubFolders { get; } = [];
     [ObservableProperty] public partial string NameFilter { get; set; } = string.Empty;
-
     [ObservableProperty] public partial TypeFilterEnum TypeFilter { get; set; } = TypeFilterEnum.All;
-
     [ObservableProperty] public partial StatusFilterEnum StatusFilter { get; set; } = StatusFilterEnum.All;
-
     partial void OnTypeFilterChanged(TypeFilterEnum value) => ApplyFilter();
-
     partial void OnStatusFilterChanged(StatusFilterEnum value) => ApplyFilter();
-
     partial void OnNameFilterChanged(string value) => ApplyFilter();
 
     #endregion
@@ -57,7 +42,7 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
     ///     加载指定文件夹的子文件夹图标
     /// </summary>
     [RelayCommand]
-    public async Task LoadFolderAsync()
+    private async Task LoadFolderAsync()
     {
         var fullPath = await StoragePicker.PickFolder(dialogService.WindowId);
         if (fullPath is not null)

@@ -4,8 +4,8 @@ namespace Foldicon.Contracts;
 
 public interface IFolderIcon
 {
-    BitmapImage Bitmap { get; set; }
-    string DisplayName { get; set; }
+    BitmapImage Bitmap { get; }
+    string DisplayName { get; }
     void ApplyTo(string folder);
     bool Equals(IFolderIcon icon);
 }

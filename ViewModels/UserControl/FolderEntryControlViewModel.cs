@@ -17,7 +17,7 @@ public partial class FolderEntryControlViewModel(IDialogService dialogService) :
     ///     应用选中的自定义图标
     /// </summary>
     [RelayCommand]
-    public void Apply()
+    private void Apply()
     {
         FolderEntry?.Apply();
     }
@@ -26,7 +26,7 @@ public partial class FolderEntryControlViewModel(IDialogService dialogService) :
     ///     使用 FilePicker 选择其他自定义图标
     /// </summary>
     [RelayCommand]
-    public async Task PickIconFromFileAsync()
+    private async Task PickIconFromFileAsync()
     {
         var fullPath = await StoragePicker.PickFile([".exe", ".ico"], dialogService.WindowId);
         if (fullPath is null) return;
@@ -37,7 +37,7 @@ public partial class FolderEntryControlViewModel(IDialogService dialogService) :
     ///     从图标组选择其他自定义图标
     /// </summary>
     [RelayCommand]
-    public async Task PickIconFromGroupAsync(IconGroup group)
+    private async Task PickIconFromGroupAsync(IconGroup group)
     {
         // 弹出选择图标对话框
         var content = new PickIconFromGroupDialog(group);
