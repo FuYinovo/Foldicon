@@ -17,7 +17,7 @@ public class FolderFileIcon(BitmapImage bitmap, string filePath) : IFolderIcon
         IconHelper.SetFolderIcon(folder, FilePath);
     }
 
-    public void SaveAt(string folder)
+    public void Save(string folder)
     {
         var target = Path.Combine(folder, Path.GetFileName(FilePath));
         if (!File.Exists(FilePath)) return;
@@ -26,7 +26,7 @@ public class FolderFileIcon(BitmapImage bitmap, string filePath) : IFolderIcon
         File.Copy(FilePath, target);
     }
 
-    public void RemoveAt(string folder)
+    public void Remove(string folder)
     {
         var fileName = Path.Combine(folder, Path.GetFileName(FilePath));
         if (File.Exists(fileName)) File.Delete(fileName);

@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using Foldicon.Contracts;
 using Microsoft.UI.Xaml.Media.Imaging;
 
@@ -16,11 +17,11 @@ public class FolderSystemIcon(BitmapImage bitmap) : IFolderIcon
         if (File.Exists(desktopIni)) File.Delete(desktopIni);
     }
 
-    public void SaveAt(string folder)
+    public void Save(string folder)
     {
     }
 
-    public void RemoveAt(string folder)
+    public void Remove(string folder)
     {
     }
 

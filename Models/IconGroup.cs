@@ -39,12 +39,14 @@ public partial class IconGroup : ObservableObject
     [JsonIgnore] public string RootPath = string.Empty; // 在 Init() 初始化
     [JsonIgnore] public ObservableCollection<IFolderIcon> Icons { get; set; } = []; // 在 Init() 初始化
     [JsonIgnore] [ObservableProperty] public partial IconGroupLogo Logo { get; set; }
+
     #endregion
 
     #region Json
 
     [ObservableProperty] public partial string Name { get; set; } = string.Empty;
     [ObservableProperty] public partial string Description { get; set; } = string.Empty;
+
     [JsonConverter(typeof(StringCategoryJsonConverter))]
     public ObservableCollection<Category<string>> Categories { get; set; } = [];
 
@@ -73,7 +75,7 @@ public partial class IconGroup : ObservableObject
     /// <param name="icon">图标完整路径</param>
     public void Add(IFolderIcon icon)
     {
-        icon.SaveAt(Path.Combine(RootPath, IconGroupService.IconsFolderName));
+        icon.Save(Path.Combine(RootPath, IconGroupService.IconsFolderName));
         Icons.Add(icon);
     }
 
@@ -83,7 +85,7 @@ public partial class IconGroup : ObservableObject
     /// <param name="icon">图标实例</param>
     public void Remove(IFolderIcon icon)
     {
-        icon.RemoveAt(Path.Combine(RootPath, IconGroupService.IconsFolderName));
+        icon.Remove(Path.Combine(RootPath, IconGroupService.IconsFolderName));
         Icons.Remove(icon);
     }
 

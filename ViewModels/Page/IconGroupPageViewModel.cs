@@ -71,12 +71,29 @@ public partial class IconGroupPageViewModel(
     private async Task ImportIconAsync(IconGroup group)
     {
         // 选取图标
-        var icons = await StoragePicker.PickFiles(Services.IconGroupService.IconExtensions,
+        var iconPaths = await StoragePicker.PickFiles(Services.IconGroupService.IconExtensions,
             dialogService.WindowId);
-        if (icons.Length == 0) return;
 
         // 导入图标
-        foreach (var icon in icons) group.Add(new FolderFileIcon(new BitmapImage(new Uri(icon)), icon));
+        foreach (var path in iconPaths)
+        {
+            var icon = new FolderFileIcon(new BitmapImage(new Uri(path)), path);
+            // 检查是否已导入重复文件名的图标
+            var existedIcon = group.Icons.FirstOrDefault(x =>
+                x is FolderFileIcon file && Path.GetFileName(file.FilePath) == Path.GetFileName(icon.FilePath));
+            if (existedIcon is not null)
+            {
+                var result = await dialogService.ShowMessageAsync(
+                    "是否覆盖重复图标？",
+                    $"{group.Name}图标组中已经存在{icon.ShortDisplayName}图标，是否将其覆盖？",
+                    true
+                );
+                if (result == ContentDialogResult.Primary) group.Remove(existedIcon);
+                else return;
+            }
+
+            group.Add(icon);
+        }
     }
 
     /// <summary>

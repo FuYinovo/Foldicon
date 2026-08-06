@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading.Tasks;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -18,13 +19,16 @@ public class FolderDllIcon(BitmapImage bitmap, string dllPath, int dllIndex) : I
         IconHelper.SetFolderIcon(folder, _dllPath, _dllIndex);
     }
 
-    public void SaveAt(string folder)
+    public void Save(string folder)
     {
     }
 
-    public void RemoveAt(string folder)
+    public void Remove(string folder)
     {
+
     }
+
+
 
     public bool Equals(IFolderIcon icon)
     {
