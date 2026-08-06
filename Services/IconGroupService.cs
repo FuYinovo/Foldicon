@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Struct;
@@ -46,7 +45,8 @@ public class IconGroupService : IIconGroupService
 
             // 读取 Logo
             var logoPath = Path.Combine(groupPath, LogoFileName);
-            if (File.Exists(logoPath)) group.Logo = new BitmapImage(new Uri(logoPath));
+            if (File.Exists(logoPath))
+                group.Logo = new IconGroupLogo { Bitmap = new BitmapImage(new Uri(logoPath)), Path = logoPath };
 
             // 初始化
             group.Init(groupPath);
@@ -63,7 +63,7 @@ public class IconGroupService : IIconGroupService
     /// <param name="description">简介</param>
     /// <param name="logo">Logo</param>
     /// <param name="icons">图标</param>
-    public async void Add(string name, string description, BitmapIcon logo, IEnumerable<string>? icons = null)
+    public async void Add(string name, string description, IconGroupLogo logo, List<IFolderIcon> icons)
     {
         // 创建目录
         var folderPath = Path.Combine(RootPath, Guid.NewGuid().ToString());
@@ -74,7 +74,7 @@ public class IconGroupService : IIconGroupService
         {
             Name = name,
             Description = description,
-            Logo = logo.Icon
+            Logo = logo
         };
 
         // 创建 Json 文件
@@ -83,12 +83,11 @@ public class IconGroupService : IIconGroupService
 
         // 复制 Logo 文件
         var logoPath = Path.Combine(folderPath, LogoFileName);
-        if (logo.FullPath is not null) File.Copy(logo.FullPath, logoPath);
+        File.Copy(logo.Path, logoPath);
 
         // 复制图标
-        if (icons is not null)
-            foreach (var icon in icons)
-                group.Add(icon);
+        foreach (var icon in icons)
+            group.Add(icon);
 
         // 添加到 Service
         Groups.Add(group);
@@ -114,21 +113,21 @@ public class IconGroupService : IIconGroupService
     /// <param name="name">新名称</param>
     /// <param name="description">新简介</param>
     /// <param name="logo">新Logo</param>
-    public async void Edit(IconGroup group, string name, string description, BitmapIcon logo)
+    public async void Edit(IconGroup group, string name, string description, IconGroupLogo logo)
     {
         if (!Groups.Contains(group)) return;
 
         // 修改属性
         group.Name = name;
         group.Description = description;
-        group.Logo = logo.Icon;
+        group.Logo = logo;
 
         // 覆盖 Logo 文件
         var logoPath = Path.Combine(group.RootPath, LogoFileName);
-        if (logo.FullPath is not null && logoPath != logo.FullPath) // 用户可能未修改 Logo
+        if (logoPath != logo.Path) // 用户可能未修改 Logo
         {
             if (File.Exists(logoPath)) File.Delete(logoPath);
-            File.Copy(logo.FullPath, logoPath);
+            File.Copy(logo.Path, logoPath);
         }
 
         // 覆盖 Json 文件

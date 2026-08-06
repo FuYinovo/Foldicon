@@ -1,8 +1,8 @@
+using Foldicon.Contracts;
 using Foldicon.ViewModels.Page;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Navigation;
-using BitmapIcon = Foldicon.Struct.BitmapIcon;
 using IconGroup = Foldicon.Models.IconGroup;
 
 namespace Foldicon.Views.Page;
@@ -25,13 +25,13 @@ public sealed partial class IconGroupsDetailPage
 
     private void Icon_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: BitmapIcon icon })
+        if (sender is FrameworkElement { DataContext: IFolderIcon icon })
             ViewModel.OpenIconFileCommand.Execute(icon);
     }
 
     private void DeleteIcon_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: BitmapIcon icon })
+        if (sender is FrameworkElement { DataContext: IFolderIcon icon })
             ViewModel.DeleteIconCommand.Execute(icon);
     }
 }

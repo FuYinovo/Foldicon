@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using Foldicon.Contracts;
-using Foldicon.Struct;
 using Microsoft.Extensions.DependencyInjection;
 using IconGroup = Foldicon.Models.IconGroup;
 
@@ -22,9 +21,10 @@ public partial class PickIconFromGroupDialogViewModel : ObservableObject
 
     [ObservableProperty] public partial int SelectedIndex { get; set; } = -1;
     [ObservableProperty] public partial string IconNameFilter { get; set; } = string.Empty;
-    [ObservableProperty] public partial ObservableCollection<BitmapIcon> FilteredIcons { get; set; }
+    [ObservableProperty] public partial ObservableCollection<IFolderIcon> FilteredIcons { get; set; }
 
     partial void OnIconNameFilterChanged(string value) => ApplyFilter();
+
     private void ApplyFilter()
     {
         FilteredIcons.Clear();
@@ -33,7 +33,7 @@ public partial class PickIconFromGroupDialogViewModel : ObservableObject
             var comparison = _optionService.Options.IsCaseSensitive
                 ? StringComparison.Ordinal
                 : StringComparison.OrdinalIgnoreCase;
-            if (icon.FileName is not null && icon.FileName.Contains(IconNameFilter,comparison))
+            if (icon.DisplayName.Contains(IconNameFilter, comparison))
                 FilteredIcons.Add(icon);
         }
     }

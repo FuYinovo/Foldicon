@@ -86,7 +86,7 @@
                                 <Image Width="128"
                                        Height="128"
                                        HorizontalAlignment="Left"
-                                       Source="{Binding Logo, Mode=OneWay}" />
+                                       Source="{Binding Logo.Bitmap, Mode=OneWay}" />
                                 <StackPanel Spacing="2" MaxWidth="160">
                                     <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}"
                                                TextWrapping="NoWrap"

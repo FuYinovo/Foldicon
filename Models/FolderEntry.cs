@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -6,7 +5,6 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
 using Foldicon.Models.Icon;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Models;
 
@@ -62,11 +60,9 @@ public partial class FolderEntry : ObservableObject
     /// <summary>
     ///     添加自定义图标并选中
     /// </summary>
-    /// <param name="fullPath">图标完整路径</param>
-    public void AddCustomIcon(string fullPath)
+    /// <param name="icon">图标</param>
+    public void AddCustomIcon(IFolderIcon icon)
     {
-        if (!File.Exists(fullPath)) return;
-        var icon = new FolderFileIcon(new BitmapImage(new Uri(fullPath)), fullPath);
         OptionalIcons.Add(icon);
         SelectedIcon = icon;
     }

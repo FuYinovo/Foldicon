@@ -11,7 +11,7 @@
     xmlns:labs="using:CommunityToolkit.Labs.WinUI"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:converters1="using:Foldicon.Converters"
-    xmlns:struct="using:Foldicon.Struct"
+    xmlns:contracts="using:Foldicon.Contracts"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -20,12 +20,12 @@
         <converters:StringFormatConverter x:Key="StringFormatConverter" />
         <DataTemplate
             x:Key="BigIconDataTemplate"
-            x:DataType="struct:BitmapIcon">
+            x:DataType="contracts:IFolderIcon">
             <Button Width="74"
                     Height="100"
                     Padding="4"
                     Click="Icon_Click"
-                    ToolTipService.ToolTip="{Binding FileName}"
+                    ToolTipService.ToolTip="{Binding DisplayName}"
                     Background="{ThemeResource CardBackgroundFillColorDefault}">
                 <Button.ContextFlyout>
                     <MenuFlyout>
@@ -33,8 +33,8 @@
                     </MenuFlyout>
                 </Button.ContextFlyout>
                 <StackPanel>
-                    <Image Width="64" Height="64" Source="{Binding Icon}" />
-                    <TextBlock Text="{Binding FileName}"
+                    <Image Width="64" Height="64" Source="{Binding Bitmap}" />
+                    <TextBlock Text="{Binding ShortDisplayName}"
                                MaxWidth="60"
                                TextWrapping="NoWrap"
                                TextAlignment="Center" />
@@ -43,19 +43,19 @@
         </DataTemplate>
         <DataTemplate
             x:Key="SmallIconDataTemplate"
-            x:DataType="struct:BitmapIcon">
+            x:DataType="contracts:IFolderIcon">
             <Button Width="40"
                     Height="40"
                     Padding="4"
                     Click="Icon_Click"
-                    ToolTipService.ToolTip="{Binding FileName}"
+                    ToolTipService.ToolTip="{Binding ShortDisplayName}"
                     Background="{ThemeResource CardBackgroundFillColorDefault}">
                 <Button.ContextFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Text="删除图标" Icon="Delete" />
                     </MenuFlyout>
                 </Button.ContextFlyout>
-                <Image Width="32" Height="32" Source="{Binding Icon}" />
+                <Image Width="32" Height="32" Source="{Binding Bitmap}" />
             </Button>
         </DataTemplate>
 

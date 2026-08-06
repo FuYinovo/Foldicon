@@ -7,7 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Foldicon.Converters"
-    xmlns:struct="using:Foldicon.Struct"
+    xmlns:contracts="using:Foldicon.Contracts"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -40,14 +40,14 @@
                 </GridView.ItemContainerStyle>
 
                 <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="struct:BitmapIcon">
+                    <DataTemplate x:DataType="contracts:IFolderIcon">
                         <Border Width="70"
                                 Height="90"
-                                ToolTipService.ToolTip="{Binding FileName}"
+                                ToolTipService.ToolTip="{Binding DisplayName}"
                                 Background="{ThemeResource CardBackgroundFillColorDefault}">
                             <StackPanel VerticalAlignment="Center">
-                                <Image Width="64" Height="64" Source="{Binding Icon}" />
-                                <TextBlock Text="{Binding FileName}"
+                                <Image Width="64" Height="64" Source="{Binding Bitmap}" />
+                                <TextBlock Text="{Binding DisplayName}"
                                            MaxWidth="60"
                                            TextWrapping="NoWrap"
                                            TextAlignment="Center" />

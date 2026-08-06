@@ -8,12 +8,13 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
+using Foldicon.Models.Icon;
+using Foldicon.Struct;
 using Foldicon.Views.Dialog;
 using Foldicon.Views.Page;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
-using BitmapIcon = Foldicon.Struct.BitmapIcon;
 using IconGroup = Foldicon.Models.IconGroup;
 
 namespace Foldicon.ViewModels.Page;
@@ -75,7 +76,7 @@ public partial class IconGroupPageViewModel(
         if (icons.Length == 0) return;
 
         // 导入图标
-        foreach (var icon in icons) group.Add(icon);
+        foreach (var icon in icons) group.Add(new FolderFileIcon(new BitmapImage(new Uri(icon)), icon));
     }
 
     /// <summary>
@@ -90,14 +91,16 @@ public partial class IconGroupPageViewModel(
 
         // 筛选有效图标
         var files = Directory.GetFiles(folder);
-        List<string> icons =
+        List<IFolderIcon> icons =
         [
-            .. files.Where(file => Services.IconGroupService.IconExtensions.Contains(Path.GetExtension(file)))
-        ]; // 检查拓展名
+            .. files
+                .Where(file => Services.IconGroupService.IconExtensions.Contains(Path.GetExtension(file))) // 检查拓展名
+                .Select(file => new FolderFileIcon(new BitmapImage(new Uri(file)), file)) // 创建 FolderFileIcon 实例
+        ];
 
         // 设置图标组信息
-        BitmapIcon? defaultIcon = icons.Count > 0 // 选取第一个图标作为默认 Logo
-            ? new BitmapIcon { FullPath = icons.First(), Icon = new BitmapImage(new Uri(icons.First())) }
+        var defaultIcon = icons.Count > 0 // 选取第一个图标作为默认 Logo
+            ? new IconGroupLogo { Path = ((FolderFileIcon)icons.First()).FilePath, Bitmap = icons.First().Bitmap }
             : null;
         var content = IconGroupInfoDialog.Create_CreateDialog(Path.GetFileName(folder), null, defaultIcon);
         var result = await dialogService.ShowDialogAsync(title: "创建图标组", content: content);
@@ -132,7 +135,7 @@ public partial class IconGroupPageViewModel(
         }
 
         // 创建操作
-        IconGroupService.Add(content.GroupName, content.Description, content.Logo);
+        IconGroupService.Add(content.GroupName, content.Description, content.Logo, []);
     }
 
     /// <summary>

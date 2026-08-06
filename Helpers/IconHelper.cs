@@ -63,13 +63,13 @@ public static partial class IconHelper // 公开方法
     {
         if (!File.Exists(path) ||
             !TryShell32GetIcon(path, false, out var info)
-            || !TryCreateBitmapImage(info, out var bitmap))
+            || !TryCreateBitmapImage(info, out var bitmapData))
         {
             icon = null!;
             return false;
         }
 
-        icon = new FolderFileIcon(bitmap, path);
+        icon = new FolderFileIcon(bitmapData.bitmap, path);
         return true;
     }
 
@@ -84,7 +84,7 @@ public static partial class IconHelper // 公开方法
         // 获取失败、文件夹不存在、创建位图失败
         if (!Directory.Exists(path) ||
             !TryShell32GetIcon(path, true, out var info) ||
-            !TryCreateBitmapImage(info, out var bitmap))
+            !TryCreateBitmapImage(info, out var bitmapData))
         {
             icon = null!;
             return false;
@@ -95,7 +95,7 @@ public static partial class IconHelper // 公开方法
         if (!File.Exists(desktopIni))
         {
             // 系统图标
-            icon = new FolderSystemIcon(bitmap);
+            icon = new FolderSystemIcon(bitmapData.bitmap);
         }
         else
         {
@@ -115,12 +115,12 @@ public static partial class IconHelper // 公开方法
             {
                 // Dll 图标
                 var iconIndex = int.Parse(resource[1]);
-                icon = new FolderDllIcon(bitmap, iconPath, iconIndex);
+                icon = new FolderDllIcon(bitmapData.bitmap, iconPath, iconIndex);
             }
             else
             {
                 // 文件图标
-                icon = new FolderFileIcon(bitmap, iconPath);
+                icon = new FolderFileIcon(bitmapData.bitmap, iconPath);
             }
         }
 
@@ -167,11 +167,11 @@ public static partial class IconHelper // 私有方法
     ///     尝试从<see cref="Shell32.SHFILEINFO"/>获取图标数据并创建<see cref="BitmapImage"/>
     /// </summary>
     /// <returns>是否成功</returns>
-    private static bool TryCreateBitmapImage(Shell32.SHFILEINFO info, out BitmapImage bitmap)
+    private static bool TryCreateBitmapImage(Shell32.SHFILEINFO info, out (BitmapImage bitmap, byte[] bytes) bitmapData)
     {
         if (info.hIcon.IsInvalid || info.hIcon.IsNull)
         {
-            bitmap = null!;
+            bitmapData = (null!,null!);
             return false;
         }
 
@@ -182,8 +182,10 @@ public static partial class IconHelper // 私有方法
         // Bitmap -> MemoryStream -> RandomAccessStream -> BitmapImage
         using var stream = new MemoryStream();
         icon.Save(stream, ImageFormat.Png);
-        bitmap = new BitmapImage();
-        bitmap.SetSource(new MemoryStream(stream.ToArray()).AsRandomAccessStream());
+        var bytes = stream.ToArray();
+        bitmapData.bitmap = new BitmapImage();
+        bitmapData.bitmap.SetSource(new MemoryStream(bytes).AsRandomAccessStream());
+        bitmapData.bytes = bytes;
         return true;
     }
 

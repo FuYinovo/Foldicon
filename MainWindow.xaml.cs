@@ -33,7 +33,7 @@ public sealed partial class MainWindow
 
     private void OnActivated(object sender, WindowActivatedEventArgs args)
     {
-        App.Services.GetRequiredService<SettingsPageViewModel>().UpdateTheme(this);
+        App.Services.GetRequiredService<SettingsPageViewModel>().ApplyRuntimeSettings();
         NavigationService.Initialize(NavigationFrame);
         NavigationService.Navigate(DefaultPage);
 

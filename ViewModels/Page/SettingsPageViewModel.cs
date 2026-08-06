@@ -14,10 +14,9 @@ public partial class SettingsPageViewModel(IOptionService optionService, MainWin
 {
 
     /// <summary>
-    ///     由<see cref="MainWindow"/>调用一次，触发主题更新，与<see cref="OptionData"/>同步
+    ///     将运行时设置应用到程序
     /// </summary>
-    /// <param name="_">占位符</param>
-    public void UpdateTheme(MainWindow _)
+    public void ApplyRuntimeSettings()
     {
         OnSelectedAppThemeChanged(SelectedAppTheme);
         OnSelectedAppBackdropChanged(SelectedAppBackdrop);

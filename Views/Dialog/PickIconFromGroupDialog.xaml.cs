@@ -1,3 +1,4 @@
+using Foldicon.Contracts;
 using Foldicon.ViewModels.Dialog;
 using IconGroup = Foldicon.Models.IconGroup;
 
@@ -13,13 +14,13 @@ public partial class PickIconFromGroupDialog
         InitializeComponent();
     }
 
-    public string? GetSelectedIconPath()
+    public IFolderIcon? GetSelectedIcon()
     {
         var index = ViewModel.SelectedIndex;
         var count = ViewModel.FilteredIcons.Count;
         var icons = ViewModel.FilteredIcons;
 
-        if (index >= 0 && index < count) return icons[index].FullPath;
+        if (index >= 0 && index < count) return icons[index];
         return null;
     }
 }

@@ -3,10 +3,11 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Foldicon.Contracts;
 using Foldicon.Converters;
+using Foldicon.Models.Icon;
 using Foldicon.Services;
 using Foldicon.Struct;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Models;
@@ -33,15 +34,21 @@ public partial class IconGroup : ObservableObject
     {
     }
 
+    #region JsonIgnore
+
     [JsonIgnore] public string RootPath = string.Empty; // 在 Init() 初始化
-    [JsonIgnore] public ObservableCollection<BitmapIcon> Icons { get; set; } = []; // 在 Init() 初始化
+    [JsonIgnore] public ObservableCollection<IFolderIcon> Icons { get; set; } = []; // 在 Init() 初始化
+    [JsonIgnore] [ObservableProperty] public partial IconGroupLogo Logo { get; set; }
+    #endregion
+
+    #region Json
+
     [ObservableProperty] public partial string Name { get; set; } = string.Empty;
     [ObservableProperty] public partial string Description { get; set; } = string.Empty;
-
-    [JsonIgnore] [ObservableProperty] public partial ImageSource Logo { get; set; } = new BitmapImage();
-
     [JsonConverter(typeof(StringCategoryJsonConverter))]
     public ObservableCollection<Category<string>> Categories { get; set; } = [];
+
+    #endregion
 
     /// <summary>
     ///     加载所有图标
@@ -56,7 +63,7 @@ public partial class IconGroup : ObservableObject
         foreach (var iconPath in Directory.GetFiles(iconsPath))
         {
             var bitmap = new BitmapImage(new Uri(iconPath));
-            Icons.Add(new BitmapIcon { FullPath = iconPath, Icon = bitmap });
+            Icons.Add(new FolderFileIcon(bitmap, iconPath));
         }
     }
 
@@ -64,37 +71,21 @@ public partial class IconGroup : ObservableObject
     ///     导入一个图标
     /// </summary>
     /// <param name="icon">图标完整路径</param>
-    public void Add(string icon)
+    public void Add(IFolderIcon icon)
     {
-        // 复制覆盖
-        var targetPath = Path.Combine(RootPath, IconGroupService.IconsFolderName, Path.GetFileName(icon));
-        if (File.Exists(icon))
-        {
-            if (File.Exists(targetPath)) File.Delete(targetPath);
-            File.Copy(icon, targetPath);
-        }
-
-        // 读取 -> BitmapIcon 实例
-        var bitmap = new BitmapImage(new Uri(targetPath));
-        Icons.Add(new BitmapIcon { FullPath = targetPath, Icon = bitmap });
+        icon.SaveAt(Path.Combine(RootPath, IconGroupService.IconsFolderName));
+        Icons.Add(icon);
     }
 
     /// <summary>
     ///     移除一个图标
     /// </summary>
     /// <param name="icon">图标实例</param>
-    public void Remove(BitmapIcon icon)
+    public void Remove(IFolderIcon icon)
     {
-        var path = icon.FullPath;
-        if (path is null) return;
-        // 删除文件
-        if (File.Exists(path)) File.Delete(path);
-        // 删除已加载实例
+        icon.RemoveAt(Path.Combine(RootPath, IconGroupService.IconsFolderName));
         Icons.Remove(icon);
     }
 
-    public override string ToString()
-    {
-        return Name;
-    }
+    public override string ToString() => Name;
 }

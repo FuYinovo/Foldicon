@@ -8,19 +8,21 @@ using Foldicon.Helpers;
 using Foldicon.Services;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
-using BitmapIcon = Foldicon.Struct.BitmapIcon;
 using IconGroup = Foldicon.Models.IconGroup;
 using System.Threading.Tasks;
+using Foldicon.Models.Icon;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class IconGroupsDetailPageViewModel(IDialogService dialogService, IOptionService optionService) : ObservableObject
+public partial class IconGroupsDetailPageViewModel(IDialogService dialogService, IOptionService optionService)
+    : ObservableObject
 {
     public IconGroup Group = new();
 
     #region Filter
 
-    [ObservableProperty] public partial ObservableCollection<BitmapIcon> FilteredIcons { get; set; } = [];
+    [ObservableProperty] public partial ObservableCollection<IFolderIcon> FilteredIcons { get; set; } = [];
     [ObservableProperty] public partial string IconNameFilter { get; set; } = string.Empty;
     partial void OnIconNameFilterChanged(string value) => ApplyFilter();
 
@@ -38,17 +40,17 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
         if (icons.Length == 0) return;
 
         // 导入图标
-        foreach (var icon in icons) Group.Add(icon);
+        foreach (var icon in icons) Group.Add(new FolderFileIcon(new BitmapImage(new Uri(icon)), icon));
     }
 
     /// <summary>
     ///     删除图标
     /// </summary>
     [RelayCommand]
-    private async Task DeleteIcon(BitmapIcon icon)
+    private async Task DeleteIcon(IFolderIcon icon)
     {
         // 二次确认
-        var result = await dialogService.ShowMessageAsync($"确定删除\"{icon.FileName}\"吗？", "此操作将无法从回收站恢复");
+        var result = await dialogService.ShowMessageAsync($"确定删除\"{icon.DisplayName}\"吗？", "此操作将无法从回收站恢复", true);
         if (result == ContentDialogResult.None) return;
 
         // 延迟到下一个UI帧移除（让ContextFlyout先关闭），防止 E_FAIL (0x80004005) 崩溃
@@ -59,9 +61,9 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
     ///     打开图标
     /// </summary>
     [RelayCommand]
-    private static void OpenIconFile(BitmapIcon icon)
+    private static void OpenIconFile(FolderFileIcon icon)
     {
-        if (icon.FullPath is not null) Process.Start("explorer.exe", icon.FullPath);
+        Process.Start("explorer.exe", icon.FilePath);
     }
 
     /// <summary>
@@ -76,7 +78,7 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
             var comparison = optionService.Options.IsCaseSensitive
                 ? StringComparison.Ordinal
                 : StringComparison.OrdinalIgnoreCase;
-            if (icon.FileName is not null && !icon.FileName.Contains(IconNameFilter,comparison)) continue;
+            if (!icon.DisplayName.Contains(IconNameFilter, comparison)) continue;
 
             FilteredIcons.Add(icon);
         }

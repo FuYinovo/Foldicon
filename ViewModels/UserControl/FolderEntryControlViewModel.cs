@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
 using CommunityToolkit.Mvvm.Input;
 using Foldicon.Helpers;
@@ -6,6 +7,8 @@ using Foldicon.Models;
 using Foldicon.Views.Dialog;
 using Microsoft.UI.Xaml.Controls;
 using System.Threading.Tasks;
+using Foldicon.Models.Icon;
+using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.ViewModels.UserControl;
 
@@ -30,7 +33,7 @@ public partial class FolderEntryControlViewModel(IDialogService dialogService) :
     {
         var fullPath = await StoragePicker.PickFile([".exe", ".ico"], dialogService.WindowId);
         if (fullPath is null) return;
-        FolderEntry?.AddCustomIcon(fullPath);
+        FolderEntry?.AddCustomIcon(new FolderFileIcon(new BitmapImage(new Uri(fullPath)),fullPath));
     }
 
     /// <summary>
@@ -44,7 +47,7 @@ public partial class FolderEntryControlViewModel(IDialogService dialogService) :
         var res = await dialogService.ShowDialogAsync(title: $"从\"{group.Name}\" 选择一个图标", content: content);
         if (res == ContentDialogResult.None) return; // 取消操作
 
-        var selectedPath = content.GetSelectedIconPath();
+        var selectedPath = content.GetSelectedIcon();
         if (selectedPath is null)
         {
             // 未选择提示
