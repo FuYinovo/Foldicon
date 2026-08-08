@@ -12,6 +12,8 @@
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:converters1="using:Foldicon.Converters"
     xmlns:contracts="using:Foldicon.Contracts"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:behavior="using:Foldicon.Behavior"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -27,6 +29,9 @@
                     Click="Icon_Click"
                     ToolTipService.ToolTip="{Binding DisplayName}"
                     Background="{ThemeResource CardBackgroundFillColorDefault}">
+                <interactivity:Interaction.Behaviors>
+                    <behavior:DropFileBehavior FileDropped="DropFileBehavior_OnFileDropped" />
+                </interactivity:Interaction.Behaviors>
                 <Button.ContextFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Text="删除图标" Icon="Delete" Click="DeleteIcon_Click" />
@@ -50,6 +55,9 @@
                     Click="Icon_Click"
                     ToolTipService.ToolTip="{Binding ShortDisplayName}"
                     Background="{ThemeResource CardBackgroundFillColorDefault}">
+                <interactivity:Interaction.Behaviors>
+                    <behavior:DropFileBehavior FileDropped="DropFileBehavior_OnFileDropped" />
+                </interactivity:Interaction.Behaviors>
                 <Button.ContextFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Text="删除图标" Icon="Delete" />

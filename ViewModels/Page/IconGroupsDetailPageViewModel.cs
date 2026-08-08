@@ -30,7 +30,6 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
 
     #endregion
 
-
     /// <summary>
     ///     导入图标
     /// </summary>
@@ -61,7 +60,6 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
         }
     }
 
-
     /// <summary>
     ///     删除图标
     /// </summary>
@@ -83,6 +81,16 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
     private static void OpenIconFile(FolderFileIcon icon)
     {
         Process.Start("explorer.exe", icon.FilePath);
+    }
+
+    /// <summary>
+    ///     给多个文件夹应用同一个图标
+    /// </summary>
+    /// <param name="args"></param>
+    [RelayCommand]
+    private void ApplyToFolders((string[] folders, IFolderIcon icon) args)
+    {
+        foreach (var folder in args.folders) args.icon.ApplyTo(folder);
     }
 
     /// <summary>

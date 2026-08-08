@@ -1,3 +1,7 @@
+using System;
+using System.Linq;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
 using Foldicon.Contracts;
 using Foldicon.ViewModels.Page;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +13,8 @@ namespace Foldicon.Views.Page;
 
 public sealed partial class IconGroupsDetailPage
 {
-    private IconGroupsDetailPageViewModel ViewModel { get; } = App.Services.GetRequiredService<IconGroupsDetailPageViewModel>();
+    private IconGroupsDetailPageViewModel ViewModel { get; } =
+        App.Services.GetRequiredService<IconGroupsDetailPageViewModel>();
 
     public IconGroupsDetailPage()
     {
@@ -33,5 +38,20 @@ public sealed partial class IconGroupsDetailPage
     {
         if (sender is FrameworkElement { DataContext: IFolderIcon icon })
             ViewModel.DeleteIconCommand.Execute(icon);
+    }
+
+    private async void DropFileBehavior_OnFileDropped(object sender, DragEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: IFolderIcon icon })
+        {
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                var folders = (await e.DataView.GetStorageItemsAsync())
+                    .Where(item => (item.Attributes & FileAttributes.Directory) != 0) // 有 Directory 标签
+                    .Select(item => item.Path)
+                    .ToArray();
+                ViewModel.ApplyToFoldersCommand.Execute((folders, icon));
+            }
+        }
     }
 }
