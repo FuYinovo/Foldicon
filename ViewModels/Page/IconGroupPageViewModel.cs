@@ -9,9 +9,11 @@ using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Models.Icon;
+using Foldicon.Services;
 using Foldicon.Struct;
 using Foldicon.Views.Dialog;
 using Foldicon.Views.Page;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -79,16 +81,15 @@ public partial class IconGroupPageViewModel(
         {
             var icon = new FolderFileIcon(new BitmapImage(new Uri(path)), path);
             // 检查是否已导入重复文件名的图标
-            var existedIcon = group.Icons.FirstOrDefault(x =>
-                x is FolderFileIcon file && Path.GetFileName(file.FilePath) == Path.GetFileName(icon.FilePath));
-            if (existedIcon is not null)
+            var check = Services.IconGroupService.IsFileIconExists(group, icon);
+            if (check.IsExists)
             {
                 var result = await dialogService.ShowMessageAsync(
                     "是否覆盖重复图标？",
                     $"{group.Name}图标组中已经存在{icon.ShortDisplayName}图标，是否将其覆盖？",
                     true
                 );
-                if (result == ContentDialogResult.Primary) group.Remove(existedIcon);
+                if (result == ContentDialogResult.Primary) group.Remove(check.existedIcons);
                 else return;
             }
 

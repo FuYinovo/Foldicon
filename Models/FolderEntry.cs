@@ -5,6 +5,7 @@ using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
 using Foldicon.Models.Icon;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Foldicon.Models;
 
@@ -44,6 +45,11 @@ public partial class FolderEntry : ObservableObject
 
         AppliedIcon = selectionDefault;
         SelectedIcon = selectionDefault;
+
+        // 设置选项：自动选择一个图标
+        if (currentIcon is FolderSystemIcon &&
+            exeIcons.Count >= 2 &&
+            App.Services.GetRequiredService<IOptionService>().Options.IsAutoSelectIcon) SelectedIcon = exeIcons[1];
     }
 
     /// <summary>

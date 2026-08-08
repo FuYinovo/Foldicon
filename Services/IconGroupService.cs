@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
+using Foldicon.Models.Icon;
 using Foldicon.Struct;
 using Microsoft.UI.Xaml.Media.Imaging;
 using IconGroup = Foldicon.Models.IconGroup;
@@ -133,5 +135,20 @@ public class IconGroupService : IIconGroupService
         // 覆盖 Json 文件
         var jsonPath = Path.Combine(group.RootPath, InfoFileName);
         await File.WriteAllTextAsync(jsonPath, JsonSerializer.Serialize(group));
+    }
+
+    /// <summary>
+    ///     判断一个图标组里是否已经存在相同文件名的<see cref="FolderFileIcon"/>
+    /// </summary>
+    /// <param name="group">目标图标组</param>
+    /// <param name="icon">待验证的图标</param>
+    /// <returns>(是否存在, 命中的<see cref="FolderFileIcon"/>>)</returns>
+    public static (bool IsExists, FolderFileIcon existedIcons) IsFileIconExists(IconGroup group,
+        FolderFileIcon icon)
+    {
+        // 检查是否已导入重复文件名的图标
+        var existedIcon = group.Icons.FirstOrDefault(x =>
+            x is FolderFileIcon file && Path.GetFileName(file.FilePath) == Path.GetFileName(icon.FilePath));
+        return (existedIcon != null, (FolderFileIcon)existedIcon!);
     }
 }
