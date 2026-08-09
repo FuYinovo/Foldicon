@@ -9,14 +9,11 @@ using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Models.Icon;
-using Foldicon.Services;
 using Foldicon.Struct;
 using Foldicon.Views.Dialog;
 using Foldicon.Views.Page;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
 using IconGroup = Foldicon.Models.IconGroup;
 
 namespace Foldicon.ViewModels.Page;
@@ -79,7 +76,7 @@ public partial class IconGroupPageViewModel(
         // 导入图标
         foreach (var path in iconPaths)
         {
-            var icon = new FolderFileIcon(new BitmapImage(new Uri(path)), path);
+            if (!IconHelper.TryGetFileIcon(path, Const.GroupIconSize,out var icon)) continue;
             // 检查是否已导入重复文件名的图标
             var check = Services.IconGroupService.IsFileIconExists(group, icon);
             if (check.IsExists)
@@ -113,7 +110,7 @@ public partial class IconGroupPageViewModel(
         [
             .. files
                 .Where(file => Services.IconGroupService.IconExtensions.Contains(Path.GetExtension(file))) // 检查拓展名
-                .Select(file => new FolderFileIcon(new BitmapImage(new Uri(file)), file)) // 创建 FolderFileIcon 实例
+                .Select(file => IconHelper.TryGetFileIcon(file, Const.GroupIconSize,out var icon) ? icon : null!) // 创建 FolderFileIcon 实例
         ];
 
         // 设置图标组信息

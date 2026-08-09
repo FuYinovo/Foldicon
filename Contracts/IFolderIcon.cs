@@ -1,11 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using Foldicon.Helpers;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Contracts;
 
 public interface IFolderIcon
 {
-    BitmapImage Bitmap { get; }
+    byte[] BitmapBytes { get; }
+    public BitmapImage Bitmap => IconHelper.GetBitmapTemp(this);
+
     string DisplayName { get; }
     string ShortDisplayName { get; }
     void ApplyTo(string folder);

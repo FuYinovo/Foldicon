@@ -2,8 +2,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
@@ -13,7 +11,6 @@ using Microsoft.UI.Xaml.Controls;
 using IconGroup = Foldicon.Models.IconGroup;
 using System.Threading.Tasks;
 using Foldicon.Models.Icon;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.ViewModels.Page;
 
@@ -42,9 +39,9 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
         // 导入图标
         foreach (var path in iconPaths)
         {
-            var icon = new FolderFileIcon(new BitmapImage(new Uri(path)), path);
+            if (!IconHelper.TryGetFileIcon(path,Const.GroupIconSize, out var icon)) continue;
             // 检查是否已导入重复文件名的图标
-            var check = Services.IconGroupService.IsFileIconExists(Group, icon);
+            var check = IconGroupService.IsFileIconExists(Group, icon);
             if (check.IsExists)
             {
                 var result = await dialogService.ShowMessageAsync(

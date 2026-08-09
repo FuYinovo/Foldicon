@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 using Foldicon.Contracts;
 using Foldicon.Models.Icon;
 using IniFileSharp;
@@ -20,6 +20,8 @@ namespace Foldicon.Helpers;
 /// </summary>
 public static partial class IconHelper // 公开方法
 {
+    private static readonly ConditionalWeakTable<IFolderIcon, BitmapImage> BitmapTemps = new();
+
     /// <summary>
     ///     设置文件夹图标
     /// </summary>
@@ -57,19 +59,20 @@ public static partial class IconHelper // 公开方法
     ///     尝试获取文件图标
     /// </summary>
     /// <param name="path">文件路径</param>
+    /// <param name="size">图标尺寸</param>
     /// <param name="icon">图标（失败为null）</param>
     /// <returns>是否成功</returns>
-    public static bool TryGetFileIcon(string path, out FolderFileIcon icon)
+    public static bool TryGetFileIcon(string path, Shell32.SHIL size, out FolderFileIcon icon)
     {
         if (!File.Exists(path) ||
-            !TryShell32GetIcon(path, false, out var info)
-            || !TryCreateBitmapImage(info, out var bitmapData))
+            !TryShell32GetIcon(path, false, size, out var hIcon)
+            || !TryCreateBitmapImage(hIcon, out var bitmapData))
         {
             icon = null!;
             return false;
         }
 
-        icon = new FolderFileIcon(bitmapData.bitmap, path);
+        icon = new FolderFileIcon(bitmapData, path);
         return true;
     }
 
@@ -77,14 +80,15 @@ public static partial class IconHelper // 公开方法
     ///     尝试获取文件夹图标
     /// </summary>
     /// <param name="path">文件夹路径</param>
+    /// <param name="size">图标尺寸</param>
     /// <param name="icon">图标（失败为null）</param>
     /// <returns>是否成功</returns>
-    public static bool TryGetFolderIcon(string path, out IFolderIcon icon)
+    public static bool TryGetFolderIcon(string path, Shell32.SHIL size, out IFolderIcon icon)
     {
         // 获取失败、文件夹不存在、创建位图失败
         if (!Directory.Exists(path) ||
-            !TryShell32GetIcon(path, true, out var info) ||
-            !TryCreateBitmapImage(info, out var bitmapData))
+            !TryShell32GetIcon(path, true, size, out var hIcon) ||
+            !TryCreateBitmapImage(hIcon, out var bitmapData))
         {
             icon = null!;
             return false;
@@ -95,7 +99,7 @@ public static partial class IconHelper // 公开方法
         if (!File.Exists(desktopIni))
         {
             // 系统图标
-            icon = new FolderSystemIcon(bitmapData.bitmap);
+            icon = new FolderSystemIcon(bitmapData);
         }
         else
         {
@@ -115,12 +119,12 @@ public static partial class IconHelper // 公开方法
             {
                 // Dll 图标
                 var iconIndex = int.Parse(resource[1]);
-                icon = new FolderDllIcon(bitmapData.bitmap, iconPath, iconIndex);
+                icon = new FolderDllIcon(bitmapData, iconPath, iconIndex);
             }
             else
             {
                 // 文件图标
-                icon = new FolderFileIcon(bitmapData.bitmap, iconPath);
+                icon = new FolderFileIcon(bitmapData, iconPath);
             }
         }
 
@@ -143,21 +147,37 @@ public static partial class IconHelper // 公开方法
 
 
     /// <summary>
-    ///     尝试一个文件夹内所有exe程序的图标
+    ///     获取一个文件夹内所有文件的图标
     /// </summary>
     /// <param name="path">文件夹路径</param>
+    /// <param name="searchPattern">搜索模式(如"*.exe")</param>
     /// <param name="maxRecursiveDepth">最大递归深度</param>
-    public static async Task<List<FolderFileIcon>> GetExeIconsAsync(string path, uint maxRecursiveDepth)
+    /// <param name="size">图标尺寸</param>
+    public static List<FolderFileIcon> GetExeIcons(string path, string searchPattern,
+        uint maxRecursiveDepth, Shell32.SHIL size)
     {
         List<FolderFileIcon> icons = [];
-        var files = GetFilesRecursive(path, "*.exe", maxRecursiveDepth);
+        var files = GetFilesRecursive(path, searchPattern, maxRecursiveDepth);
         foreach (var file in files)
         {
-            if (!TryGetFileIcon(file, out var icon)) continue;
+            if (!TryGetFileIcon(file, size, out var icon)) continue;
             icons.Add(icon);
         }
 
         return icons;
+    }
+
+    /// <summary>
+    ///     用 <see cref="byte[]"/> 从缓存获取一个 <see cref="BitmapImage"/>
+    /// </summary>
+    public static BitmapImage GetBitmapTemp(IFolderIcon icon)
+    {
+        if (BitmapTemps.TryGetValue(icon, out var bitmapImage)) return bitmapImage;
+
+        var bitmap = new BitmapImage();
+        bitmap.SetSource(new MemoryStream(icon.BitmapBytes).AsRandomAccessStream());
+        BitmapTemps.Add(icon, bitmap);
+        return bitmap;
     }
 }
 
@@ -167,53 +187,79 @@ public static partial class IconHelper // 私有方法
     ///     尝试从<see cref="Shell32.SHFILEINFO"/>获取图标数据并创建<see cref="BitmapImage"/>
     /// </summary>
     /// <returns>是否成功</returns>
-    private static bool TryCreateBitmapImage(Shell32.SHFILEINFO info, out (BitmapImage bitmap, byte[] bytes) bitmapData)
+    private static bool TryCreateBitmapImage(User32.SafeHICON hIcon, out byte[] bitmapData)
     {
-        if (info.hIcon.IsInvalid || info.hIcon.IsNull)
+        if (hIcon.IsInvalid || hIcon.IsNull)
         {
-            bitmapData = (null!,null!);
+            bitmapData = null!;
             return false;
         }
 
         // 使用 Icon.FromHandle，防止 Bitmap.FromHIcon 丢失透明度
-        using var icon = Icon.FromHandle(info.hIcon.DangerousGetHandle()).ToBitmap();
-        User32.DestroyIcon(info.hIcon);
+        using var icon = Icon.FromHandle(hIcon.DangerousGetHandle()).ToBitmap();
+        User32.DestroyIcon(hIcon);
 
         // Bitmap -> MemoryStream -> RandomAccessStream -> BitmapImage
         using var stream = new MemoryStream();
         icon.Save(stream, ImageFormat.Png);
-        var bytes = stream.ToArray();
-        bitmapData.bitmap = new BitmapImage();
-        bitmapData.bitmap.SetSource(new MemoryStream(bytes).AsRandomAccessStream());
-        bitmapData.bytes = bytes;
+        bitmapData = stream.ToArray();
         return true;
     }
 
     /// <summary>
-    ///     尝试使用 Shell32 获取文件或文件夹的图标信息
+    ///     尝试使用 Shell32 获取文件或文件夹的最大图标（256×256）
     /// </summary>
     /// <para>警告：路径斜杠必须为"\"</para>
     /// <param name="path">完整路径</param>
     /// <param name="isFolder">是否为文件夹</param>
-    /// <param name="iconInfo">接收图标信息的 <see cref="Shell32.SHFILEINFO" /></param>
-    /// <example>路径斜杠错误</example>
+    /// <param name="size">图标尺寸</param>
+    /// <param name="hIcon">
+    ///     图标的 <see cref="User32.SafeHICON" />，调用方负责用 <c>using</c> 释放
+    /// </param>
+    /// <exception cref="Exception">路径斜杠错误</exception>
     /// <returns>是否成功</returns>
-    private static bool TryShell32GetIcon(string path, bool isFolder, out Shell32.SHFILEINFO iconInfo)
+    private static bool TryShell32GetIcon(string path, bool isFolder, Shell32.SHIL size, out User32.SafeHICON hIcon)
     {
-        if (path.Contains('/')) throw new Exception("路径斜杠必须为Windows的'\'分隔符");
+        if (path.Contains('/')) throw new Exception("路径斜杠必须为Windows的'\\'分隔符");
 
+        hIcon = null!;
         var info = new Shell32.SHFILEINFO();
-        var state = Shell32.SHGetFileInfo(
+
+        // 获取图标在系统共享图标列表的 index
+        var _1 = Shell32.SHGetFileInfo(
             path,
             isFolder ? FileAttributes.Directory : FileAttributes.Normal,
             ref info,
             Marshal.SizeOf(info),
-            // ICON：获取图标 | LARGE_ICON：获取大图标       【必须要有ICON】
-            Shell32.SHGFI.SHGFI_LARGEICON | Shell32.SHGFI.SHGFI_ICON
+            Shell32.SHGFI.SHGFI_ICON | Shell32.SHGFI.SHGFI_SYSICONINDEX
         );
-        iconInfo = info;
-        return state != IntPtr.Zero;
+        if (_1 == IntPtr.Zero) return false;
+        User32.DestroyIcon(info.hIcon); // 不需要小图标
+        var imageIndex = info.iIcon; // index
+
+        // 获取系统共享图标列表
+        var _2 = Shell32.SHGetImageList(
+            size, // 指定图标尺寸
+            typeof(ComCtl32.IImageList).GUID,
+            out var imageListOut
+        );
+        if (!_2.Succeeded || imageListOut is not ComCtl32.IImageList imageList) return false; // object => IImageList
+        try
+        {
+            // 通过 index 在系统共享图标列表获取 hIcon
+            hIcon = imageList.GetIcon(imageIndex, ComCtl32.IMAGELISTDRAWFLAGS.ILD_TRANSPARENT);
+            return hIcon is { IsNull: false, IsInvalid: false };
+        }
+        catch
+        {
+            return false;
+        }
+        finally
+        {
+            Marshal.ReleaseComObject(imageList); // 释放系统共享图标列表的引用
+        }
     }
+
 
     /// <summary>
     /// 递归获取文件夹中所有文件

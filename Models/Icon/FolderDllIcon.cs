@@ -1,14 +1,12 @@
 ﻿using System.IO;
-using System.Threading.Tasks;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Models.Icon;
 
-public class FolderDllIcon(BitmapImage bitmap, string dllPath, int dllIndex) : IFolderIcon
+public class FolderDllIcon(byte[] bitmapBytes, string dllPath, int dllIndex) : IFolderIcon
 {
-    public BitmapImage Bitmap { get; } = bitmap;
+    public byte[] BitmapBytes { get; } = bitmapBytes;
     public string DisplayName { get; } = $"{dllPath} - [{dllIndex}]";
     public string ShortDisplayName { get; } = $"{Path.GetFileName(dllPath)} - [{dllIndex}]";
     private readonly string _dllPath = dllPath;
@@ -25,9 +23,7 @@ public class FolderDllIcon(BitmapImage bitmap, string dllPath, int dllIndex) : I
 
     public void Remove(string folder)
     {
-
     }
-
 
 
     public bool Equals(IFolderIcon icon)
