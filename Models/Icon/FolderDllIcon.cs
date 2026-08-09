@@ -1,5 +1,5 @@
-﻿using System;
 using System.IO;
+using System;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Microsoft.UI.Xaml.Media.Imaging;
