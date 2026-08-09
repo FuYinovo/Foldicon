@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -126,15 +127,24 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
         SubFolders.Clear();
 
         // 并行获取子文件夹图标
-        foreach (var path in Directory.GetDirectories(ParentFolder))
-        {
-            if (!IconHelper.TryGetFolderIcon(path, out var icon)) continue;
-            var maxDepth = optionService.Options.IsRecursive ? optionService.Options.MaxRecursive : 1;
-            var exeIcons = await IconHelper.GetExeIconsAsync(path, (uint)maxDepth);
-            var entry = new FolderEntry(path, icon, exeIcons);
-            SubFolders.Add(entry);
-        }
+        List<Task<FolderEntry?>> tasks =
+        [
+            .. Directory.GetDirectories(ParentFolder)
+                .Select(path => Task.Run(() =>
+                {
+                    if (!IconHelper.TryGetFolderIcon(path, Const.FolderIconSize, out var icon)) return null;
+                    var maxRecursive =
+                        (uint)(optionService.Options.IsRecursive ? optionService.Options.MaxRecursive : 1);
+                    var exeIcons = IconHelper.GetExeIcons(path, "*.exe", maxRecursive, Const.FolderIconSize);
+                    var entry = new FolderEntry(path, icon, exeIcons);
+                    return entry;
+                }))
+        ];
 
+        await Task.WhenAll(tasks);
+        SubFolders
+            .AddRange(tasks.Where(task => task.Result != null)
+                .Select(task => task.Result!));
         ApplyFilter();
     }
 

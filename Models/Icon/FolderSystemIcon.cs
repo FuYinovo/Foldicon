@@ -1,15 +1,28 @@
-﻿using System.IO;
-using System.Threading.Tasks;
+﻿using System;
+using System.IO;
 using Foldicon.Contracts;
+using Foldicon.Helpers;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Models.Icon;
 
-public class FolderSystemIcon(BitmapImage bitmap) : IFolderIcon
+public class FolderSystemIcon(byte[] bitmapBytes) : IFolderIcon
 {
-    public BitmapImage Bitmap { get; } = bitmap;
-    public string DisplayName { get; } = "系统默认";
-    public string ShortDisplayName { get; } = "系统默认";
+    public byte[] BitmapBytes { get; } = bitmapBytes;
+
+    public BitmapImage Bitmap
+    {
+        get
+        {
+            if (field != null) return field;
+            field = IconHelper.CreateBitmap(BitmapBytes ?? throw new Exception("byte[] BitmapBytes is null"));
+            return field;
+        }
+        set;
+    }
+
+    public string DisplayName => "系统默认";
+    public string ShortDisplayName => "系统默认";
 
     public void ApplyTo(string folder)
     {

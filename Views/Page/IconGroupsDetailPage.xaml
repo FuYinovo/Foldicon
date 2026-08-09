@@ -27,7 +27,7 @@
                     Height="100"
                     Padding="4"
                     Click="Icon_Click"
-                    ToolTipService.ToolTip="{Binding DisplayName}"
+                    ToolTipService.ToolTip="{x:Bind DisplayName}"
                     Background="{ThemeResource CardBackgroundFillColorDefault}">
                 <interactivity:Interaction.Behaviors>
                     <behavior:DropFileBehavior FileDropped="DropFileBehavior_OnFileDropped" />
@@ -38,8 +38,8 @@
                     </MenuFlyout>
                 </Button.ContextFlyout>
                 <StackPanel>
-                    <Image Width="64" Height="64" Source="{Binding Bitmap}" />
-                    <TextBlock Text="{Binding ShortDisplayName}"
+                    <Image Width="64" Height="64" Source="{x:Bind Bitmap}" />
+                    <TextBlock Text="{x:Bind ShortDisplayName}"
                                MaxWidth="60"
                                TextWrapping="NoWrap"
                                TextAlignment="Center" />
@@ -53,7 +53,7 @@
                     Height="40"
                     Padding="4"
                     Click="Icon_Click"
-                    ToolTipService.ToolTip="{Binding ShortDisplayName}"
+                    ToolTipService.ToolTip="{x:Bind ShortDisplayName}"
                     Background="{ThemeResource CardBackgroundFillColorDefault}">
                 <interactivity:Interaction.Behaviors>
                     <behavior:DropFileBehavior FileDropped="DropFileBehavior_OnFileDropped" />
@@ -63,7 +63,7 @@
                         <MenuFlyoutItem Text="删除图标" Icon="Delete" />
                     </MenuFlyout>
                 </Button.ContextFlyout>
-                <Image Width="32" Height="32" Source="{Binding Bitmap}" />
+                <Image Width="32" Height="32" Source="{x:Bind Bitmap}" />
             </Button>
         </DataTemplate>
 

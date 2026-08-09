@@ -1,5 +1,4 @@
-﻿using System;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
 using CommunityToolkit.Mvvm.Input;
 using Foldicon.Helpers;
@@ -7,8 +6,6 @@ using Foldicon.Models;
 using Foldicon.Views.Dialog;
 using Microsoft.UI.Xaml.Controls;
 using System.Threading.Tasks;
-using Foldicon.Models.Icon;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.ViewModels.UserControl;
 
@@ -31,9 +28,9 @@ public partial class FolderEntryControlViewModel(IDialogService dialogService) :
     [RelayCommand]
     private async Task PickIconFromFileAsync()
     {
-        var fullPath = await StoragePicker.PickFile([".exe", ".ico"], dialogService.WindowId);
-        if (fullPath is null) return;
-        FolderEntry?.AddCustomIcon(new FolderFileIcon(new BitmapImage(new Uri(fullPath)),fullPath));
+        var path = await StoragePicker.PickFile([".exe", ".ico"], dialogService.WindowId);
+        if (path is null) return;
+        if (IconHelper.TryGetFileIcon(path, Const.FolderIconSize, out var icon)) FolderEntry?.AddCustomIcon(icon);
     }
 
     /// <summary>

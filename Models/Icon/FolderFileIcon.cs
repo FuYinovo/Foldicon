@@ -1,16 +1,45 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Models.Icon;
 
-public class FolderFileIcon(BitmapImage bitmap, string filePath) : IFolderIcon
+public class FolderFileIcon : IFolderIcon
 {
-    public BitmapImage Bitmap { get; } = bitmap;
-    public string DisplayName { get; } = filePath;
-    public string ShortDisplayName { get; } = Path.GetFileName(filePath);
-    public string FilePath { get; } = filePath;
+    public byte[]? BitmapBytes { get; }
+
+    public BitmapImage Bitmap
+    {
+        get
+        {
+            if (field != null) return field;
+            field = IconHelper.CreateBitmap(BitmapBytes ?? throw new Exception("byte[] BitmapBytes is null"));
+            return field;
+        }
+        set;
+    }
+
+    public string DisplayName { get; }
+    public string ShortDisplayName { get; }
+    public string FilePath { get; }
+
+    public FolderFileIcon(byte[] bitmapBytes, string filePath)
+    {
+        BitmapBytes = bitmapBytes;
+        DisplayName = filePath;
+        ShortDisplayName = Path.GetFileName(filePath);
+        FilePath = filePath;
+    }
+
+    public FolderFileIcon(string filePath)
+    {
+        Bitmap = new BitmapImage(new Uri(filePath));
+        DisplayName = filePath;
+        ShortDisplayName = Path.GetFileName(filePath);
+        FilePath = filePath;
+    }
 
     public void ApplyTo(string folder)
     {

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
@@ -9,7 +7,6 @@ using Foldicon.Converters;
 using Foldicon.Models.Icon;
 using Foldicon.Services;
 using Foldicon.Struct;
-using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.Models;
 
@@ -65,8 +62,8 @@ public partial class IconGroup : ObservableObject
         if (!Directory.Exists(iconsPath)) Directory.CreateDirectory(iconsPath);
         foreach (var iconPath in Directory.GetFiles(iconsPath))
         {
-            var bitmap = new BitmapImage(new Uri(iconPath));
-            Icons.Add(new FolderFileIcon(bitmap, iconPath));
+
+             Icons.Add(new FolderFileIcon(iconPath));
         }
     }
 
