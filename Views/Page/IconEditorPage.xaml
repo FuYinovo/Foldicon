@@ -18,7 +18,7 @@
     <Page.Resources>
         <converterKit:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
         <converterKit:StringFormatConverter x:Key="StringFormatConverter" />
-        <converters:EnumToIntConverter x:Key="EnumToIntConverter"/>
+        <converters:EnumToIntConverter x:Key="EnumToIntConverter" />
         <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
     </Page.Resources>
 
@@ -37,15 +37,15 @@
                 <TextBlock Text="图标编辑器"
                            Style="{ThemeResource TitleLargeTextBlockStyle}" />
                 <TextBlock
-                    Text="{x:Bind ViewModel.FilteredSubFolders.Count, Mode=OneWay, Converter={StaticResource StringFormatConverter},ConverterParameter=' {0}个文件夹'}"
-                    Visibility="{x:Bind ViewModel.FilteredSubFolders.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
+                    Text="{x:Bind ViewModel.FilteredFolders.Count, Mode=OneWay, Converter={StaticResource StringFormatConverter},ConverterParameter=' {0}个文件夹'}"
+                    Visibility="{x:Bind ViewModel.FilteredFolders.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
                     Opacity=".6"
                     VerticalAlignment="Bottom"
                     Padding="0,0,0,5"
                     Style="{ThemeResource SubtitleTextBlockStyle}" />
                 <TextBlock
                     Text="{x:Bind ViewModel.ParentFolder, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='  ( {0} )'}"
-                    Visibility="{x:Bind ViewModel.FilteredSubFolders.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
+                    Visibility="{x:Bind ViewModel.FilteredFolders.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
                     Opacity=".6"
                     VerticalAlignment="Bottom"
                     Padding="0,0,0,5"
@@ -63,19 +63,19 @@
                     Width="200"
                     PlaceholderText="搜索文件夹名称..."
                     QueryIcon="Find"
-                    IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}" />
+                    IsEnabled="{x:Bind ViewModel.IsFoldersLoaded, Mode=OneWay}" />
 
                 <Button
                     VerticalAlignment="Bottom"
                     Content="打开文件夹"
-                    Command="{x:Bind ViewModel.LoadFolderCommand}"/>
+                    Command="{x:Bind ViewModel.LoadFolderCommand}" />
 
                 <Button
                     Style="{ThemeResource AccentButtonStyle}"
                     VerticalAlignment="Bottom"
                     Command="{x:Bind ViewModel.ApplyAllCommand}"
                     Content="全部应用"
-                    IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}" />
+                    IsEnabled="{x:Bind ViewModel.IsFoldersLoaded, Mode=OneWay}" />
             </StackPanel>
         </Grid>
 
@@ -91,7 +91,7 @@
                 SelectedValue="{x:Bind ViewModel.TypeFilter, Mode=TwoWay}"
                 SelectedValuePath="Tag"
                 HorizontalAlignment="Left"
-                IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}">
+                IsEnabled="{x:Bind ViewModel.IsFoldersLoaded, Mode=OneWay}">
                 <control:SegmentedItem
                     Icon="{ui:FontIcon Glyph=&#xE8A9;}"
                     Tag="{x:Bind enum:TypeFilterEnum.All}"
@@ -111,7 +111,7 @@
                 SelectedValue="{x:Bind ViewModel.StatusFilter, Mode=TwoWay}"
                 SelectedValuePath="Tag"
                 HorizontalAlignment="Right"
-                IsEnabled="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay}">
+                IsEnabled="{x:Bind ViewModel.IsFoldersLoaded, Mode=OneWay}">
                 <control:SegmentedItem
                     Tag="{x:Bind enum:StatusFilterEnum.All}"
                     Icon="{ui:FontIcon Glyph=&#xE8A9;}"
@@ -129,8 +129,8 @@
 
         <Grid Grid.Row="3">
             <ScrollViewer
-                Visibility="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                <ItemsRepeater ItemsSource="{x:Bind ViewModel.FilteredSubFolders, Mode=OneWay}">
+                Visibility="{x:Bind ViewModel.IsFoldersLoaded, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ItemsRepeater ItemsSource="{x:Bind ViewModel.FilteredFolders, Mode=OneWay}">
                     <ItemsRepeater.ItemTemplate>
                         <DataTemplate x:DataType="models:FolderEntry">
                             <userControl1:FolderEntryControl FolderEntry="{x:Bind}" />
@@ -142,7 +142,7 @@
                 </ItemsRepeater>
             </ScrollViewer>
 
-            <control:SwitchPresenter Value="{x:Bind ViewModel.IsSubFoldersLoading.ToString(), Mode=OneWay}">
+            <control:SwitchPresenter Value="{x:Bind ViewModel.IsFoldersLoading.ToString(), Mode=OneWay}">
                 <control:Case Value="True">
                     <StackPanel
                         Padding="24"
@@ -155,7 +155,7 @@
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Top" />
                         <ProgressBar Width="180"
-                                     IsIndeterminate="True" />
+                                     Value="{x:Bind ViewModel.FoldersLoadingPercentage, Mode=OneWay}" />
                     </StackPanel>
                 </control:Case>
                 <control:Case Value="False">
@@ -166,7 +166,7 @@
                                TextAlignment="Center"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               Visibility="{x:Bind ViewModel.IsSubFoldersLoaded, Mode=OneWay,
+                               Visibility="{x:Bind ViewModel.IsFoldersLoaded, Mode=OneWay,
                        Converter={StaticResource BoolToVisibilityConverter},
                        ConverterParameter=True}" />
                 </control:Case>

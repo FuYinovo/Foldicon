@@ -142,7 +142,6 @@ public static partial class IconHelper // 公开方法
         }
     }
 
-
     /// <summary>
     ///     获取一个文件夹内所有文件的图标
     /// </summary>
@@ -150,7 +149,7 @@ public static partial class IconHelper // 公开方法
     /// <param name="searchPattern">搜索模式(如"*.exe")</param>
     /// <param name="maxRecursiveDepth">最大递归深度</param>
     /// <param name="size">图标尺寸</param>
-    public static List<FolderFileIcon> GetExeIcons(string path, string searchPattern,
+    public static List<FolderFileIcon> GetFilesIcon(string path, string searchPattern,
         uint maxRecursiveDepth, Shell32.SHIL size)
     {
         List<FolderFileIcon> icons = [];

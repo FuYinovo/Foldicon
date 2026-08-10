@@ -9,6 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
 using Foldicon.Enums;
 using Foldicon.Helpers;
+using Foldicon.Struct;
 using FolderEntry = Foldicon.Models.FolderEntry;
 
 namespace Foldicon.ViewModels.Page;
@@ -19,15 +20,16 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
     #region Status Properties
 
     [ObservableProperty] public partial string ParentFolder { get; set; } = string.Empty;
-    [ObservableProperty] public partial bool IsSubFoldersLoaded { get; set; }
-    [ObservableProperty] public partial bool IsSubFoldersLoading { get; set; }
+    [ObservableProperty] public partial bool IsFoldersLoaded { get; set; }
+    [ObservableProperty] public partial bool IsFoldersLoading { get; set; }
+    [ObservableProperty] public partial double FoldersLoadingPercentage { get; set; } = 0; // 范围:[0,100]
     private List<FolderEntry> SubFolders { get; } = [];
 
     #endregion
 
     #region Filter Propertries
 
-    public ObservableCollection<FolderEntry> FilteredSubFolders { get; } = [];
+    public ObservableCollection<FolderEntry> FilteredFolders { get; } = [];
     [ObservableProperty] public partial string NameFilter { get; set; } = string.Empty;
     [ObservableProperty] public partial TypeFilterEnum TypeFilter { get; set; } = TypeFilterEnum.All;
     [ObservableProperty] public partial StatusFilterEnum StatusFilter { get; set; } = StatusFilterEnum.All;
@@ -49,11 +51,11 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
         if (fullPath is not null)
         {
             ParentFolder = fullPath;
-            IsSubFoldersLoaded = false;
-            IsSubFoldersLoading = true;
-            await RefreshSubfoldersAsync();
-            IsSubFoldersLoaded = true;
-            IsSubFoldersLoading = false;
+            IsFoldersLoaded = false;
+            IsFoldersLoading = true;
+            await RefreshSubfoldersAsync(new Progress<Percentage>(p => FoldersLoadingPercentage = p.Value * 100));
+            IsFoldersLoaded = true;
+            IsFoldersLoading = false;
         }
     }
 
@@ -71,11 +73,11 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
     #region Private
 
     /// <summary>
-    ///     根据当前筛选条件刷新 FilteredSubFolders
+    ///     根据当前筛选条件刷新 <see cref="FilteredFolders"/>
     /// </summary>
     private void ApplyFilter()
     {
-        FilteredSubFolders.Clear();
+        FilteredFolders.Clear();
         foreach (var folder in SubFolders)
         {
             // 名称筛选
@@ -114,38 +116,55 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
                     throw new ArgumentOutOfRangeException();
             }
 
-            FilteredSubFolders.Add(folder);
+            FilteredFolders.Add(folder);
         }
     }
 
     /// <summary>
     ///     刷新子文件夹列表
     /// </summary>
-    private async Task RefreshSubfoldersAsync()
+    private async Task RefreshSubfoldersAsync(IProgress<Percentage>? progress)
     {
         if (!Directory.Exists(ParentFolder)) return;
         SubFolders.Clear();
 
         // 并行获取子文件夹图标
+        var loadedCount = 0; // Progress
+        var directories = Directory.GetDirectories(ParentFolder);
         List<Task<FolderEntry?>> tasks =
         [
-            .. Directory.GetDirectories(ParentFolder)
-                .Select(path => Task.Run(() =>
+            .. directories.Select(path => Task.Run(() =>
+            {
+                if (!IconHelper.TryGetFolderIcon(path, Const.FolderIconSize, out var icon))
                 {
-                    if (!IconHelper.TryGetFolderIcon(path, Const.FolderIconSize, out var icon)) return null;
-                    var maxRecursive =
-                        (uint)(optionService.Options.IsRecursive ? optionService.Options.MaxRecursive : 1);
-                    var exeIcons = IconHelper.GetExeIcons(path, "*.exe", maxRecursive, Const.FolderIconSize);
-                    var entry = new FolderEntry(path, icon, exeIcons);
-                    return entry;
-                }))
+                    ReportProgress();
+                    return null;
+                }
+
+                var maxRecursive =
+                    (uint)(optionService.Options.IsRecursive ? optionService.Options.MaxRecursive : 1);
+                var exeIcons = IconHelper.GetFilesIcon(path, "*.exe", maxRecursive, Const.FolderIconSize);
+                var entry = new FolderEntry(path, icon, exeIcons);
+
+                ReportProgress();
+                return entry;
+            }))
         ];
 
         await Task.WhenAll(tasks);
         SubFolders
-            .AddRange(tasks.Where(task => task.Result != null)
+            .AddRange(tasks
+                .Where(task => task.Result != null)
                 .Select(task => task.Result!));
         ApplyFilter();
+
+        return;
+
+        void ReportProgress()
+        {
+            loadedCount += 1;
+            progress?.Report(new Percentage { Now = loadedCount, Max = directories.Length });
+        }
     }
 
     #endregion
