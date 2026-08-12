@@ -2,27 +2,18 @@
 using System.Threading.Tasks;
 using Foldicon.Contracts;
 using Foldicon.Views.Dialog;
-using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Foldicon.Services;
 
-public class DialogService(MainWindow? window) : IDialogService
+public class DialogService : IDialogService
 {
-    public MainWindow Window { get; private set; } = window!;  // Fresh() 兜底
-
-    public WindowId WindowId
-    {
-        get
-        {
-            Refresh();
-            return Window.AppWindow.Id;
-        }
-    }
+    private MainWindow? _window;
+    public MainWindow Window => _window ?? throw new Exception("未调用 IDialogService.Initialize() 进行初始化");
+    public void Initialize(MainWindow window) => _window = window;
 
     public async Task<ContentDialogResult> ShowDialogAsync(ContentDialog dialog)
     {
-        Refresh();
         dialog.RequestedTheme = Window.GetRequestedTheme();
         dialog.XamlRoot = Window.Content.XamlRoot;
         return await dialog.ShowAsync();
@@ -36,7 +27,6 @@ public class DialogService(MainWindow? window) : IDialogService
         object? content = null,
         ContentDialogButton defaultButton = ContentDialogButton.Primary)
     {
-        Refresh();
         return await new ContentDialog
         {
             RequestedTheme = Window.GetRequestedTheme(),
@@ -52,7 +42,6 @@ public class DialogService(MainWindow? window) : IDialogService
 
     public async Task<ContentDialogResult> ShowMessageAsync(string title, string message, bool closeButton = false)
     {
-        Refresh();
         return await new ContentDialog
         {
             RequestedTheme = Window.GetRequestedTheme(),
@@ -64,9 +53,4 @@ public class DialogService(MainWindow? window) : IDialogService
             XamlRoot = Window.Content.XamlRoot
         }.ShowAsync();
     }
-
-    /// <summary>
-    /// 修复 Service 注册顺序导致的 null
-    /// </summary>
-    private void Refresh() => Window = App.MainWindow;
 }

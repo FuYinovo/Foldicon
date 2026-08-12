@@ -144,7 +144,7 @@ public partial class IconEditorPageViewModel(IDialogService dialogService, IOpti
                 var maxRecursive =
                     (uint)(optionService.Options.IsRecursive ? optionService.Options.MaxRecursive : 1);
                 var exeIcons = IconHelper.GetFilesIcon(path, "*.exe", maxRecursive, Const.FolderIconSize);
-                var entry = new FolderEntry(path, icon, exeIcons);
+                var entry = new FolderEntry(path, icon, exeIcons, optionService.Options.IsAutoSelectIcon);
 
                 ReportProgress();
                 return entry;

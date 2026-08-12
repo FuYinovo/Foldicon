@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using ABI.Microsoft.UI.Windowing;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
 
@@ -6,8 +8,10 @@ namespace Foldicon.Contracts;
 
 public interface IDialogService
 {
+    void Initialize(MainWindow window);
     MainWindow Window { get; }
-    WindowId WindowId { get; }
+    WindowId WindowId => Window.AppWindow.Id;
+
     Task<ContentDialogResult> ShowDialogAsync(ContentDialog dialog);
 
     Task<ContentDialogResult> ShowDialogAsync(

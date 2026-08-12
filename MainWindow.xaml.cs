@@ -1,6 +1,9 @@
 using System;
 using System.Diagnostics;
+using CommunityToolkit.Mvvm.Messaging;
 using Foldicon.Contracts;
+using Foldicon.Enums;
+using Foldicon.Messages;
 using Foldicon.ViewModels.Page;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Composition.SystemBackdrops;
@@ -20,26 +23,100 @@ public sealed partial class MainWindow
 {
     private IIconGroupService IconGroupService { get; }
     private INavigationService NavigationService { get; }
+    private IDialogService DialogService { get; }
     private static readonly Type DefaultPage = typeof(IconEditorPage);
 
     public MainWindow()
     {
         InitializeComponent();
+        RegisterMessages();
+        Activated += OnActivated;
         IconGroupService = App.Services.GetRequiredService<IIconGroupService>();
         NavigationService = App.Services.GetRequiredService<INavigationService>();
-
-        Activated += OnActivated;
+        DialogService = App.Services.GetRequiredService<IDialogService>();
     }
 
     private void OnActivated(object sender, WindowActivatedEventArgs args)
     {
-        App.Services.GetRequiredService<SettingsPageViewModel>().ApplyRuntimeSettings();
         NavigationService.Initialize(NavigationFrame);
         NavigationService.Navigate(DefaultPage);
+
+        DialogService.Initialize(this);
 
         Activated -= OnActivated; // 防止每次从最小化恢复都触发
     }
 
+    private void RegisterMessages()
+    {
+        WeakReferenceMessenger.Default.Register<AppThemeChangedMessage>(this, AppThemeChangedMessageHandler);
+        WeakReferenceMessenger.Default.Register<AppBackdropChangedMessage>(this, AppBackdropChangedMessageHandler);
+    }
+
+
+    /// <summary>
+    ///     响应 NavigationView 的跳转点击
+    /// </summary>
+    private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    {
+        // 设置页面
+        if (args.IsSettingsSelected)
+        {
+            NavigationService.Navigate(typeof(SettingsPage));
+            return;
+        }
+
+        // 动态页面
+        if (args.SelectedItem is IconGroup group)
+        {
+            NavigationService.Navigate(typeof(IconGroupsDetailPage), group);
+            return;
+        }
+
+        // 静态页面
+        if (sender.SelectedItem is not NavigationViewItem { Tag: string tag }) return;
+        var target = tag switch
+        {
+            "IconEditor" => typeof(IconEditorPage),
+            "IconGroup" => typeof(IconGroupPage),
+            _ => null
+        };
+        if (target is not null) NavigationService.Navigate(target);
+    }
+
+    #region Message Handler
+
+    private void AppThemeChangedMessageHandler(object _, AppThemeChangedMessage msg)
+    {
+        var theme = msg.NewTheme switch
+        {
+            AppThemeEnum.System => ElementTheme.Default,
+            AppThemeEnum.Dark => ElementTheme.Dark,
+            AppThemeEnum.Light => ElementTheme.Light,
+            _ => ElementTheme.Default
+        };
+        TrySetTheme(theme);
+    }
+
+    private void AppBackdropChangedMessageHandler(object _, AppBackdropChangedMessage msg)
+    {
+        var backdrop = msg.NewBackdrop;
+        switch (backdrop)
+        {
+            case AppBackdropEnum.Mica:
+                TrySetMicaBackdrop(MicaKind.Base);
+                break;
+            case AppBackdropEnum.MicaAlt:
+                TrySetMicaBackdrop(MicaKind.BaseAlt);
+                break;
+            case AppBackdropEnum.Acrylic:
+                TrySetAcrylicBackdrop();
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(backdrop), backdrop, null);
+        }
+    }
+
+    #endregion
 
     #region UI
 
@@ -117,34 +194,4 @@ public sealed partial class MainWindow
     }
 
     #endregion
-
-    /// <summary>
-    ///     响应 NavigationView 的跳转点击
-    /// </summary>
-    private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
-    {
-        // 设置页面
-        if (args.IsSettingsSelected)
-        {
-            NavigationService.Navigate(typeof(SettingsPage));
-            return;
-        }
-
-        // 动态页面
-        if (args.SelectedItem is IconGroup group)
-        {
-            NavigationService.Navigate(typeof(IconGroupsDetailPage), group);
-            return;
-        }
-
-        // 静态页面
-        if (sender.SelectedItem is not NavigationViewItem { Tag: string tag }) return;
-        var target = tag switch
-        {
-            "IconEditor" => typeof(IconEditorPage),
-            "IconGroup" => typeof(IconGroupPage),
-            _ => null
-        };
-        if (target is not null) NavigationService.Navigate(target);
-    }
 }

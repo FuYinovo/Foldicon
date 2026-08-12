@@ -1,27 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Messaging;
 using Foldicon.Contracts;
 using Foldicon.Enums;
 using Foldicon.Helpers;
+using Foldicon.Messages;
 using Foldicon.Struct;
-using Microsoft.UI.Composition.SystemBackdrops;
-using Microsoft.UI.Xaml;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class SettingsPageViewModel(IOptionService optionService, MainWindow window) : ObservableObject
+public partial class SettingsPageViewModel(IOptionService optionService) : ObservableObject
 {
-
-    /// <summary>
-    ///     将运行时设置应用到程序
-    /// </summary>
-    public void ApplyRuntimeSettings()
-    {
-        OnSelectedAppThemeChanged(SelectedAppTheme);
-        OnSelectedAppBackdropChanged(SelectedAppBackdrop);
-    }
-
     #region ItemsSource
 
     public List<LocalizationItem<AppThemeEnum>> AppThemes { get; } = LocalizationHelper.GetEnums<AppThemeEnum>();
@@ -50,35 +39,14 @@ public partial class SettingsPageViewModel(IOptionService optionService, MainWin
     partial void OnSelectedAppThemeChanged(AppThemeEnum value)
     {
         optionService.Options.AppTheme = value;
-        var theme = value switch
-        {
-            AppThemeEnum.System => ElementTheme.Default,
-            AppThemeEnum.Dark => ElementTheme.Dark,
-            AppThemeEnum.Light => ElementTheme.Light,
-            _ => ElementTheme.Default
-        };
-        window.TrySetTheme(theme);
+        WeakReferenceMessenger.Default.Send(new AppThemeChangedMessage { NewTheme = value });
         optionService.SaveAll();
     }
 
     partial void OnSelectedAppBackdropChanged(AppBackdropEnum value)
     {
         optionService.Options.AppBackdrop = value;
-        switch (value)
-        {
-            case AppBackdropEnum.Mica:
-                window.TrySetMicaBackdrop(MicaKind.Base);
-                break;
-            case AppBackdropEnum.MicaAlt:
-                window.TrySetMicaBackdrop(MicaKind.BaseAlt);
-                break;
-            case AppBackdropEnum.Acrylic:
-                window.TrySetAcrylicBackdrop();
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(value), value, null);
-        }
-
+        WeakReferenceMessenger.Default.Send(new AppBackdropChangedMessage { NewBackdrop = value });
         optionService.SaveAll();
     }
 

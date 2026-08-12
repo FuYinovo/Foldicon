@@ -27,7 +27,7 @@ public partial class FolderEntry : ObservableObject
     public bool IsSelectedIconChanged => !SelectedIcon.Equals(AppliedIcon);
     public string FolderName => Path.GetFileName(_fullPath);
 
-    public FolderEntry(string fullPath, IFolderIcon currentIcon, List<FolderFileIcon> exeIcons)
+    public FolderEntry(string fullPath, IFolderIcon currentIcon, List<FolderFileIcon> exeIcons, bool isAutoSelectIcon)
     {
         _fullPath = fullPath;
         CurrentIcon = currentIcon;
@@ -47,9 +47,8 @@ public partial class FolderEntry : ObservableObject
         SelectedIcon = selectionDefault;
 
         // 设置选项：自动选择一个图标
-        if (currentIcon is FolderSystemIcon &&
-            exeIcons.Count >= 2 &&
-            App.Services.GetRequiredService<IOptionService>().Options.IsAutoSelectIcon) SelectedIcon = exeIcons[1];
+        if (currentIcon is FolderSystemIcon && exeIcons.Count >= 2 && isAutoSelectIcon)
+            SelectedIcon = exeIcons[1];
     }
 
     /// <summary>
