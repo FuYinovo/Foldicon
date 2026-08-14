@@ -48,11 +48,13 @@ public partial class App
         builder.AddTransient<IconGroupInfoDialogViewModel>();
         builder.AddTransient<FolderEntryControlViewModel>();
         builder.AddTransient<SettingsPageViewModel>();
+        builder.AddTransient<NotificationBarControlViewModel>();
 
         // Service
         builder.AddSingleton<IIconGroupService, IconGroupService>();
         builder.AddSingleton<IDialogService, DialogService>();
         builder.AddSingleton<INavigationService, NavigationService>();
+        builder.AddSingleton<INotificationService, NotificationService>();
         builder.AddSingleton<IOptionService, JsonOptionService>(_ =>
             new JsonOptionService(UriHelper.GetFilePathFromAssets("options.json")));
 

@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using Foldicon.Contracts;
 using Foldicon.Enums;
 using Foldicon.Messages;
-using Foldicon.ViewModels.Page;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Windowing;
@@ -21,41 +20,10 @@ namespace Foldicon;
 
 public sealed partial class MainWindow
 {
-    private IIconGroupService IconGroupService { get; }
-    private INavigationService NavigationService { get; }
-    private IDialogService DialogService { get; }
+    #region Navigation
+
     private static readonly Type DefaultPage = typeof(IconEditorPage);
 
-    public MainWindow()
-    {
-        InitializeComponent();
-        RegisterMessages();
-        Activated += OnActivated;
-        IconGroupService = App.Services.GetRequiredService<IIconGroupService>();
-        NavigationService = App.Services.GetRequiredService<INavigationService>();
-        DialogService = App.Services.GetRequiredService<IDialogService>();
-    }
-
-    private void OnActivated(object sender, WindowActivatedEventArgs args)
-    {
-        NavigationService.Initialize(NavigationFrame);
-        NavigationService.Navigate(DefaultPage);
-
-        DialogService.Initialize(this);
-
-        Activated -= OnActivated; // 防止每次从最小化恢复都触发
-    }
-
-    private void RegisterMessages()
-    {
-        WeakReferenceMessenger.Default.Register<AppThemeChangedMessage>(this, AppThemeChangedMessageHandler);
-        WeakReferenceMessenger.Default.Register<AppBackdropChangedMessage>(this, AppBackdropChangedMessageHandler);
-    }
-
-
-    /// <summary>
-    ///     响应 NavigationView 的跳转点击
-    /// </summary>
     private void NavigationView_OnSelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         // 设置页面
@@ -83,9 +51,25 @@ public sealed partial class MainWindow
         if (target is not null) NavigationService.Navigate(target);
     }
 
-    #region Message Handler
+    #endregion
 
-    private void AppThemeChangedMessageHandler(object _, AppThemeChangedMessage msg)
+    #region Services
+
+    private IIconGroupService IconGroupService { get; }
+    private INavigationService NavigationService { get; }
+    private IDialogService DialogService { get; }
+
+    #endregion
+
+    #region Messenger
+
+    private void RegisterMessages()
+    {
+        WeakReferenceMessenger.Default.Register<AppThemeChangedMessage>(this, AppThemeChangedMessageHandler);
+        WeakReferenceMessenger.Default.Register<AppBackdropChangedMessage>(this, AppBackdropChangedMessageHandler);
+    }
+
+    private void AppThemeChangedMessageHandler(object recipient, AppThemeChangedMessage msg)
     {
         var theme = msg.NewTheme switch
         {
@@ -97,7 +81,7 @@ public sealed partial class MainWindow
         TrySetTheme(theme);
     }
 
-    private void AppBackdropChangedMessageHandler(object _, AppBackdropChangedMessage msg)
+    private void AppBackdropChangedMessageHandler(object recipient, AppBackdropChangedMessage msg)
     {
         var backdrop = msg.NewBackdrop;
         switch (backdrop)
@@ -118,9 +102,7 @@ public sealed partial class MainWindow
 
     #endregion
 
-    #region UI
-
-    private bool CountToBool(int count) => count > 0;
+    #region Theme & Backdrop
 
     /// <summary>
     ///     尝试设置窗口背景为亚克力
@@ -194,4 +176,26 @@ public sealed partial class MainWindow
     }
 
     #endregion
+
+    public MainWindow()
+    {
+        InitializeComponent();
+        RegisterMessages();
+        Activated += OnActivated;
+        IconGroupService = App.Services.GetRequiredService<IIconGroupService>();
+        NavigationService = App.Services.GetRequiredService<INavigationService>();
+        DialogService = App.Services.GetRequiredService<IDialogService>();
+    }
+
+    private void OnActivated(object sender, WindowActivatedEventArgs args)
+    {
+        NavigationService.Initialize(NavigationFrame);
+        NavigationService.Navigate(DefaultPage);
+
+        DialogService.Initialize(this);
+
+        Activated -= OnActivated; // 防止每次从最小化恢复都触发
+    }
+
+    private bool CountToBool(int count) => count > 0;
 }
