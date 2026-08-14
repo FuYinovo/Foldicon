@@ -104,9 +104,9 @@ public static partial class IconHelper // 公开方法
             var iniReader = new IniSharp(desktopIni, Encoding.GetEncoding("GBK")); // desktop.ini 可能不是 UTF-8 编码
             if (!TryGetIniValue(iniReader, ".ShellClassInfo", "IconResource", out var value))
             {
-                // 读取 desktop.ini 失败
-                icon = null!;
-                return false;
+                // 读取 desktop.ini 失败 => 系统图标
+                icon = new FolderSystemIcon(bitmapData);
+                return true;
             }
 
             var resource = value.Split(",");
@@ -200,7 +200,7 @@ public static partial class IconHelper // 私有方法
     }
 
     /// <summary>
-    ///     尝试使用 Shell32 获取文件或文件夹的最大图标（256×256）
+    ///     尝试使用 Shell32 获取文件或文件夹的图标
     /// </summary>
     /// <para>警告：路径斜杠必须为"\"</para>
     /// <param name="path">完整路径</param>
