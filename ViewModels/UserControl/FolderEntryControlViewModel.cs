@@ -48,7 +48,7 @@ public partial class FolderEntryControlViewModel(IDialogService dialogService) :
         if (selectedPath is null)
         {
             // 未选择提示
-            await dialogService.ShowMessageAsync("添加失败", "未选中任何图标");
+            await dialogService.ShowDialogAsync("添加失败", "未选中任何图标");
             return;
         }
 

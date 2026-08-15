@@ -32,7 +32,7 @@ public partial class IconGroupPageViewModel(
     private async Task RemoveGroupAsync(IconGroup group)
     {
         // 二次确认
-        var result = await dialogService.ShowMessageAsync(
+        var result = await dialogService.ShowDialogAsync(
             $"确定删除\"{group.Name}\"吗？",
             $"导入的{group.Icons.Count}个图标将无法从回收站恢复",
             true);
@@ -55,7 +55,7 @@ public partial class IconGroupPageViewModel(
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await dialogService.ShowMessageAsync("编辑失败", "名称不能为空");
+            await dialogService.ShowDialogAsync("编辑失败", "名称不能为空");
             return;
         }
 
@@ -81,7 +81,7 @@ public partial class IconGroupPageViewModel(
             var check = Services.IconGroupService.IsFileIconExists(group, icon);
             if (check.IsExists)
             {
-                var result = await dialogService.ShowMessageAsync(
+                var result = await dialogService.ShowDialogAsync(
                     "是否覆盖重复图标？",
                     $"{group.Name}图标组中已经存在{icon.ShortDisplayName}图标，是否将其覆盖？",
                     true
@@ -124,7 +124,7 @@ public partial class IconGroupPageViewModel(
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await dialogService.ShowMessageAsync("导入失败", "名称不能为空");
+            await dialogService.ShowDialogAsync("导入失败", "名称不能为空");
             return;
         }
 
@@ -145,7 +145,7 @@ public partial class IconGroupPageViewModel(
         // 名称不可为空
         if (string.IsNullOrWhiteSpace(content.GroupName))
         {
-            await dialogService.ShowMessageAsync("创建失败", "名称不能为空");
+            await dialogService.ShowDialogAsync("创建失败", "名称不能为空");
             return;
         }
 

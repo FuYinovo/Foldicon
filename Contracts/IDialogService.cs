@@ -1,6 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using ABI.Microsoft.UI.Windowing;
+﻿using System.Threading.Tasks;
+using Foldicon.Views.Dialog;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Controls;
 
@@ -8,19 +7,27 @@ namespace Foldicon.Contracts;
 
 public interface IDialogService
 {
+    const string DefaultPrimaryText = "确定";
+    const string DefaultCloseText = "取消";
     void Initialize(MainWindow window);
     MainWindow Window { get; }
     WindowId WindowId => Window.AppWindow.Id;
 
-    Task<ContentDialogResult> ShowDialogAsync(ContentDialog dialog);
-
-    Task<ContentDialogResult> ShowDialogAsync(
+    Task<ContentDialogResult> ShowAsync(
         string title,
-        string primaryText = "确定",
-        string? closeText = "取消",
-        string? secondaryText = null,
-        object? content = null,
+        string primaryText,
+        string? closeText,
+        object content,
         ContentDialogButton defaultButton = ContentDialogButton.Primary);
 
-    Task<ContentDialogResult> ShowMessageAsync(string title, string message, bool closeButton = false);
+    Task<ContentDialogResult> ShowDialogAsync(string title, object content)
+    {
+        return ShowAsync(title, DefaultPrimaryText, DefaultCloseText, content);
+    }
+
+    Task<ContentDialogResult> ShowDialogAsync(string title, string message, bool showCloseButton = false)
+    {
+        return ShowAsync(title, DefaultPrimaryText, showCloseButton ? DefaultCloseText : null,
+            new DescriptionDialog(message));
+    }
 }

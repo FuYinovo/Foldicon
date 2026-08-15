@@ -51,7 +51,7 @@ public partial class IconGroupsDetailPageViewModel(
             var check = IconGroupService.IsFileIconExists(Group, icon);
             if (check.IsExists)
             {
-                var result = await dialogService.ShowMessageAsync(
+                var result = await dialogService.ShowDialogAsync(
                     "是否覆盖重复图标？",
                     $"{Group.Name}图标组中已经存在{icon.ShortDisplayName}图标，是否将其覆盖？",
                     true
@@ -74,7 +74,7 @@ public partial class IconGroupsDetailPageViewModel(
     private async Task DeleteIcon(IFolderIcon icon)
     {
         // 二次确认
-        var result = await dialogService.ShowMessageAsync($"确定删除\"{icon.DisplayName}\"吗？", "此操作将无法从回收站恢复", true);
+        var result = await dialogService.ShowDialogAsync($"确定删除\"{icon.DisplayName}\"吗？", "此操作将无法从回收站恢复", true);
         if (result == ContentDialogResult.None) return;
 
         // 延迟到下一个UI帧移除（让ContextFlyout先关闭），防止 E_FAIL (0x80004005) 崩溃
