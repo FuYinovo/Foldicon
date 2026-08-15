@@ -6,17 +6,10 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:models="using:Foldicon.Models"
-    xmlns:converters="using:Foldicon.Converters"
     mc:Ignorable="d">
 
-    <UserControl.Resources>
-        <converters:CountToVisibilityConverter x:Key="CountToVisibilityConverter"/>
-    </UserControl.Resources>
-
-
     <Grid
-        Visibility="{x:Bind _viewModel.Notifications.Count, Mode=OneWay, Converter={StaticResource CountToVisibilityConverter}}"
+        x:Name="Container"
         Margin="24"
         Padding="12"
         CornerRadius="8"
@@ -28,6 +21,7 @@
         Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
         BorderThickness="2"
         RowSpacing="8">
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -43,39 +37,12 @@
                 Padding="8,4"
                 Content="全部清除"
                 HorizontalAlignment="Right"
-                Command="{x:Bind _viewModel.ClearCommand}" />
-            <!-- <Button -->
-            <!--     Margin="0,-5,0,0" -->
-            <!--     Padding="8,4" -->
-            <!--     Content="Add" -->
-            <!--     HorizontalAlignment="Left" -->
-            <!--     Click="AddTest" /> -->
-            <!-- <Button -->
-            <!--     Margin="0,-5,0,0" -->
-            <!--     Padding="8,4" -->
-            <!--     Content="Debug" -->
-            <!--     HorizontalAlignment="Center" -->
-            <!--     Click="DebugTest" /> -->
+                Click="Clear_ButtonClick" />
         </Grid>
 
         <ScrollViewer Grid.Row="1">
-            <StackPanel>
-                <ItemsControl ItemsSource="{x:Bind _viewModel.Notifications, Mode=OneWay}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="models:InfoBarNotification">
-                            <InfoBar
-                                Margin="0,1"
-                                CornerRadius="8"
-                                IsOpen="True"
-                                Severity="{x:Bind Severity}"
-                                Title="{x:Bind Title}"
-                                Message="{x:Bind Message}"
-                                Closed="InfoBar_OnClosed">
-                            </InfoBar>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
+            <StackPanel x:Name="NotificationPanel"
+                        Spacing="2"/>
         </ScrollViewer>
     </Grid>
 </UserControl>

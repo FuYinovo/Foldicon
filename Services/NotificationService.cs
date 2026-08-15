@@ -11,7 +11,7 @@ public class NotificationService : INotificationService
 {
     public void SendToApp(string title, string message, InfoBarSeverity severity, int durationSeconds = 5)
     {
-        WeakReferenceMessenger.Default.Send(new SendAppNotificationMessage
+        WeakReferenceMessenger.Default.Send(new NotificationMessage
             { Title = title, Message = message, Severity = severity, Duration = new TimeSpan(0, 0, durationSeconds) });
     }
 

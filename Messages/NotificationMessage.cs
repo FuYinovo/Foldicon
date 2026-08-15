@@ -3,7 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace Foldicon.Messages;
 
-public record SendAppNotificationMessage
+public record NotificationMessage
 {
     public required string Title { get; init; }
     public required string Message { get; init; }
