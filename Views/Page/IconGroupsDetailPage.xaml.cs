@@ -42,16 +42,13 @@ public sealed partial class IconGroupsDetailPage
 
     private async void DropFileBehavior_OnFileDropped(object sender, DragEventArgs e)
     {
-        if (sender is FrameworkElement { DataContext: IFolderIcon icon })
-        {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
-            {
-                var folders = (await e.DataView.GetStorageItemsAsync())
-                    .Where(item => (item.Attributes & FileAttributes.Directory) != 0) // 有 Directory 标签
-                    .Select(item => item.Path)
-                    .ToArray();
-                ViewModel.ApplyToFoldersCommand.Execute((folders, icon));
-            }
-        }
+        if (sender is not FrameworkElement { DataContext: IFolderIcon icon }) return;
+        if (!e.DataView.Contains(StandardDataFormats.StorageItems)) return;
+
+        var folderPaths = (await e.DataView.GetStorageItemsAsync())
+            .Where(item => (item.Attributes & FileAttributes.Directory) != 0)
+            .Select(item => item.Path)
+            .ToArray();
+        ViewModel.ApplyToFoldersCommand.Execute((folderPaths, icon));
     }
 }

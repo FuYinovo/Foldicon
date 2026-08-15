@@ -14,7 +14,10 @@ using Foldicon.Models.Icon;
 
 namespace Foldicon.ViewModels.Page;
 
-public partial class IconGroupsDetailPageViewModel(IDialogService dialogService, IOptionService optionService)
+public partial class IconGroupsDetailPageViewModel(
+    IDialogService dialogService,
+    IOptionService optionService,
+    INotificationService notificationService)
     : ObservableObject
 {
     public IconGroup Group = new();
@@ -83,11 +86,16 @@ public partial class IconGroupsDetailPageViewModel(IDialogService dialogService,
     /// <summary>
     ///     给多个文件夹应用同一个图标
     /// </summary>
-    /// <param name="args"></param>
     [RelayCommand]
     private void ApplyToFolders((string[] folders, IFolderIcon icon) args)
     {
+        if (args.folders.Length == 0) return;
         foreach (var folder in args.folders) args.icon.ApplyTo(folder);
+
+        notificationService.SendToApp(
+            "成功设置图标",
+            $"成功将{args.folders.Length}个文件夹的设为{args.icon.ShortDisplayName}",
+            InfoBarSeverity.Success);
     }
 
     /// <summary>

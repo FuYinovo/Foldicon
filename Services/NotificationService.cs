@@ -9,10 +9,16 @@ namespace Foldicon.Services;
 
 public class NotificationService : INotificationService
 {
-    public void SendToApp(string title, string message, InfoBarSeverity severity, int durationSeconds = 5)
+    public void SendToApp(string title, string message, InfoBarSeverity severity, int durationSeconds = 5,
+        bool isPermanent = false)
     {
         WeakReferenceMessenger.Default.Send(new NotificationMessage
-            { Title = title, Message = message, Severity = severity, Duration = new TimeSpan(0, 0, durationSeconds) });
+        {
+            Title = title,
+            Message = message,
+            Severity = severity,
+            Duration = isPermanent ? TimeSpan.FromDays(365) : TimeSpan.FromSeconds(durationSeconds)
+        });
     }
 
     public void SendToSystem(AppNotification notification)
