@@ -1,6 +1,7 @@
 ﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
@@ -27,6 +28,7 @@ public partial class IconGroupsDetailPageViewModel(
     [ObservableProperty] public partial ObservableCollection<IFolderIcon> FilteredIcons { get; set; } = [];
     [ObservableProperty] public partial string IconNameFilter { get; set; } = string.Empty;
     partial void OnIconNameFilterChanged(string value) => ApplyFilter();
+    private void IconsOnCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e) => ApplyFilter();
 
     #endregion
 
@@ -36,6 +38,8 @@ public partial class IconGroupsDetailPageViewModel(
     [RelayCommand]
     private async Task ImportIcon()
     {
+        Group.Icons.CollectionChanged -= IconsOnCollectionChanged; // 避免导入大量图标时频频更新UI
+
         // 选取图标
         var iconPaths = await StoragePicker.PickFiles(IconGroupService.IconExtensions, dialogService.WindowId);
 
@@ -53,11 +57,14 @@ public partial class IconGroupsDetailPageViewModel(
                     true
                 );
                 if (result == ContentDialogResult.Primary) Group.Remove(check.existedIcons);
-                else return;
+                else continue;
             }
 
             Group.Add(icon);
         }
+
+        Group.Icons.CollectionChanged += IconsOnCollectionChanged;
+        IconsOnCollectionChanged(null, null!);
     }
 
     /// <summary>
@@ -81,6 +88,15 @@ public partial class IconGroupsDetailPageViewModel(
     private static void OpenIconFile(FolderFileIcon icon)
     {
         Process.Start("explorer.exe", icon.FilePath);
+    }
+
+    /// <summary>
+    ///     打开图标所处文件夹
+    /// </summary>
+    [RelayCommand]
+    private static void OpenIconFolder(FolderFileIcon icon)
+    {
+        Process.Start("explorer.exe", $"/select, {icon.FilePath}");
     }
 
     /// <summary>
@@ -123,6 +139,6 @@ public partial class IconGroupsDetailPageViewModel(
     {
         Group = group;
         FilteredIcons = [.. group.Icons];
-        Group.Icons.CollectionChanged += (_, _) => ApplyFilter(); // 更新UI（FilteredIcons 同步 _group.Icons)
+        Group.Icons.CollectionChanged += IconsOnCollectionChanged;
     }
 }

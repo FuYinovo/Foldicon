@@ -8,7 +8,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:control="using:CommunityToolkit.WinUI.Controls"
     xmlns:ui="using:CommunityToolkit.WinUI"
-    xmlns:labs="using:CommunityToolkit.Labs.WinUI"
     xmlns:converters="using:CommunityToolkit.WinUI.Converters"
     xmlns:converters1="using:Foldicon.Converters"
     xmlns:contracts="using:Foldicon.Contracts"
@@ -27,7 +26,7 @@
                     Height="100"
                     Padding="4"
                     Click="Icon_Click"
-                    ToolTipService.ToolTip="{x:Bind DisplayName}"
+                    ToolTipService.ToolTip="{x:Bind ShortDisplayName}"
                     Background="{ThemeResource CardBackgroundFillColorDefault}">
                 <interactivity:Interaction.Behaviors>
                     <behavior:DropFileBehavior FileDropped="DropFileBehavior_OnFileDropped" />
@@ -35,6 +34,7 @@
                 <Button.ContextFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Text="删除图标" Icon="Delete" Click="DeleteIcon_Click" />
+                        <MenuFlyoutItem Text="打开文件夹" Icon="Folder" Click="OpenIconFolder_Click" />
                     </MenuFlyout>
                 </Button.ContextFlyout>
                 <StackPanel>
@@ -61,6 +61,7 @@
                 <Button.ContextFlyout>
                     <MenuFlyout>
                         <MenuFlyoutItem Text="删除图标" Icon="Delete" />
+                        <MenuFlyoutItem Text="打开文件夹" Icon="Folder" Click="OpenIconFolder_Click" />
                     </MenuFlyout>
                 </Button.ContextFlyout>
                 <Image Width="32" Height="32" Source="{x:Bind Bitmap}" />
@@ -123,12 +124,6 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-
-            <labs:TokenView
-                Grid.Column="0"
-                IsWrapped="True"
-                SelectionMode="Multiple"
-                ItemsSource="{x:Bind ViewModel.Group.Categories, Mode=OneWay}" />
 
             <control:Segmented HorizontalAlignment="Left"
                                Grid.Column="1"

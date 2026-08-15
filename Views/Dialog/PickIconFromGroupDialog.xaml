@@ -43,11 +43,11 @@
                     <DataTemplate x:DataType="contracts:IFolderIcon">
                         <Border Width="70"
                                 Height="90"
-                                ToolTipService.ToolTip="{Binding DisplayName}"
+                                ToolTipService.ToolTip="{Binding ShortDisplayName}"
                                 Background="{ThemeResource CardBackgroundFillColorDefault}">
                             <StackPanel VerticalAlignment="Center">
                                 <Image Width="64" Height="64" Source="{Binding Bitmap}" />
-                                <TextBlock Text="{Binding DisplayName}"
+                                <TextBlock Text="{Binding ShortDisplayName}"
                                            MaxWidth="60"
                                            TextWrapping="NoWrap"
                                            TextAlignment="Center" />

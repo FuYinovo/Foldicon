@@ -3,7 +3,6 @@ using System.IO;
 using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
-using Foldicon.Converters;
 using Foldicon.Models.Icon;
 using Foldicon.Services;
 using Foldicon.Struct;
@@ -44,9 +43,6 @@ public partial class IconGroup : ObservableObject
 
     [ObservableProperty] public partial string Name { get; set; } = string.Empty;
     [ObservableProperty] public partial string Description { get; set; } = string.Empty;
-
-    [JsonConverter(typeof(StringCategoryJsonConverter))]
-    public ObservableCollection<Category<string>> Categories { get; set; } = [];
 
     #endregion
 

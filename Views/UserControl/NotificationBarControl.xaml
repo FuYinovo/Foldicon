@@ -22,7 +22,7 @@
         VerticalAlignment="Bottom"
         BorderBrush="{StaticResource CardStrokeColorDefaultBrush}"
         Background="{ThemeResource AcrylicInAppFillColorDefaultBrush}"
-        BorderThickness="2"
+        BorderThickness="1"
         RowSpacing="8">
         
         <Grid.RowDefinitions>

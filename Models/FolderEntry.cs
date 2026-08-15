@@ -4,8 +4,8 @@ using System.IO;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
+using Foldicon.Helpers;
 using Foldicon.Models.Icon;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Foldicon.Models;
 
@@ -45,6 +45,13 @@ public partial class FolderEntry : ObservableObject
 
         AppliedIcon = selectionDefault;
         SelectedIcon = selectionDefault;
+
+        // 添加一个「系统默认」选项
+        if (!OptionalIcons.Any(icon => icon is FolderSystemIcon))
+        {
+            IconHelper.TryGetFolderIcon(Path.GetTempPath(), Const.FolderIconSize, out var sysIcon);
+            OptionalIcons.Add(sysIcon);
+        }
 
         // 设置选项：自动选择一个图标
         if (currentIcon is FolderSystemIcon && exeIcons.Count >= 2 && isAutoSelectIcon)

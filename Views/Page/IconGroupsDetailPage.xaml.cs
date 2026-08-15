@@ -40,6 +40,12 @@ public sealed partial class IconGroupsDetailPage
             ViewModel.DeleteIconCommand.Execute(icon);
     }
 
+    private void OpenIconFolder_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: IFolderIcon icon })
+            ViewModel.OpenIconFolderCommand.Execute(icon);
+    }
+
     private async void DropFileBehavior_OnFileDropped(object sender, DragEventArgs e)
     {
         if (sender is not FrameworkElement { DataContext: IFolderIcon icon }) return;
