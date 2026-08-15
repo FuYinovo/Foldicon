@@ -10,10 +10,13 @@
 
     <Grid
         x:Name="Container"
+        Visibility="Collapsed"
         Margin="24"
         Padding="12"
         CornerRadius="8"
-        Width="300"
+        MinWidth="300"
+        MaxWidth="300"
+        MinHeight="80"
         MaxHeight="400"
         HorizontalAlignment="Right"
         VerticalAlignment="Bottom"
@@ -42,7 +45,7 @@
 
         <ScrollViewer Grid.Row="1">
             <StackPanel x:Name="NotificationPanel"
-                        Spacing="2"/>
+                        Spacing="3"/>
         </ScrollViewer>
     </Grid>
 </UserControl>

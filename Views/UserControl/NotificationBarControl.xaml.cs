@@ -12,6 +12,7 @@ namespace Foldicon.Views.UserControl;
 
 public sealed partial class NotificationBarControl
 {
+    private int NotificationCount => NotificationPanel.Children.Count;
     private static readonly TimeSpan NotificationDuration = TimeSpan.FromSeconds(0.3);
     private static readonly TimeSpan ContainerDuration = TimeSpan.FromSeconds(0.4);
     private const int NotificationCornerRadius = 8;
@@ -59,7 +60,11 @@ public sealed partial class NotificationBarControl
     private static async Task PlayContainerAnimationAsync(FrameworkElement element, bool isEntrance)
     {
         // Init
-        element.RenderTransform = new ScaleTransform { CenterX = element.Width, CenterY = element.Height };
+        element.RenderTransform = new ScaleTransform
+        {
+            CenterX = element.ActualWidth == 0 ? element.MinWidth : element.ActualWidth,
+            CenterY = element.ActualHeight == 0 ? element.MinHeight : element.ActualHeight,
+        };
         var easingFunc = new CubicEase { EasingMode = isEntrance ? EasingMode.EaseOut : EasingMode.EaseIn };
 
         // Scale
@@ -149,15 +154,16 @@ public sealed partial class NotificationBarControl
     ///     根据当前通知数量，更新容器的<see cref="Visibility"/>并播放动画
     /// </summary>
     /// <param name="element">容器元素</param>
-    private async Task UpdateContainerVisualAsync(FrameworkElement element)
+    /// <param name="notificationCount">当前通知数量</param>
+    private static async Task UpdateContainerVisualAsync(FrameworkElement element, int notificationCount)
     {
-        switch (NotificationPanel.Children.Count)
+        switch (notificationCount)
         {
             case > 0 when element.Visibility == Visibility.Collapsed:
                 SetVisibility(Visibility.Visible);
                 await PlayContainerAnimationAsync(element, true);
                 break;
-            case 0 when NotificationPanel.Visibility == Visibility.Visible:
+            case 0 when element.Visibility == Visibility.Visible:
                 await PlayContainerAnimationAsync(element, false);
                 SetVisibility(Visibility.Collapsed);
                 break;
@@ -178,8 +184,8 @@ public sealed partial class NotificationBarControl
     /// </summary>
     private async Task InsertNotificationAsync(InfoBar infoBar)
     {
+        _ = UpdateContainerVisualAsync(Container, NotificationCount + 1);
         NotificationPanel.Children.Insert(0, infoBar);
-        await UpdateContainerVisualAsync(Container);
         await PlayNotificationAnimationAsync(infoBar, true); // 入场动画
     }
 
@@ -191,10 +197,9 @@ public sealed partial class NotificationBarControl
         if (infoBar.Tag is ClosingTag) return;
         infoBar.Tag = ClosingTag;
 
-
+        _ = UpdateContainerVisualAsync(Container, NotificationCount - 1);
         await PlayNotificationAnimationAsync(infoBar, false); // 离场动画
         NotificationPanel.Children.Remove(infoBar);
-        await UpdateContainerVisualAsync(Container);
     }
 
     /// <summary>
@@ -207,6 +212,8 @@ public sealed partial class NotificationBarControl
             if (element is not InfoBar infoBar) continue;
             _ = DismissNotificationAsync(infoBar);
         }
+
+        _ = UpdateContainerVisualAsync(Container, 0);
     }
 
     #endregion
