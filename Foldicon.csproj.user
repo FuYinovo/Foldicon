@@ -5,6 +5,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <ActiveDebugProfile>Foldicon (Package)</ActiveDebugProfile>
+    <AppIconSource>F:\桌面\Foldicon v2.png</AppIconSource>
+    <MediumTileSource>F:\桌面\Foldicon v2.png</MediumTileSource>
   </PropertyGroup>
   <ItemGroup>
     <None Update="App.xaml">

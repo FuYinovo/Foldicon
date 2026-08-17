@@ -89,10 +89,10 @@
             <!-- 关于 -->
             <StackPanel Spacing="6">
                 <TextBlock Text="关于" Style="{StaticResource BodyStrongTextBlockStyle}" />
-                <community:SettingsCard Header="FoldIcon" Description="一个由 WinUI3 框架开发的文件夹图标编辑工具"
-                                        HeaderIcon="{winUi:FontIcon Glyph=&#xE897;}" />
+                <community:SettingsCard Header="FoldIcon" 
+                                        Description="一个由 WinUI3 框架开发的文件夹图标编辑工具"
+                                        HeaderIcon="{winUi:BitmapIcon Source=ms-appx:///Assets/Square44x44Logo-256.png}" />
             </StackPanel>
         </StackPanel>
-
     </Grid>
-</Page>
+</Page> 
