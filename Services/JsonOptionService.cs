@@ -3,7 +3,7 @@ using System.Text.Json;
 using CommunityToolkit.Mvvm.Messaging;
 using Foldicon.Contracts;
 using Foldicon.Messages;
-using Foldicon.Struct;
+using Foldicon.Record;
 
 namespace Foldicon.Services;
 

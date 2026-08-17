@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Foldicon.Models;
-using Foldicon.Struct;
+using Foldicon.Record;
 
 namespace Foldicon.Contracts;
 

@@ -9,7 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
 using Foldicon.Enums;
 using Foldicon.Helpers;
-using Foldicon.Struct;
+using Foldicon.Record;
 using FolderEntry = Foldicon.Models.FolderEntry;
 
 namespace Foldicon.ViewModels.Page;

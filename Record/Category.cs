@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Foldicon.Struct;
+namespace Foldicon.Record;
 
 public record Category<T>
 {

@@ -1,4 +1,4 @@
-﻿using Foldicon.Struct;
+﻿using Foldicon.Record;
 
 namespace Foldicon.Contracts;
 

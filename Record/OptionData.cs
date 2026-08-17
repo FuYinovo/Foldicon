@@ -1,6 +1,6 @@
 ﻿using Foldicon.Enums;
 
-namespace Foldicon.Struct;
+namespace Foldicon.Record;
 
 public record OptionData
 {

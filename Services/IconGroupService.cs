@@ -7,7 +7,7 @@ using System.Text.Json;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Models.Icon;
-using Foldicon.Struct;
+using Foldicon.Record;
 using Microsoft.UI.Xaml.Media.Imaging;
 using IconGroup = Foldicon.Models.IconGroup;
 

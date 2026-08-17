@@ -9,7 +9,7 @@ using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
 using Foldicon.Models.Icon;
-using Foldicon.Struct;
+using Foldicon.Record;
 using Foldicon.Views.Dialog;
 using Foldicon.Views.Page;
 using Microsoft.UI.Dispatching;

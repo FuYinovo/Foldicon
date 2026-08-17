@@ -1,6 +1,6 @@
 ﻿using Microsoft.UI.Xaml.Media.Imaging;
 
-namespace Foldicon.Struct;
+namespace Foldicon.Record;
 
 public record IconGroupLogo
 {

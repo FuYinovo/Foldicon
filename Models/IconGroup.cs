@@ -4,8 +4,8 @@ using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Foldicon.Contracts;
 using Foldicon.Models.Icon;
+using Foldicon.Record;
 using Foldicon.Services;
-using Foldicon.Struct;
 
 namespace Foldicon.Models;
 

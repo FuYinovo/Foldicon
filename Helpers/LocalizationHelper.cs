@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using Foldicon.Struct;
+using Foldicon.Record;
 
 namespace Foldicon.Helpers;
 

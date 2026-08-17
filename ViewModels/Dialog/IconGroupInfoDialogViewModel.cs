@@ -4,8 +4,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Foldicon.Contracts;
 using Foldicon.Helpers;
+using Foldicon.Record;
 using Foldicon.Services;
-using Foldicon.Struct;
 using Microsoft.UI.Xaml.Media.Imaging;
 
 namespace Foldicon.ViewModels.Dialog;

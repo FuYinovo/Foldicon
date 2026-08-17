@@ -1,4 +1,4 @@
-﻿namespace Foldicon.Struct;
+﻿namespace Foldicon.Record;
 
 public record LocalizationItem<TObj>
 {

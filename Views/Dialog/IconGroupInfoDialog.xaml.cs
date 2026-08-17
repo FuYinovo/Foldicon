@@ -1,7 +1,7 @@
 using System;
 using Foldicon.Helpers;
 using Foldicon.Models;
-using Foldicon.Struct;
+using Foldicon.Record;
 using Foldicon.ViewModels.Dialog;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Media.Imaging;

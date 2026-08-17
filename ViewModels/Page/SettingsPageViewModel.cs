@@ -5,7 +5,7 @@ using Foldicon.Contracts;
 using Foldicon.Enums;
 using Foldicon.Helpers;
 using Foldicon.Messages;
-using Foldicon.Struct;
+using Foldicon.Record;
 
 namespace Foldicon.ViewModels.Page;
 
