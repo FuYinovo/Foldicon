@@ -54,8 +54,8 @@ public partial class App
         builder.AddSingleton<IDialogService, DialogService>();
         builder.AddSingleton<INavigationService, NavigationService>();
         builder.AddSingleton<INotificationService, NotificationService>();
-        builder.AddSingleton<IOptionService, JsonOptionService>(_ =>
-            new JsonOptionService(UriHelper.GetFilePathFromAssets("options.json")));
+        builder.AddSingleton<IUserDataService, UserDataService>();
+        builder.AddSingleton<IOptionService, JsonOptionService>();
 
         return builder.BuildServiceProvider();
     }

@@ -32,7 +32,7 @@ public sealed partial class IconGroupInfoDialog
         IconGroupLogo? icon = null
     )
     {
-        var fallback = UriHelper.GetFilePathFromAssets("LogoFallback.png");
+        var fallback = AssetsHelper.GetFilePathFromAssets("LogoFallback.png");
         return new IconGroupInfoDialog
         {
             ViewModel =

@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using Foldicon.Contracts;
-using Foldicon.Helpers;
+using Foldicon.Enums;
 using Foldicon.Models.Icon;
 using Foldicon.Record;
 using Microsoft.UI.Xaml.Media.Imaging;
@@ -21,20 +21,23 @@ public class IconGroupService : IIconGroupService
     public const string LogoFileName = "logo.png";
     public const string InfoFileName = "info.json";
     public const string IconsFolderName = "Icons";
-    public const string RootFolderName = "IconGroups";
     public static readonly string[] IconExtensions = [".ico"];
     public static readonly string[] LogoExtensions = [".ico", ".png", ".jpg", ".jpeg", ".bmp"];
-    public static readonly string RootPath = UriHelper.GetFolderPathFromAssets(RootFolderName);
     public ObservableCollection<IconGroup> Groups { get; } = [];
+    private readonly string _rootPath;
 
-    public IconGroupService() => Load();
+    public IconGroupService(IUserDataService userDataService)
+    {
+        _rootPath = userDataService.GetPath(UserData.IconGroupsFolder);
+        Load();
+    }
 
     /// <summary>
     ///     从 Assets 加载所有图标组
     /// </summary>
     private void Load()
     {
-        var groups = UriHelper.GetSubFoldersPathFromAssets(RootFolderName);
+        var groups = Directory.GetDirectories(_rootPath);
         foreach (var groupPath in groups)
         {
             // 读取 Json 信息
@@ -68,7 +71,7 @@ public class IconGroupService : IIconGroupService
     public async void Add(string name, string description, IconGroupLogo logo, List<IFolderIcon> icons)
     {
         // 创建目录
-        var folderPath = Path.Combine(RootPath, Guid.NewGuid().ToString());
+        var folderPath = Path.Combine(_rootPath, Guid.NewGuid().ToString());
         Directory.CreateDirectory(Path.Combine(folderPath, IconsFolderName));
 
         // 创建 IconGroup 实例
